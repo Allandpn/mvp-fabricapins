@@ -1,8 +1,7 @@
-package com.finalphase.fabricapins.domain;
+package com.finalphase.fabricapins.domain.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +15,8 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Setter
     private String nome;
 
     @ManyToMany
@@ -28,7 +29,4 @@ public class Role {
         this.nome = nome;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
 }
