@@ -1,0 +1,352 @@
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/CategoriaMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Categoria;
+import com.finalphase.fabricapins.dto.categoria.CategoriaDTO;
+import com.finalphase.fabricapins.dto.categoria.CategoriaRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface CategoriaMapper {
+
+    CategoriaDTO toDTO(Categoria categoria);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "produtos", ignore = true)
+    Categoria toEntity(CategoriaRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "produtos", ignore = true)
+    void updateFromDto (CategoriaRequest dto, @MappingTarget Categoria entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "produtos", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void partialUpdateFromDto (CategoriaRequest dto, @MappingTarget Categoria entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/ClienteMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Cliente;
+import com.finalphase.fabricapins.dto.cliente.ClienteDTO;
+import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface ClienteMapper {
+
+    @Mapping(source = "usuario.id", target = "usuarioId")
+    ClienteDTO toDTO(Cliente entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "pedidos", ignore = true)
+    @Mapping(target = "enderecos", ignore = true)
+    @Mapping(target = "usuario", ignore = true)
+    Cliente toEntity(ClienteRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "pedidos", ignore = true)
+    @Mapping(target = "enderecos", ignore = true)
+    @Mapping(target = "usuario", ignore = true)
+    void updateFromDto(ClienteRequest dto, @MappingTarget Cliente entity);
+
+    @Mapping(target = "id", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "dataCadastro", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "pedidos", ignore = true)
+    @Mapping(target = "enderecos", ignore = true)
+    @Mapping(target = "usuario", ignore = true)
+    void partialUpdateFromDto(ClienteRequest dto, @MappingTarget Cliente entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/CupomDescontoMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.CupomDesconto;
+import com.finalphase.fabricapins.dto.cupom_desconto.CupomDescontoDTO;
+import com.finalphase.fabricapins.dto.cupom_desconto.CupomDescontoRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface CupomDescontoMapper {
+
+    CupomDescontoDTO toDTO(CupomDesconto entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "pedidoCupomSet", ignore = true)
+    CupomDesconto toEntity(CupomDescontoRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "pedidoCupomSet", ignore = true)
+    void updateFromDto(CupomDescontoRequest dto, @MappingTarget CupomDesconto entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "pedidoCupomSet", ignore = true)
+    void partialUpdateFromDto(CupomDescontoRequest dto, @MappingTarget CupomDesconto entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/EnderecoMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Endereco;
+import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface EnderecoMapper {
+
+    @Mapping(source = "cliente.id", target = "clienteId")
+    EnderecoDTO toDTO(Endereco entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    Endereco toEntity(EnderecoRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    void updateFromDto(EnderecoRequest dto, @MappingTarget Endereco entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    void partialUpdateFromDto(EnderecoRequest dto, @MappingTarget Endereco entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/PagamentoMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Pagamento;
+import com.finalphase.fabricapins.dto.pagamento.PagamentoDTO;
+import com.finalphase.fabricapins.dto.pagamento.PagamentoRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface PagamentoMapper {
+
+    @Mapping(source = "pedido.id", target = "pedidoId")
+    PagamentoDTO toDTO(Pagamento entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "pedido", ignore = true)
+    @Mapping(target = "dataPagamento", ignore = true)
+    @Mapping(target = "dataConfirmacao", ignore = true)
+    Pagamento toEntity(PagamentoRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "pedido", ignore = true)
+    @Mapping(target = "dataPagamento", ignore = true)
+    @Mapping(target = "dataConfirmacao", ignore = true)
+    void updateFromDto(PagamentoRequest dto, @MappingTarget Pagamento entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "pedido", ignore = true)
+    @Mapping(target = "dataPagamento", ignore = true)
+    @Mapping(target = "dataConfirmacao", ignore = true)
+    void partialUpdateFromDto(PagamentoRequest dto, @MappingTarget Pagamento entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/PedidoMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Pedido;
+import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
+import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface PedidoMapper {
+
+    @Mapping(source = "cliente.id", target = "clienteId")
+    @Mapping(source = "pagamento.id", target = "pagamentoId")
+    PedidoDTO toDTO(Pedido entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dataCriacao", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
+    @Mapping(target = "pedidoCupomSet", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    @Mapping(target = "pagamento", ignore = true)
+    Pedido toEntity(PedidoRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dataCriacao", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
+    @Mapping(target = "pedidoCupomSet", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    @Mapping(target = "pagamento", ignore = true)
+    void updateFromDto(PedidoRequest dto, @MappingTarget Pedido entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dataCriacao", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
+    @Mapping(target = "pedidoCupomSet", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    @Mapping(target = "pagamento", ignore = true)
+    void partialUpdateFromDto(PedidoRequest dto, @MappingTarget Pedido entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/PerfilMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Perfil;
+import com.finalphase.fabricapins.dto.perfil.PerfilDTO;
+import com.finalphase.fabricapins.dto.perfil.PerfilRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface PerfilMapper {
+
+    PerfilDTO toDTO(Perfil entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "usuarios", ignore = true)
+    Perfil toEntity(PerfilRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "usuarios", ignore = true)
+    void updateFromDto(PerfilRequest dto, @MappingTarget Perfil entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "usuarios", ignore = true)
+    void partialUpdateFromDto(PerfilRequest dto, @MappingTarget Perfil entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/ProdutoMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Produto;
+import com.finalphase.fabricapins.dto.produto.ProdutoDTO;
+import com.finalphase.fabricapins.dto.produto.ProdutoRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface ProdutoMapper {
+
+    @Mapping(source = "categoria.id", target = "categoriaId")
+    ProdutoDTO toDTO(Produto entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "produtosVariacao", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    @Mapping(target = "produtosVariacao", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "categoria", ignore = true)
+    Produto toEntity(ProdutoRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "produtosVariacao", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    @Mapping(target = "produtosVariacao", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "categoria", ignore = true)
+    void updateFromDto(ProdutoRequest dto, @MappingTarget Produto entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "produtosVariacao", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    @Mapping(target = "produtosVariacao", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "categoria", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void partialUpdateFromDto(ProdutoRequest dto, @MappingTarget Produto entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/ProdutoVariacaoMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.ProdutoVariacao;
+import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoDTO;
+import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface ProdutoVariacaoMapper {
+
+    @Mapping(source = "produto.id", target = "produtoId")
+    ProdutoVariacaoDTO toDTO(ProdutoVariacao entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
+    @Mapping(target = "produto", ignore = true)
+    ProdutoVariacao toEntity(ProdutoVariacaoRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
+    @Mapping(target = "produto", ignore = true)
+    void updateFromDto(ProdutoVariacaoRequest dto, @MappingTarget ProdutoVariacao entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
+    @Mapping(target = "produto", ignore = true)
+    void partialUpdateFromDto(ProdutoVariacaoRequest dto, @MappingTarget ProdutoVariacao entity);
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/mapper/UsuarioMapper.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Usuario;
+import com.finalphase.fabricapins.dto.usuario.UsuarioDTO;
+import com.finalphase.fabricapins.dto.usuario.UsuarioRequest;
+import org.mapstruct.*;
+
+@Mapper(componentModel = "spring")
+public interface UsuarioMapper {
+
+    @Mapping(source = "cliente.id", target = "clienteId")
+    UsuarioDTO toDTO(Usuario entity);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "perfis", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    Usuario toEntity(UsuarioRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "perfis", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    void updateFromDto(UsuarioRequest dto, @MappingTarget Usuario entity);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "perfis", ignore = true)
+    @Mapping(target = "cliente", ignore = true)
+    void partialUpdateFromDto(UsuarioRequest dto, @MappingTarget Usuario entity);
+}
+
+
+

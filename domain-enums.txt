@@ -1,0 +1,73 @@
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/FormaPagamento.java =====
+package com.finalphase.fabricapins.domain.enums;
+
+public enum FormaPagamento {
+    PIX,
+    CARTAO_CREDITO;
+
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/StatusPagamento.java =====
+package com.finalphase.fabricapins.domain.enums;
+
+public enum StatusPagamento {
+    PENDENTE,
+    APROVADO,
+    RECUSADO,
+    ESTORNADO
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/StatusPedido.java =====
+package com.finalphase.fabricapins.domain.enums;
+
+public enum StatusPedido {
+    AGUARDANDO_PAGAMENTO,
+    PAGAMENTO_CONFIRMADO,
+    EM_PRODUCAO,
+    EM_SEPARACAO,
+    AGUARDANDO_ENVIO,
+    ENVIADO,
+    ENTREGUE,
+    CANCELADO,
+    REEMBOLSADO;
+
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/TipoCliente.java =====
+package com.finalphase.fabricapins.domain.enums;
+
+public enum TipoCliente {
+    VAREJO,
+    REVENDA;
+
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/TipoEndereco.java =====
+package com.finalphase.fabricapins.domain.enums;
+
+public enum TipoEndereco {
+    ENTREGA,
+    COBRANCA
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/TipoEstoqueProduto.java =====
+package com.finalphase.fabricapins.domain.enums;
+
+public enum TipoEstoqueProduto {
+    ESTOQUE,
+    PRODUCAO;
+
+}
+
+
+

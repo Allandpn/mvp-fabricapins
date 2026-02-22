@@ -1,8 +1,11 @@
 package com.finalphase.fabricapins.domain.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,23 +13,41 @@ import java.util.Set;
 @Table(name = "tb_usuario")
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Usuario {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter
+    @NotBlank
+    @Column(unique = true, nullable = false, length = 100)
     private String username;
 
     @Setter
+    @NotBlank
+    @Column(nullable = false)
     private String password;
 
-    @ManyToMany(mappedBy = "usuarios")
-    private Set<Role> roles = new HashSet<>();
+    @Setter
+    @Column(nullable = false)
+    private boolean ativo = true;
 
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant dataCriacao;
+
+    @ManyToMany
+    @JoinTable(name="tb_perfil_usuario",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "perfil_id"))
+    private Set<Perfil> perfis = new HashSet<>();
+
+    // TODO Confirmar se todo usuario sera cliente
     @OneToOne
-    @JoinColumn(name = "cliente_id")
+    @JoinColumn(name = "cliente_id", unique = true)
     private Cliente cliente;
 
     public Usuario(String username, String password) {

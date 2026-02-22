@@ -7,25 +7,25 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tb_role")
+@Table(name = "tb_perfil")
 @Getter
 @NoArgsConstructor
-public class Role {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Perfil {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Setter
+    @Column(nullable = false, unique = true, length = 50)
     private String nome;
 
-    @ManyToMany
-    @JoinTable(name="tb_role_usuario",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "usuario_id"))
+    @ManyToMany(mappedBy = "perfis")
     private Set<Usuario> usuarios = new HashSet<>();
 
-    public Role(String nome) {
+    public Perfil(String nome) {
         this.nome = nome;
     }
 

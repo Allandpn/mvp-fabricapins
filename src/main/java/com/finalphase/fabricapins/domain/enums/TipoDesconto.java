@@ -1,7 +1,6 @@
 package com.finalphase.fabricapins.domain.enums;
 
-public enum TipoCliente {
-    VAREJO,
-    REVENDA;
-
+public enum TipoDesconto {
+    PERCENTUAL,
+    FIXO
 }

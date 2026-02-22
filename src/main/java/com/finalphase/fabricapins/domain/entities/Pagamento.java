@@ -1,20 +1,23 @@
 package com.finalphase.fabricapins.domain.entities;
 
+import com.finalphase.fabricapins.domain.enums.FormaPagamento;
+import com.finalphase.fabricapins.domain.enums.StatusPagamento;
+import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
 @Table(name = "tb_pagamento")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Pagamento {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -22,17 +25,39 @@ public class Pagamento {
     private Instant dataPagamento;
 
     @Setter
-    private Double valorPago;
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal valorPago;
 
     @Setter
-    private Integer formaPagamento;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private FormaPagamento formaPagamento;
+
+    @Setter
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusPagamento statusPagamento;
+
+    @Setter
+    private String codigoTransacao;
+
+    @Setter
+    private String gatewayPagamento;
+
+    @Setter
+    private Integer parcelasCartao;
+
+    @Setter
+    private Instant dataConfirmacao;
+
+    @Setter
+    private String motivoRecusa;
 
     @OneToOne(mappedBy = "pagamento")
     private Pedido pedido;
 
-    public Pagamento(Instant dataPagamento, Integer formaPagamento, Double valorPago) {
-        this.dataPagamento = dataPagamento;
+    public Pagamento(FormaPagamento formaPagamento) {
         this.formaPagamento = formaPagamento;
-        this.valorPago = valorPago;
+        this.statusPagamento = StatusPagamento.PENDENTE;
     }
 }
