@@ -23,6 +23,8 @@ import java.util.Set;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Pedido {
 
+    //TODO - INCLUIR CAMPO ORIGEM PEDIDO
+
     @Id
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
