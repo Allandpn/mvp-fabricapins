@@ -6,7 +6,9 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -43,15 +45,15 @@ public class Usuario {
     @JoinTable(name="tb_perfil_usuario",
             joinColumns = @JoinColumn(name = "usuario_id"),
             inverseJoinColumns = @JoinColumn(name = "perfil_id"))
-    private Set<Perfil> perfis = new HashSet<>();
-
-    // TODO Confirmar se todo usuario sera cliente
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id", unique = true)
-    private Cliente cliente;
+    private List<Perfil> perfis = new ArrayList<>();
 
     public Usuario(String username, String password) {
         this.username = username;
         this.password = password;
     }
+
+    public void addPerfis(List<Perfil> p){
+        this.perfis.addAll(p);
+    }
+
 }

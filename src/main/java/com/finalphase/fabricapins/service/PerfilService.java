@@ -29,7 +29,7 @@ public class PerfilService {
     @Transactional(readOnly = true)
     public PerfilMinDTO findById(Long id){
         Perfil entity = repository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Recurso não encontrado")
+                () -> new ResourceNotFoundException("Perfil não encontrado")
         );
         return mapper.toMinDTO(entity);
     }
@@ -61,7 +61,7 @@ public class PerfilService {
     @Transactional
     public PerfilMinDTO updatePerfil(Long id, PerfilRequest request){
         Perfil entity = repository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Recurso não encontrado")
+                () -> new ResourceNotFoundException("Perfil não encontrado")
         );
         try {
             mapper.updateFromDto(request, entity);
@@ -75,7 +75,7 @@ public class PerfilService {
     @Transactional
     public void deletePerfil(Long id){
         Perfil entity = repository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Recurso não encontrado")
+                () -> new ResourceNotFoundException("Perfil não encontrado")
         );
         try {
             repository.delete(entity);

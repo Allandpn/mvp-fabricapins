@@ -76,7 +76,7 @@ public class PerfilController {
             @ApiResponse(responseCode = "409", description = "Já existe um Perfil com esse nome", content = @Content)
     })
     @PutMapping(value = "/{id}")
-    public ResponseEntity<PerfilMinDTO> updatePerfil(@Valid @PathVariable Long id, @RequestBody PerfilRequest request){
+    public ResponseEntity<PerfilMinDTO> updatePerfil(@PathVariable Long id, @Valid @RequestBody PerfilRequest request){
         return ResponseEntity.ok(service.updatePerfil(id, request));
     }
 

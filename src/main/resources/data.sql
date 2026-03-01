@@ -15,7 +15,8 @@ INSERT INTO tb_perfil (nome) VALUES ('ROLE_CLIENTE');
 -- =============================================
 -- CLIENTES (20)
 -- =============================================
-INSERT INTO tb_cliente (nome, cpf, email, telefone, tipo_cliente, data_cadastro, ativo)
+INSERT INTO tb_cliente
+(nome, cpf, email, telefone, tipo_cliente, data_cadastro, ativo)
 SELECT
 CONCAT('Cliente ', x),
 LPAD(x,11,'0'),
@@ -29,30 +30,44 @@ FROM SYSTEM_RANGE(1,20);
 -- =============================================
 -- USUARIOS (20 + ADMIN)
 -- =============================================
--- Usuários vinculados aos clientes (mesma ordem de inserção)
-INSERT INTO tb_usuario (username, password, ativo, data_criacao, cliente_id)
+
+-- Usuários vinculados aos clientes
+INSERT INTO tb_usuario
+(username, password, ativo, data_criacao)
 SELECT
 CONCAT('user', x),
 '$2a$10$7QJ8z3e1k2mN4pL6oR0iXuVwYsAtBcDeFgHiJkLmNoPqRsTuVwXyZ',
 true,
-CURRENT_TIMESTAMP,
-c.id
-FROM SYSTEM_RANGE(1,20) r
-JOIN tb_cliente c ON c.nome = CONCAT('Cliente ', r.x);
+CURRENT_TIMESTAMP
+FROM SYSTEM_RANGE(1,20);
 
 -- Admin sem cliente
-INSERT INTO tb_usuario (username, password, ativo, data_criacao, cliente_id)
+INSERT INTO tb_usuario
+(username, password, ativo, data_criacao)
 VALUES (
 'admin',
 '$2a$10$7QJ8z3e1k2mN4pL6oR0iXuVwYsAtBcDeFgHiJkLmNoPqRsTuVwXyZ',
 true,
-CURRENT_TIMESTAMP,
-NULL
+CURRENT_TIMESTAMP
 );
+
+-- =============================================
+-- VINCULAR CLIENTES AOS USUARIOS
+-- =============================================
+UPDATE tb_cliente c
+SET usuario_id = (
+    SELECT u.id
+    FROM tb_usuario u
+    WHERE u.username = CONCAT('user',
+          REPLACE(c.nome, 'Cliente ', '')
+    )
+)
+WHERE c.nome LIKE 'Cliente %';
 
 -- =============================================
 -- PERFIL_USUARIO (ManyToMany)
 -- =============================================
+
 -- Todos usuários normais = ROLE_CLIENTE
 INSERT INTO tb_perfil_usuario (usuario_id, perfil_id)
 SELECT u.id, p.id

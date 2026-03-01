@@ -66,7 +66,8 @@ public class Cliente {
     @Column(nullable = false)
     private boolean ativo = true;
 
-    @OneToOne(mappedBy = "cliente")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", unique = true)
     private Usuario usuario;
 
     @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY)

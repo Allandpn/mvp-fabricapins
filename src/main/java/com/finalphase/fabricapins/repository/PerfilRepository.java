@@ -5,6 +5,7 @@ import com.finalphase.fabricapins.dto.perfil.PerfilWithUsuariosDTO;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -13,5 +14,9 @@ public interface PerfilRepository extends JpaRepository<Perfil, Long> {
     @Query(value = "SELECT DISTINCT p FROM Perfil p " +
             "LEFT JOIN FETCH p.usuarios")
     List<Perfil> searchAllWithUsuarios();
+
+    @Query(value = "SELECT p FROM Perfil p " +
+            "WHERE p.nome IN :nomes")
+    List<Perfil> searchAllByName(@Param("nomes") List<String> nomes);
 
 }
