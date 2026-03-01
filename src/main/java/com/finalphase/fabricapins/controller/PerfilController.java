@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.controller;
 
 import com.finalphase.fabricapins.dto.perfil.PerfilMinDTO;
 import com.finalphase.fabricapins.dto.perfil.PerfilRequest;
+import com.finalphase.fabricapins.dto.perfil.PerfilWithUsuariosDTO;
 import com.finalphase.fabricapins.exception.model.CustomError;
 import com.finalphase.fabricapins.service.PerfilService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/perfil")
@@ -31,7 +33,7 @@ public class PerfilController {
     @Operation(summary = "Buscar perfil por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Perfil localizado"),
-            @ApiResponse(responseCode = "404", description = "Perfil não localizado")
+            @ApiResponse(responseCode = "404", description = "Perfil não localizado", content = @Content)
     })
     @GetMapping(value = "/{id}")
     public ResponseEntity<PerfilMinDTO> findById(@PathVariable Long id){
@@ -42,18 +44,22 @@ public class PerfilController {
     @Operation(summary = "Buscar todos os Perfis")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Perfis localizados"),
-            @ApiResponse(responseCode = "404", description = "Nenhum Perfil localizado")
+            @ApiResponse(responseCode = "404", description = "Nenhum Perfil localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<Page<PerfilMinDTO>> findAll(Pageable pageable){
-        Page<PerfilMinDTO> ListDto = service.findAll(pageable);
+    public ResponseEntity<List<?>> findAll(@RequestParam(defaultValue = "false") boolean withUsuarios){
+        if(withUsuarios){
+            List<PerfilWithUsuariosDTO> ListDto = service.findAllWithUsuarios();
+            return ResponseEntity.ok(ListDto);
+        }
+        List<PerfilMinDTO> ListDto = service.findAll();
         return ResponseEntity.ok(ListDto);
     }
 
     @Operation(summary = "Inserir Perfil")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Perfil criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro ao criar o Perfil")
+            @ApiResponse(responseCode = "400", description = "Erro ao criar o Perfil", content = @Content)
     })
     @PostMapping
     public ResponseEntity<PerfilMinDTO> insertPerfil(@Valid @RequestBody PerfilRequest request){
@@ -66,10 +72,8 @@ public class PerfilController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = PerfilMinDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Perfil não localizado",
-            content = @Content),
-            @ApiResponse(responseCode = "409", description = "Já existe um Perfil com esse nome",
-            content = @Content)
+            @ApiResponse(responseCode = "404", description = "Perfil não localizado", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Já existe um Perfil com esse nome", content = @Content)
     })
     @PutMapping(value = "/{id}")
     public ResponseEntity<PerfilMinDTO> updatePerfil(@Valid @PathVariable Long id, @RequestBody PerfilRequest request){

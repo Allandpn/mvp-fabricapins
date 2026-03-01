@@ -39,14 +39,14 @@ public class Usuario {
     @Column(nullable = false, updatable = false)
     private Instant dataCriacao;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="tb_perfil_usuario",
             joinColumns = @JoinColumn(name = "usuario_id"),
             inverseJoinColumns = @JoinColumn(name = "perfil_id"))
     private Set<Perfil> perfis = new HashSet<>();
 
     // TODO Confirmar se todo usuario sera cliente
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", unique = true)
     private Cliente cliente;
 

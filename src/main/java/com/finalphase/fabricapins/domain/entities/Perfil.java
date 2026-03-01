@@ -22,7 +22,7 @@ public class Perfil {
     @Column(nullable = false, unique = true, length = 50)
     private String nome;
 
-    @ManyToMany(mappedBy = "perfis")
+    @ManyToMany(mappedBy = "perfis", fetch = FetchType.LAZY)
     private Set<Usuario> usuarios = new HashSet<>();
 
     public Perfil(String nome) {

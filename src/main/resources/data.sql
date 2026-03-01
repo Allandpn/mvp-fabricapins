@@ -1,24 +1,23 @@
 -- =============================================
 -- SEED - FabricaPins MVP
--- H2 Database - DEV
+-- H2 Database - DEV (IDENTITY COMPATIBLE)
 -- =============================================
 
 -- =============================================
 -- PERFIS (5)
 -- =============================================
-INSERT INTO tb_perfil (id, nome) VALUES (1, 'ROLE_ADMIN');
-INSERT INTO tb_perfil (id, nome) VALUES (2, 'ROLE_GERENTE');
-INSERT INTO tb_perfil (id, nome) VALUES (3, 'ROLE_VENDEDOR');
-INSERT INTO tb_perfil (id, nome) VALUES (4, 'ROLE_SUPORTE');
-INSERT INTO tb_perfil (id, nome) VALUES (5, 'ROLE_CLIENTE');
+INSERT INTO tb_perfil (nome) VALUES ('ROLE_ADMIN');
+INSERT INTO tb_perfil (nome) VALUES ('ROLE_GERENTE');
+INSERT INTO tb_perfil (nome) VALUES ('ROLE_VENDEDOR');
+INSERT INTO tb_perfil (nome) VALUES ('ROLE_SUPORTE');
+INSERT INTO tb_perfil (nome) VALUES ('ROLE_CLIENTE');
 
 -- =============================================
 -- CLIENTES (20)
 -- =============================================
-INSERT INTO tb_cliente (id, nome, cpf, email, telefone, tipo_cliente, data_cadastro, ativo)
+INSERT INTO tb_cliente (nome, cpf, email, telefone, tipo_cliente, data_cadastro, ativo)
 SELECT
-x,
-CONCAT('Cliente ',x),
+CONCAT('Cliente ', x),
 LPAD(x,11,'0'),
 CONCAT('cliente',x,'@email.com'),
 CONCAT('1199999',LPAD(x,4,'0')),
@@ -30,54 +29,68 @@ FROM SYSTEM_RANGE(1,20);
 -- =============================================
 -- USUARIOS (20 + ADMIN)
 -- =============================================
-INSERT INTO tb_usuario (id, username, password, ativo, data_criacao, cliente_id)
+-- Usuários vinculados aos clientes (mesma ordem de inserção)
+INSERT INTO tb_usuario (username, password, ativo, data_criacao, cliente_id)
 SELECT
-x,
-CONCAT('user',x),
+CONCAT('user', x),
 '$2a$10$7QJ8z3e1k2mN4pL6oR0iXuVwYsAtBcDeFgHiJkLmNoPqRsTuVwXyZ',
 true,
 CURRENT_TIMESTAMP,
-x
-FROM SYSTEM_RANGE(1,20);
+c.id
+FROM SYSTEM_RANGE(1,20) r
+JOIN tb_cliente c ON c.nome = CONCAT('Cliente ', r.x);
 
-INSERT INTO tb_usuario (id, username, password, ativo, data_criacao, cliente_id)
-VALUES (100,'admin',
+-- Admin sem cliente
+INSERT INTO tb_usuario (username, password, ativo, data_criacao, cliente_id)
+VALUES (
+'admin',
 '$2a$10$7QJ8z3e1k2mN4pL6oR0iXuVwYsAtBcDeFgHiJkLmNoPqRsTuVwXyZ',
 true,
 CURRENT_TIMESTAMP,
-NULL);
+NULL
+);
 
--- PERFIL_USUARIO
+-- =============================================
+-- PERFIL_USUARIO (ManyToMany)
+-- =============================================
+-- Todos usuários normais = ROLE_CLIENTE
 INSERT INTO tb_perfil_usuario (usuario_id, perfil_id)
-SELECT id,5 FROM tb_usuario WHERE id <= 20;
+SELECT u.id, p.id
+FROM tb_usuario u
+JOIN tb_perfil p ON p.nome = 'ROLE_CLIENTE'
+WHERE u.username LIKE 'user%';
 
+-- Admin = ROLE_ADMIN
 INSERT INTO tb_perfil_usuario (usuario_id, perfil_id)
-VALUES (100,1);
+SELECT u.id, p.id
+FROM tb_usuario u
+JOIN tb_perfil p ON p.nome = 'ROLE_ADMIN'
+WHERE u.username = 'admin';
 
 -- =============================================
 -- CATEGORIAS (5)
 -- =============================================
-INSERT INTO tb_categoria (id,nome,descricao,ativa) VALUES
-(1,'Pins','Pins personalizados',true),
-(2,'Broches','Broches decorativos',true),
-(3,'Chaveiros','Chaveiros personalizados',true),
-(4,'Adesivos','Adesivos personalizados',true),
-(5,'Kits','Kits promocionais',true);
+INSERT INTO tb_categoria (nome, descricao, ativa) VALUES
+('Pins','Pins personalizados',true),
+('Broches','Broches decorativos',true),
+('Chaveiros','Chaveiros personalizados',true),
+('Adesivos','Adesivos personalizados',true),
+('Kits','Kits promocionais',true);
 
 -- =============================================
 -- PRODUTOS (50)
 -- =============================================
 INSERT INTO tb_produto
-(id,nome,descricao,tipo_estoque,preco_varejo,preco_revenda,custo_producao,sku,data_cadastro,destaque,ativo,categoria_id)
+(nome, descricao, tipo_estoque, preco_varejo, preco_revenda, custo_producao,
+ sku, data_cadastro, destaque, ativo, categoria_id)
 SELECT
-x,
-CONCAT('Produto ',x),
-CONCAT('Descricao Produto ',x),
+CONCAT('Produto ', x),
+CONCAT('Descricao Produto ', x),
 CASE WHEN MOD(x,2)=0 THEN 'ESTOQUE' ELSE 'PRODUCAO' END,
 29.90 + x,
 19.90 + x,
 10.00 + x,
-CONCAT('SKU-',x),
+CONCAT('SKU-', x),
 CURRENT_TIMESTAMP,
 false,
 true,
@@ -87,49 +100,48 @@ FROM SYSTEM_RANGE(1,50);
 -- =============================================
 -- VARIACOES (100)
 -- =============================================
+-- Variação padrão
 INSERT INTO tb_produto_variacao
-(id,nome,quantidade_estoque,estoque_minimo,sku,produto_id)
+(nome, quantidade_estoque, estoque_minimo, sku, produto_id)
 SELECT
-x,
 'Padrao',
 100,
 10,
-CONCAT('SKU-',x,'-V1'),
-x
-FROM SYSTEM_RANGE(1,50);
+CONCAT('SKU-', p.id, '-V1'),
+p.id
+FROM tb_produto p;
 
+-- Variação premium
 INSERT INTO tb_produto_variacao
-(id,nome,quantidade_estoque,estoque_minimo,sku,produto_id)
+(nome, quantidade_estoque, estoque_minimo, sku, produto_id)
 SELECT
-x+100,
 'Premium',
 50,
 5,
-CONCAT('SKU-',x,'-V2'),
-x
-FROM SYSTEM_RANGE(1,50);
+CONCAT('SKU-', p.id, '-V2'),
+p.id
+FROM tb_produto p;
 
 -- =============================================
 -- CUPONS (5)
 -- =============================================
 INSERT INTO tb_cupom_desconto
-(id,codigo,ativo,valor_desconto,tipo_desconto,data_validade,limite_usos)
+(codigo, ativo, valor_desconto, tipo_desconto, data_validade, limite_usos)
 VALUES
-(1,'DESC10',true,10,'PERCENTUAL','2026-12-31',100),
-(2,'DESC20',true,20,'PERCENTUAL','2026-12-31',100),
-(3,'FIXO15',true,15,'FIXO','2026-12-31',50),
-(4,'FIXO30',true,30,'FIXO','2026-12-31',50),
-(5,'PROMO5',true,5,'PERCENTUAL','2026-12-31',200);
+('DESC10',true,10,'PERCENTUAL','2026-12-31',100),
+('DESC20',true,20,'PERCENTUAL','2026-12-31',100),
+('FIXO15',true,15,'FIXO','2026-12-31',50),
+('FIXO30',true,30,'FIXO','2026-12-31',50),
+('PROMO5',true,5,'PERCENTUAL','2026-12-31',200);
 
 -- =============================================
 -- PEDIDOS (50)
 -- =============================================
 INSERT INTO tb_pedido
-(id,data_criacao,status_pedido,origem_pedido,valor_total,valor_subtotal,
-numero_pedido,nome_cliente_snapshot,cpf_cnpj_cliente_snapshot,
-cep,estado,cidade,bairro,logradouro,numero,cliente_id)
+(data_criacao, status_pedido, origem_pedido, valor_total, valor_subtotal,
+ numero_pedido, nome_cliente_snapshot, cpf_cnpj_cliente_snapshot,
+ cep, estado, cidade, bairro, logradouro, numero, cliente_id)
 SELECT
-x,
 CURRENT_TIMESTAMP,
 CASE
     WHEN MOD(x,5)=0 THEN 'CANCELADO'
@@ -144,46 +156,57 @@ CASE
 END,
 0,
 0,
-CONCAT('PED-',x),
-CONCAT('Cliente ',((x-1)%20)+1),
-LPAD(((x-1)%20)+1,11,'0'),
+CONCAT('PED-', x),
+c.nome,
+c.cpf,
 '12345678',
 'SP',
 'Sao Paulo',
 'Centro',
 'Rua Teste',
 100,
-((x-1)%20)+1
-FROM SYSTEM_RANGE(1,50);
+c.id
+FROM SYSTEM_RANGE(1,50) r
+JOIN tb_cliente c ON c.id = ((r.x-1) % 20) + 1;
 
 -- =============================================
 -- PAGAMENTOS (50)
 -- =============================================
 INSERT INTO tb_pagamento
-(id,data_pagamento,valor_pago,forma_pagamento,status_pagamento)
+(data_pagamento, valor_pago, forma_pagamento, status_pagamento)
 SELECT
-x,
 CURRENT_TIMESTAMP,
 99.90,
 CASE WHEN MOD(x,2)=0 THEN 'PIX' ELSE 'CARTAO_CREDITO' END,
 CASE WHEN MOD(x,5)=0 THEN 'RECUSADO' ELSE 'APROVADO' END
 FROM SYSTEM_RANGE(1,50);
 
--- Vinculando pagamento ao pedido
-UPDATE tb_pedido
-SET pagamento_id = id
-WHERE id <= 50;
+-- Vinculando pagamento ao pedido (SAFE para OneToOne + H2)
+MERGE INTO tb_pedido p
+USING (
+    SELECT
+        p2.id AS pedido_id,
+        pg.id AS pagamento_id
+    FROM
+        (SELECT id, ROW_NUMBER() OVER (ORDER BY id) rn FROM tb_pedido) p2
+        JOIN
+        (SELECT id, ROW_NUMBER() OVER (ORDER BY id) rn FROM tb_pagamento) pg
+        ON p2.rn = pg.rn
+) x
+ON p.id = x.pedido_id
+WHEN MATCHED THEN
+UPDATE SET p.pagamento_id = x.pagamento_id;
 
 -- =============================================
 -- ITENS PEDIDO (100)
 -- =============================================
 INSERT INTO tb_item_pedido
-(id,quantidade,preco_unitario,nome_produto_snapshot,custo_unitario_snapshot,pedido_id,produto_variacao_id)
+(quantidade, preco_unitario, nome_produto_snapshot,
+ custo_unitario_snapshot, pedido_id, produto_variacao_id)
 SELECT
-x,
 2,
 39.90,
-CONCAT('Produto ',((x-1)%50)+1),
+CONCAT('Produto ', ((x-1)%50)+1),
 20.00,
 ((x-1)%50)+1,
 ((x-1)%50)+1
