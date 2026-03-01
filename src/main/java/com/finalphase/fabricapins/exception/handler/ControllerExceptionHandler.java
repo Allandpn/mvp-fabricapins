@@ -33,7 +33,7 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CustomError> databaseException(MethodArgumentNotValidException e , HttpServletRequest request){
-        HttpStatus status = HttpStatus.UNPROCESSABLE_CONTENT;
+        HttpStatus status = HttpStatus.NOT_ACCEPTABLE;
         ValidationError err = new ValidationError(Instant.now(), status.value(), status.getReasonPhrase(), "Erro na validação dos campos da requisição" , request.getRequestURI());
         for(FieldError f : e.getBindingResult().getFieldErrors()){
             err.addError(f.getField(), f.getDefaultMessage());

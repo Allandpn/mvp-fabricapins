@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.dto.pedido;
 
+import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ public record PedidoDTO(
         Instant dataCriacao,
         Instant dataAtualizacao,
         StatusPedido statusPedido,
+        OrigemPedido origemPedido,
         BigDecimal valorTotal,
         BigDecimal valorSubtotal,
         BigDecimal desconto,
@@ -18,6 +20,8 @@ public record PedidoDTO(
         BigDecimal valorFrete,
         LocalDate dataEnvio,
         LocalDate dataEntrega,
+        LocalDate dataPrevistaProducao,
+        LocalDate dataConclusaoPedido,
         String nomeClienteSnapshot,
         String cpfCnpjClienteSnapshot,
         String cep,

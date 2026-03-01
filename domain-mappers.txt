@@ -6,7 +6,10 @@ import com.finalphase.fabricapins.dto.categoria.CategoriaDTO;
 import com.finalphase.fabricapins.dto.categoria.CategoriaRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface CategoriaMapper {
 
     CategoriaDTO toDTO(Categoria categoria);
@@ -15,12 +18,10 @@ public interface CategoriaMapper {
     @Mapping(target = "produtos", ignore = true)
     Categoria toEntity(CategoriaRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "produtos", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto (CategoriaRequest dto, @MappingTarget Categoria entity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "produtos", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdateFromDto (CategoriaRequest dto, @MappingTarget Categoria entity);
 }
@@ -35,7 +36,10 @@ import com.finalphase.fabricapins.dto.cliente.ClienteDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface ClienteMapper {
 
     @Mapping(source = "usuario.id", target = "usuarioId")
@@ -49,21 +53,11 @@ public interface ClienteMapper {
     @Mapping(target = "usuario", ignore = true)
     Cliente toEntity(ClienteRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "dataCadastro", ignore = true)
-    @Mapping(target = "dataAtualizacao", ignore = true)
-    @Mapping(target = "pedidos", ignore = true)
-    @Mapping(target = "enderecos", ignore = true)
-    @Mapping(target = "usuario", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(ClienteRequest dto, @MappingTarget Cliente entity);
 
-    @Mapping(target = "id", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "dataCadastro", ignore = true)
-    @Mapping(target = "dataAtualizacao", ignore = true)
-    @Mapping(target = "pedidos", ignore = true)
-    @Mapping(target = "enderecos", ignore = true)
-    @Mapping(target = "usuario", ignore = true)
     void partialUpdateFromDto(ClienteRequest dto, @MappingTarget Cliente entity);
 }
 
@@ -77,7 +71,10 @@ import com.finalphase.fabricapins.dto.cupom_desconto.CupomDescontoDTO;
 import com.finalphase.fabricapins.dto.cupom_desconto.CupomDescontoRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface CupomDescontoMapper {
 
     CupomDescontoDTO toDTO(CupomDesconto entity);
@@ -86,13 +83,11 @@ public interface CupomDescontoMapper {
     @Mapping(target = "pedidoCupomSet", ignore = true)
     CupomDesconto toEntity(CupomDescontoRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "pedidoCupomSet", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(CupomDescontoRequest dto, @MappingTarget CupomDesconto entity);
 
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "pedidoCupomSet", ignore = true)
     void partialUpdateFromDto(CupomDescontoRequest dto, @MappingTarget CupomDesconto entity);
 }
 
@@ -106,7 +101,10 @@ import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface EnderecoMapper {
 
     @Mapping(source = "cliente.id", target = "clienteId")
@@ -117,15 +115,11 @@ public interface EnderecoMapper {
     @Mapping(target = "dataCadastro", ignore = true)
     Endereco toEntity(EnderecoRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "cliente", ignore = true)
-    @Mapping(target = "dataCadastro", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(EnderecoRequest dto, @MappingTarget Endereco entity);
 
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "cliente", ignore = true)
-    @Mapping(target = "dataCadastro", ignore = true)
     void partialUpdateFromDto(EnderecoRequest dto, @MappingTarget Endereco entity);
 }
 
@@ -139,7 +133,10 @@ import com.finalphase.fabricapins.dto.pagamento.PagamentoDTO;
 import com.finalphase.fabricapins.dto.pagamento.PagamentoRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface PagamentoMapper {
 
     @Mapping(source = "pedido.id", target = "pedidoId")
@@ -151,17 +148,11 @@ public interface PagamentoMapper {
     @Mapping(target = "dataConfirmacao", ignore = true)
     Pagamento toEntity(PagamentoRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "pedido", ignore = true)
-    @Mapping(target = "dataPagamento", ignore = true)
-    @Mapping(target = "dataConfirmacao", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(PagamentoRequest dto, @MappingTarget Pagamento entity);
 
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "pedido", ignore = true)
-    @Mapping(target = "dataPagamento", ignore = true)
-    @Mapping(target = "dataConfirmacao", ignore = true)
     void partialUpdateFromDto(PagamentoRequest dto, @MappingTarget Pagamento entity);
 }
 
@@ -175,7 +166,10 @@ import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface PedidoMapper {
 
     @Mapping(source = "cliente.id", target = "clienteId")
@@ -191,23 +185,11 @@ public interface PedidoMapper {
     @Mapping(target = "pagamento", ignore = true)
     Pedido toEntity(PedidoRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "dataCriacao", ignore = true)
-    @Mapping(target = "dataAtualizacao", ignore = true)
-    @Mapping(target = "itemsPedido", ignore = true)
-    @Mapping(target = "pedidoCupomSet", ignore = true)
-    @Mapping(target = "cliente", ignore = true)
-    @Mapping(target = "pagamento", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(PedidoRequest dto, @MappingTarget Pedido entity);
 
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "dataCriacao", ignore = true)
-    @Mapping(target = "dataAtualizacao", ignore = true)
-    @Mapping(target = "itemsPedido", ignore = true)
-    @Mapping(target = "pedidoCupomSet", ignore = true)
-    @Mapping(target = "cliente", ignore = true)
-    @Mapping(target = "pagamento", ignore = true)
     void partialUpdateFromDto(PedidoRequest dto, @MappingTarget Pedido entity);
 }
 
@@ -221,7 +203,10 @@ import com.finalphase.fabricapins.dto.perfil.PerfilDTO;
 import com.finalphase.fabricapins.dto.perfil.PerfilRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface PerfilMapper {
 
     PerfilDTO toDTO(Perfil entity);
@@ -230,13 +215,11 @@ public interface PerfilMapper {
     @Mapping(target = "usuarios", ignore = true)
     Perfil toEntity(PerfilRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "usuarios", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(PerfilRequest dto, @MappingTarget Perfil entity);
 
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "usuarios", ignore = true)
     void partialUpdateFromDto(PerfilRequest dto, @MappingTarget Perfil entity);
 }
 
@@ -250,7 +233,10 @@ import com.finalphase.fabricapins.dto.produto.ProdutoDTO;
 import com.finalphase.fabricapins.dto.produto.ProdutoRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface ProdutoMapper {
 
     @Mapping(source = "categoria.id", target = "categoriaId")
@@ -259,25 +245,14 @@ public interface ProdutoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "produtosVariacao", ignore = true)
     @Mapping(target = "dataCadastro", ignore = true)
-    @Mapping(target = "produtosVariacao", ignore = true)
     @Mapping(target = "dataAtualizacao", ignore = true)
     @Mapping(target = "categoria", ignore = true)
     Produto toEntity(ProdutoRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "produtosVariacao", ignore = true)
-    @Mapping(target = "dataCadastro", ignore = true)
-    @Mapping(target = "produtosVariacao", ignore = true)
-    @Mapping(target = "dataAtualizacao", ignore = true)
-    @Mapping(target = "categoria", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(ProdutoRequest dto, @MappingTarget Produto entity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "produtosVariacao", ignore = true)
-    @Mapping(target = "dataCadastro", ignore = true)
-    @Mapping(target = "produtosVariacao", ignore = true)
-    @Mapping(target = "dataAtualizacao", ignore = true)
-    @Mapping(target = "categoria", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdateFromDto(ProdutoRequest dto, @MappingTarget Produto entity);
 }
@@ -292,7 +267,10 @@ import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoDTO;
 import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface ProdutoVariacaoMapper {
 
     @Mapping(source = "produto.id", target = "produtoId")
@@ -303,15 +281,11 @@ public interface ProdutoVariacaoMapper {
     @Mapping(target = "produto", ignore = true)
     ProdutoVariacao toEntity(ProdutoVariacaoRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "itemsPedido", ignore = true)
-    @Mapping(target = "produto", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(ProdutoVariacaoRequest dto, @MappingTarget ProdutoVariacao entity);
 
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "itemsPedido", ignore = true)
-    @Mapping(target = "produto", ignore = true)
     void partialUpdateFromDto(ProdutoVariacaoRequest dto, @MappingTarget ProdutoVariacao entity);
 }
 
@@ -325,7 +299,10 @@ import com.finalphase.fabricapins.dto.usuario.UsuarioDTO;
 import com.finalphase.fabricapins.dto.usuario.UsuarioRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface UsuarioMapper {
 
     @Mapping(source = "cliente.id", target = "clienteId")
@@ -334,18 +311,1366 @@ public interface UsuarioMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "perfis", ignore = true)
     @Mapping(target = "cliente", ignore = true)
+    @Mapping(target = "dataCriacao", ignore = true)
     Usuario toEntity(UsuarioRequest dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "perfis", ignore = true)
-    @Mapping(target = "cliente", ignore = true)
+    @InheritConfiguration(name = "toEntity")
     void updateFromDto(UsuarioRequest dto, @MappingTarget Usuario entity);
 
+    @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "perfis", ignore = true)
-    @Mapping(target = "cliente", ignore = true)
     void partialUpdateFromDto(UsuarioRequest dto, @MappingTarget Usuario entity);
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/CategoriaMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Categoria;
+import com.finalphase.fabricapins.dto.categoria.CategoriaDTO;
+import com.finalphase.fabricapins.dto.categoria.CategoriaRequest;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class CategoriaMapperImpl implements CategoriaMapper {
+
+    @Override
+    public CategoriaDTO toDTO(Categoria categoria) {
+        if ( categoria == null ) {
+            return null;
+        }
+
+        Long id = null;
+        String nome = null;
+        String descricao = null;
+        boolean ativa = false;
+
+        id = categoria.getId();
+        nome = categoria.getNome();
+        descricao = categoria.getDescricao();
+        ativa = categoria.isAtiva();
+
+        CategoriaDTO categoriaDTO = new CategoriaDTO( id, nome, descricao, ativa );
+
+        return categoriaDTO;
+    }
+
+    @Override
+    public Categoria toEntity(CategoriaRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        Categoria categoria = new Categoria();
+
+        categoria.setNome( dto.nome() );
+        categoria.setDescricao( dto.descricao() );
+        categoria.setAtiva( dto.ativa() );
+
+        return categoria;
+    }
+
+    @Override
+    public void updateFromDto(CategoriaRequest dto, Categoria entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setNome( dto.nome() );
+        entity.setDescricao( dto.descricao() );
+        entity.setAtiva( dto.ativa() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(CategoriaRequest dto, Categoria entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.nome() != null ) {
+            entity.setNome( dto.nome() );
+        }
+        if ( dto.descricao() != null ) {
+            entity.setDescricao( dto.descricao() );
+        }
+        entity.setAtiva( dto.ativa() );
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/ClienteMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Cliente;
+import com.finalphase.fabricapins.domain.entities.Usuario;
+import com.finalphase.fabricapins.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.dto.cliente.ClienteDTO;
+import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
+import java.time.Instant;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class ClienteMapperImpl implements ClienteMapper {
+
+    @Override
+    public ClienteDTO toDTO(Cliente entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Long usuarioId = null;
+        Long id = null;
+        String nome = null;
+        String cpf = null;
+        String cnpj = null;
+        String email = null;
+        String telefone = null;
+        TipoCliente tipoCliente = null;
+        Instant dataCadastro = null;
+        Instant dataAtualizacao = null;
+        boolean ativo = false;
+
+        usuarioId = entityUsuarioId( entity );
+        id = entity.getId();
+        nome = entity.getNome();
+        cpf = entity.getCpf();
+        cnpj = entity.getCnpj();
+        email = entity.getEmail();
+        telefone = entity.getTelefone();
+        tipoCliente = entity.getTipoCliente();
+        dataCadastro = entity.getDataCadastro();
+        dataAtualizacao = entity.getDataAtualizacao();
+        ativo = entity.isAtivo();
+
+        ClienteDTO clienteDTO = new ClienteDTO( id, nome, cpf, cnpj, email, telefone, tipoCliente, dataCadastro, dataAtualizacao, ativo, usuarioId );
+
+        return clienteDTO;
+    }
+
+    @Override
+    public Cliente toEntity(ClienteRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        String nome = null;
+        String cpf = null;
+        String email = null;
+        TipoCliente tipoCliente = null;
+
+        nome = dto.nome();
+        cpf = dto.cpf();
+        email = dto.email();
+        tipoCliente = dto.tipoCliente();
+
+        Cliente cliente = new Cliente( nome, email, cpf, tipoCliente );
+
+        cliente.setCnpj( dto.cnpj() );
+        cliente.setTelefone( dto.telefone() );
+        cliente.setAtivo( dto.ativo() );
+
+        return cliente;
+    }
+
+    @Override
+    public void updateFromDto(ClienteRequest dto, Cliente entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setNome( dto.nome() );
+        entity.setCpf( dto.cpf() );
+        entity.setCnpj( dto.cnpj() );
+        entity.setEmail( dto.email() );
+        entity.setTelefone( dto.telefone() );
+        entity.setTipoCliente( dto.tipoCliente() );
+        entity.setAtivo( dto.ativo() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(ClienteRequest dto, Cliente entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.nome() != null ) {
+            entity.setNome( dto.nome() );
+        }
+        if ( dto.cpf() != null ) {
+            entity.setCpf( dto.cpf() );
+        }
+        if ( dto.cnpj() != null ) {
+            entity.setCnpj( dto.cnpj() );
+        }
+        if ( dto.email() != null ) {
+            entity.setEmail( dto.email() );
+        }
+        if ( dto.telefone() != null ) {
+            entity.setTelefone( dto.telefone() );
+        }
+        if ( dto.tipoCliente() != null ) {
+            entity.setTipoCliente( dto.tipoCliente() );
+        }
+        entity.setAtivo( dto.ativo() );
+    }
+
+    private Long entityUsuarioId(Cliente cliente) {
+        if ( cliente == null ) {
+            return null;
+        }
+        Usuario usuario = cliente.getUsuario();
+        if ( usuario == null ) {
+            return null;
+        }
+        Long id = usuario.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/CupomDescontoMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.CupomDesconto;
+import com.finalphase.fabricapins.domain.enums.TipoDesconto;
+import com.finalphase.fabricapins.dto.cupom_desconto.CupomDescontoDTO;
+import com.finalphase.fabricapins.dto.cupom_desconto.CupomDescontoRequest;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class CupomDescontoMapperImpl implements CupomDescontoMapper {
+
+    @Override
+    public CupomDescontoDTO toDTO(CupomDesconto entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Long id = null;
+        String codigo = null;
+        boolean ativo = false;
+        BigDecimal valorDesconto = null;
+        TipoDesconto tipoDesconto = null;
+        LocalDate dataValidade = null;
+        Integer quantidadeMinimaItens = null;
+        BigDecimal valorMinimoPedido = null;
+        Integer limiteUsos = null;
+
+        id = entity.getId();
+        codigo = entity.getCodigo();
+        ativo = entity.isAtivo();
+        valorDesconto = entity.getValorDesconto();
+        tipoDesconto = entity.getTipoDesconto();
+        dataValidade = entity.getDataValidade();
+        quantidadeMinimaItens = entity.getQuantidadeMinimaItens();
+        valorMinimoPedido = entity.getValorMinimoPedido();
+        limiteUsos = entity.getLimiteUsos();
+
+        CupomDescontoDTO cupomDescontoDTO = new CupomDescontoDTO( id, codigo, ativo, valorDesconto, tipoDesconto, dataValidade, quantidadeMinimaItens, valorMinimoPedido, limiteUsos );
+
+        return cupomDescontoDTO;
+    }
+
+    @Override
+    public CupomDesconto toEntity(CupomDescontoRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        CupomDesconto cupomDesconto = new CupomDesconto();
+
+        cupomDesconto.setCodigo( dto.codigo() );
+        cupomDesconto.setAtivo( dto.ativo() );
+        cupomDesconto.setValorDesconto( dto.valorDesconto() );
+        cupomDesconto.setTipoDesconto( dto.tipoDesconto() );
+        cupomDesconto.setDataValidade( dto.dataValidade() );
+        cupomDesconto.setQuantidadeMinimaItens( dto.quantidadeMinimaItens() );
+        cupomDesconto.setValorMinimoPedido( dto.valorMinimoPedido() );
+        cupomDesconto.setLimiteUsos( dto.limiteUsos() );
+
+        return cupomDesconto;
+    }
+
+    @Override
+    public void updateFromDto(CupomDescontoRequest dto, CupomDesconto entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setCodigo( dto.codigo() );
+        entity.setAtivo( dto.ativo() );
+        entity.setValorDesconto( dto.valorDesconto() );
+        entity.setTipoDesconto( dto.tipoDesconto() );
+        entity.setDataValidade( dto.dataValidade() );
+        entity.setQuantidadeMinimaItens( dto.quantidadeMinimaItens() );
+        entity.setValorMinimoPedido( dto.valorMinimoPedido() );
+        entity.setLimiteUsos( dto.limiteUsos() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(CupomDescontoRequest dto, CupomDesconto entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.codigo() != null ) {
+            entity.setCodigo( dto.codigo() );
+        }
+        entity.setAtivo( dto.ativo() );
+        if ( dto.valorDesconto() != null ) {
+            entity.setValorDesconto( dto.valorDesconto() );
+        }
+        if ( dto.tipoDesconto() != null ) {
+            entity.setTipoDesconto( dto.tipoDesconto() );
+        }
+        if ( dto.dataValidade() != null ) {
+            entity.setDataValidade( dto.dataValidade() );
+        }
+        if ( dto.quantidadeMinimaItens() != null ) {
+            entity.setQuantidadeMinimaItens( dto.quantidadeMinimaItens() );
+        }
+        if ( dto.valorMinimoPedido() != null ) {
+            entity.setValorMinimoPedido( dto.valorMinimoPedido() );
+        }
+        if ( dto.limiteUsos() != null ) {
+            entity.setLimiteUsos( dto.limiteUsos() );
+        }
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/EnderecoMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Cliente;
+import com.finalphase.fabricapins.domain.entities.Endereco;
+import com.finalphase.fabricapins.domain.enums.TipoEndereco;
+import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoRequest;
+import java.time.Instant;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class EnderecoMapperImpl implements EnderecoMapper {
+
+    @Override
+    public EnderecoDTO toDTO(Endereco entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Long clienteId = null;
+        Long id = null;
+        String cep = null;
+        String estado = null;
+        String cidade = null;
+        String bairro = null;
+        String logradouro = null;
+        String numero = null;
+        String complemento = null;
+        String pontoReferencia = null;
+        String observacoes = null;
+        boolean enderecoPrincipal = false;
+        TipoEndereco tipoEndereco = null;
+        Instant dataCadastro = null;
+        String apelido = null;
+
+        clienteId = entityClienteId( entity );
+        id = entity.getId();
+        cep = entity.getCep();
+        estado = entity.getEstado();
+        cidade = entity.getCidade();
+        bairro = entity.getBairro();
+        logradouro = entity.getLogradouro();
+        numero = entity.getNumero();
+        complemento = entity.getComplemento();
+        pontoReferencia = entity.getPontoReferencia();
+        observacoes = entity.getObservacoes();
+        enderecoPrincipal = entity.isEnderecoPrincipal();
+        tipoEndereco = entity.getTipoEndereco();
+        dataCadastro = entity.getDataCadastro();
+        apelido = entity.getApelido();
+
+        EnderecoDTO enderecoDTO = new EnderecoDTO( id, cep, estado, cidade, bairro, logradouro, numero, complemento, pontoReferencia, observacoes, enderecoPrincipal, tipoEndereco, dataCadastro, apelido, clienteId );
+
+        return enderecoDTO;
+    }
+
+    @Override
+    public Endereco toEntity(EnderecoRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        String cep = null;
+        String estado = null;
+        String cidade = null;
+        String bairro = null;
+        String logradouro = null;
+        String numero = null;
+        String complemento = null;
+        String pontoReferencia = null;
+        String observacoes = null;
+        TipoEndereco tipoEndereco = null;
+        String apelido = null;
+
+        cep = dto.cep();
+        estado = dto.estado();
+        cidade = dto.cidade();
+        bairro = dto.bairro();
+        logradouro = dto.logradouro();
+        numero = dto.numero();
+        complemento = dto.complemento();
+        pontoReferencia = dto.pontoReferencia();
+        observacoes = dto.observacoes();
+        tipoEndereco = dto.tipoEndereco();
+        apelido = dto.apelido();
+
+        Cliente cliente = null;
+        Instant dataCadastro = null;
+
+        Endereco endereco = new Endereco( cep, estado, cidade, bairro, logradouro, numero, complemento, pontoReferencia, observacoes, tipoEndereco, dataCadastro, apelido, cliente );
+
+        endereco.setEnderecoPrincipal( dto.enderecoPrincipal() );
+
+        return endereco;
+    }
+
+    @Override
+    public void updateFromDto(EnderecoRequest dto, Endereco entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setCep( dto.cep() );
+        entity.setEstado( dto.estado() );
+        entity.setCidade( dto.cidade() );
+        entity.setBairro( dto.bairro() );
+        entity.setLogradouro( dto.logradouro() );
+        entity.setNumero( dto.numero() );
+        entity.setComplemento( dto.complemento() );
+        entity.setPontoReferencia( dto.pontoReferencia() );
+        entity.setObservacoes( dto.observacoes() );
+        entity.setEnderecoPrincipal( dto.enderecoPrincipal() );
+        entity.setTipoEndereco( dto.tipoEndereco() );
+        entity.setApelido( dto.apelido() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(EnderecoRequest dto, Endereco entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.cep() != null ) {
+            entity.setCep( dto.cep() );
+        }
+        if ( dto.estado() != null ) {
+            entity.setEstado( dto.estado() );
+        }
+        if ( dto.cidade() != null ) {
+            entity.setCidade( dto.cidade() );
+        }
+        if ( dto.bairro() != null ) {
+            entity.setBairro( dto.bairro() );
+        }
+        if ( dto.logradouro() != null ) {
+            entity.setLogradouro( dto.logradouro() );
+        }
+        if ( dto.numero() != null ) {
+            entity.setNumero( dto.numero() );
+        }
+        if ( dto.complemento() != null ) {
+            entity.setComplemento( dto.complemento() );
+        }
+        if ( dto.pontoReferencia() != null ) {
+            entity.setPontoReferencia( dto.pontoReferencia() );
+        }
+        if ( dto.observacoes() != null ) {
+            entity.setObservacoes( dto.observacoes() );
+        }
+        entity.setEnderecoPrincipal( dto.enderecoPrincipal() );
+        if ( dto.tipoEndereco() != null ) {
+            entity.setTipoEndereco( dto.tipoEndereco() );
+        }
+        if ( dto.apelido() != null ) {
+            entity.setApelido( dto.apelido() );
+        }
+    }
+
+    private Long entityClienteId(Endereco endereco) {
+        if ( endereco == null ) {
+            return null;
+        }
+        Cliente cliente = endereco.getCliente();
+        if ( cliente == null ) {
+            return null;
+        }
+        Long id = cliente.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/PagamentoMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Pagamento;
+import com.finalphase.fabricapins.domain.entities.Pedido;
+import com.finalphase.fabricapins.domain.enums.FormaPagamento;
+import com.finalphase.fabricapins.domain.enums.StatusPagamento;
+import com.finalphase.fabricapins.dto.pagamento.PagamentoDTO;
+import com.finalphase.fabricapins.dto.pagamento.PagamentoRequest;
+import java.math.BigDecimal;
+import java.time.Instant;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class PagamentoMapperImpl implements PagamentoMapper {
+
+    @Override
+    public PagamentoDTO toDTO(Pagamento entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Long pedidoId = null;
+        Long id = null;
+        Instant dataPagamento = null;
+        BigDecimal valorPago = null;
+        FormaPagamento formaPagamento = null;
+        StatusPagamento statusPagamento = null;
+        String codigoTransacao = null;
+        String gatewayPagamento = null;
+        Integer parcelasCartao = null;
+        Instant dataConfirmacao = null;
+        String motivoRecusa = null;
+
+        pedidoId = entityPedidoId( entity );
+        id = entity.getId();
+        dataPagamento = entity.getDataPagamento();
+        valorPago = entity.getValorPago();
+        formaPagamento = entity.getFormaPagamento();
+        statusPagamento = entity.getStatusPagamento();
+        codigoTransacao = entity.getCodigoTransacao();
+        gatewayPagamento = entity.getGatewayPagamento();
+        parcelasCartao = entity.getParcelasCartao();
+        dataConfirmacao = entity.getDataConfirmacao();
+        motivoRecusa = entity.getMotivoRecusa();
+
+        PagamentoDTO pagamentoDTO = new PagamentoDTO( id, dataPagamento, valorPago, formaPagamento, statusPagamento, codigoTransacao, gatewayPagamento, parcelasCartao, dataConfirmacao, motivoRecusa, pedidoId );
+
+        return pagamentoDTO;
+    }
+
+    @Override
+    public Pagamento toEntity(PagamentoRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        FormaPagamento formaPagamento = null;
+
+        formaPagamento = dto.formaPagamento();
+
+        Pagamento pagamento = new Pagamento( formaPagamento );
+
+        pagamento.setValorPago( dto.valorPago() );
+        pagamento.setStatusPagamento( dto.statusPagamento() );
+        pagamento.setCodigoTransacao( dto.codigoTransacao() );
+        pagamento.setGatewayPagamento( dto.gatewayPagamento() );
+        pagamento.setParcelasCartao( dto.parcelasCartao() );
+        pagamento.setMotivoRecusa( dto.motivoRecusa() );
+
+        return pagamento;
+    }
+
+    @Override
+    public void updateFromDto(PagamentoRequest dto, Pagamento entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setValorPago( dto.valorPago() );
+        entity.setFormaPagamento( dto.formaPagamento() );
+        entity.setStatusPagamento( dto.statusPagamento() );
+        entity.setCodigoTransacao( dto.codigoTransacao() );
+        entity.setGatewayPagamento( dto.gatewayPagamento() );
+        entity.setParcelasCartao( dto.parcelasCartao() );
+        entity.setMotivoRecusa( dto.motivoRecusa() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(PagamentoRequest dto, Pagamento entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.valorPago() != null ) {
+            entity.setValorPago( dto.valorPago() );
+        }
+        if ( dto.formaPagamento() != null ) {
+            entity.setFormaPagamento( dto.formaPagamento() );
+        }
+        if ( dto.statusPagamento() != null ) {
+            entity.setStatusPagamento( dto.statusPagamento() );
+        }
+        if ( dto.codigoTransacao() != null ) {
+            entity.setCodigoTransacao( dto.codigoTransacao() );
+        }
+        if ( dto.gatewayPagamento() != null ) {
+            entity.setGatewayPagamento( dto.gatewayPagamento() );
+        }
+        if ( dto.parcelasCartao() != null ) {
+            entity.setParcelasCartao( dto.parcelasCartao() );
+        }
+        if ( dto.motivoRecusa() != null ) {
+            entity.setMotivoRecusa( dto.motivoRecusa() );
+        }
+    }
+
+    private Long entityPedidoId(Pagamento pagamento) {
+        if ( pagamento == null ) {
+            return null;
+        }
+        Pedido pedido = pagamento.getPedido();
+        if ( pedido == null ) {
+            return null;
+        }
+        Long id = pedido.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/PedidoMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Cliente;
+import com.finalphase.fabricapins.domain.entities.Pagamento;
+import com.finalphase.fabricapins.domain.entities.Pedido;
+import com.finalphase.fabricapins.domain.enums.StatusPedido;
+import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
+import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class PedidoMapperImpl implements PedidoMapper {
+
+    @Override
+    public PedidoDTO toDTO(Pedido entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Long clienteId = null;
+        Long pagamentoId = null;
+        Long id = null;
+        Instant dataCriacao = null;
+        Instant dataAtualizacao = null;
+        StatusPedido statusPedido = null;
+        BigDecimal valorTotal = null;
+        BigDecimal valorSubtotal = null;
+        BigDecimal desconto = null;
+        String numeroPedido = null;
+        BigDecimal valorFrete = null;
+        LocalDate dataEnvio = null;
+        LocalDate dataEntrega = null;
+        String nomeClienteSnapshot = null;
+        String cpfCnpjClienteSnapshot = null;
+        String cep = null;
+        String estado = null;
+        String cidade = null;
+        String bairro = null;
+        String logradouro = null;
+        Integer numero = null;
+        String complemento = null;
+
+        clienteId = entityClienteId( entity );
+        pagamentoId = entityPagamentoId( entity );
+        id = entity.getId();
+        dataCriacao = entity.getDataCriacao();
+        dataAtualizacao = entity.getDataAtualizacao();
+        statusPedido = entity.getStatusPedido();
+        valorTotal = entity.getValorTotal();
+        valorSubtotal = entity.getValorSubtotal();
+        desconto = entity.getDesconto();
+        numeroPedido = entity.getNumeroPedido();
+        valorFrete = entity.getValorFrete();
+        dataEnvio = entity.getDataEnvio();
+        dataEntrega = entity.getDataEntrega();
+        nomeClienteSnapshot = entity.getNomeClienteSnapshot();
+        cpfCnpjClienteSnapshot = entity.getCpfCnpjClienteSnapshot();
+        cep = entity.getCep();
+        estado = entity.getEstado();
+        cidade = entity.getCidade();
+        bairro = entity.getBairro();
+        logradouro = entity.getLogradouro();
+        numero = entity.getNumero();
+        complemento = entity.getComplemento();
+
+        PedidoDTO pedidoDTO = new PedidoDTO( id, dataCriacao, dataAtualizacao, statusPedido, valorTotal, valorSubtotal, desconto, numeroPedido, valorFrete, dataEnvio, dataEntrega, nomeClienteSnapshot, cpfCnpjClienteSnapshot, cep, estado, cidade, bairro, logradouro, numero, complemento, clienteId, pagamentoId );
+
+        return pedidoDTO;
+    }
+
+    @Override
+    public Pedido toEntity(PedidoRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        String numeroPedido = null;
+
+        numeroPedido = dto.numeroPedido();
+
+        Cliente cliente = null;
+
+        Pedido pedido = new Pedido( cliente, numeroPedido );
+
+        pedido.setStatusPedido( dto.statusPedido() );
+        pedido.setValorSubtotal( dto.valorSubtotal() );
+        pedido.setDesconto( dto.desconto() );
+        pedido.setValorFrete( dto.valorFrete() );
+        pedido.setDataEnvio( dto.dataEnvio() );
+        pedido.setDataEntrega( dto.dataEntrega() );
+        pedido.setNomeClienteSnapshot( dto.nomeClienteSnapshot() );
+        pedido.setCpfCnpjClienteSnapshot( dto.cpfCnpjClienteSnapshot() );
+        pedido.setCep( dto.cep() );
+        pedido.setEstado( dto.estado() );
+        pedido.setCidade( dto.cidade() );
+        pedido.setBairro( dto.bairro() );
+        pedido.setLogradouro( dto.logradouro() );
+        pedido.setNumero( dto.numero() );
+        pedido.setComplemento( dto.complemento() );
+
+        return pedido;
+    }
+
+    @Override
+    public void updateFromDto(PedidoRequest dto, Pedido entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setStatusPedido( dto.statusPedido() );
+        entity.setValorSubtotal( dto.valorSubtotal() );
+        entity.setDesconto( dto.desconto() );
+        entity.setNumeroPedido( dto.numeroPedido() );
+        entity.setValorFrete( dto.valorFrete() );
+        entity.setDataEnvio( dto.dataEnvio() );
+        entity.setDataEntrega( dto.dataEntrega() );
+        entity.setNomeClienteSnapshot( dto.nomeClienteSnapshot() );
+        entity.setCpfCnpjClienteSnapshot( dto.cpfCnpjClienteSnapshot() );
+        entity.setCep( dto.cep() );
+        entity.setEstado( dto.estado() );
+        entity.setCidade( dto.cidade() );
+        entity.setBairro( dto.bairro() );
+        entity.setLogradouro( dto.logradouro() );
+        entity.setNumero( dto.numero() );
+        entity.setComplemento( dto.complemento() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(PedidoRequest dto, Pedido entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.statusPedido() != null ) {
+            entity.setStatusPedido( dto.statusPedido() );
+        }
+        if ( dto.valorSubtotal() != null ) {
+            entity.setValorSubtotal( dto.valorSubtotal() );
+        }
+        if ( dto.desconto() != null ) {
+            entity.setDesconto( dto.desconto() );
+        }
+        if ( dto.numeroPedido() != null ) {
+            entity.setNumeroPedido( dto.numeroPedido() );
+        }
+        if ( dto.valorFrete() != null ) {
+            entity.setValorFrete( dto.valorFrete() );
+        }
+        if ( dto.dataEnvio() != null ) {
+            entity.setDataEnvio( dto.dataEnvio() );
+        }
+        if ( dto.dataEntrega() != null ) {
+            entity.setDataEntrega( dto.dataEntrega() );
+        }
+        if ( dto.nomeClienteSnapshot() != null ) {
+            entity.setNomeClienteSnapshot( dto.nomeClienteSnapshot() );
+        }
+        if ( dto.cpfCnpjClienteSnapshot() != null ) {
+            entity.setCpfCnpjClienteSnapshot( dto.cpfCnpjClienteSnapshot() );
+        }
+        if ( dto.cep() != null ) {
+            entity.setCep( dto.cep() );
+        }
+        if ( dto.estado() != null ) {
+            entity.setEstado( dto.estado() );
+        }
+        if ( dto.cidade() != null ) {
+            entity.setCidade( dto.cidade() );
+        }
+        if ( dto.bairro() != null ) {
+            entity.setBairro( dto.bairro() );
+        }
+        if ( dto.logradouro() != null ) {
+            entity.setLogradouro( dto.logradouro() );
+        }
+        if ( dto.numero() != null ) {
+            entity.setNumero( dto.numero() );
+        }
+        if ( dto.complemento() != null ) {
+            entity.setComplemento( dto.complemento() );
+        }
+    }
+
+    private Long entityClienteId(Pedido pedido) {
+        if ( pedido == null ) {
+            return null;
+        }
+        Cliente cliente = pedido.getCliente();
+        if ( cliente == null ) {
+            return null;
+        }
+        Long id = cliente.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+
+    private Long entityPagamentoId(Pedido pedido) {
+        if ( pedido == null ) {
+            return null;
+        }
+        Pagamento pagamento = pedido.getPagamento();
+        if ( pagamento == null ) {
+            return null;
+        }
+        Long id = pagamento.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/PerfilMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Perfil;
+import com.finalphase.fabricapins.dto.perfil.PerfilDTO;
+import com.finalphase.fabricapins.dto.perfil.PerfilRequest;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class PerfilMapperImpl implements PerfilMapper {
+
+    @Override
+    public PerfilDTO toDTO(Perfil entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Long id = null;
+        String nome = null;
+
+        id = entity.getId();
+        nome = entity.getNome();
+
+        PerfilDTO perfilDTO = new PerfilDTO( id, nome );
+
+        return perfilDTO;
+    }
+
+    @Override
+    public Perfil toEntity(PerfilRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        Perfil perfil = new Perfil();
+
+        perfil.setNome( dto.nome() );
+
+        return perfil;
+    }
+
+    @Override
+    public void updateFromDto(PerfilRequest dto, Perfil entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setNome( dto.nome() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(PerfilRequest dto, Perfil entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.nome() != null ) {
+            entity.setNome( dto.nome() );
+        }
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/ProdutoMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Categoria;
+import com.finalphase.fabricapins.domain.entities.Produto;
+import com.finalphase.fabricapins.domain.enums.TipoEstoqueProduto;
+import com.finalphase.fabricapins.dto.produto.ProdutoDTO;
+import com.finalphase.fabricapins.dto.produto.ProdutoRequest;
+import java.math.BigDecimal;
+import java.time.Instant;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class ProdutoMapperImpl implements ProdutoMapper {
+
+    @Override
+    public ProdutoDTO toDTO(Produto entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Integer categoriaId = null;
+        Long id = null;
+        String nome = null;
+        String descricao = null;
+        TipoEstoqueProduto tipoEstoque = null;
+        BigDecimal precoVarejo = null;
+        BigDecimal precoRevenda = null;
+        String imgUrl = null;
+        String sku = null;
+        Instant dataCadastro = null;
+        Instant dataAtualizacao = null;
+        boolean destaque = false;
+        boolean ativo = false;
+
+        Long id1 = entityCategoriaId( entity );
+        if ( id1 != null ) {
+            categoriaId = id1.intValue();
+        }
+        id = entity.getId();
+        nome = entity.getNome();
+        descricao = entity.getDescricao();
+        tipoEstoque = entity.getTipoEstoque();
+        precoVarejo = entity.getPrecoVarejo();
+        precoRevenda = entity.getPrecoRevenda();
+        imgUrl = entity.getImgUrl();
+        sku = entity.getSku();
+        dataCadastro = entity.getDataCadastro();
+        dataAtualizacao = entity.getDataAtualizacao();
+        destaque = entity.isDestaque();
+        ativo = entity.isAtivo();
+
+        ProdutoDTO produtoDTO = new ProdutoDTO( id, nome, descricao, tipoEstoque, precoVarejo, precoRevenda, imgUrl, sku, dataCadastro, dataAtualizacao, destaque, ativo, categoriaId );
+
+        return produtoDTO;
+    }
+
+    @Override
+    public Produto toEntity(ProdutoRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        String nome = null;
+        TipoEstoqueProduto tipoEstoque = null;
+        BigDecimal precoVarejo = null;
+        BigDecimal precoRevenda = null;
+
+        nome = dto.nome();
+        tipoEstoque = dto.tipoEstoque();
+        precoVarejo = dto.precoVarejo();
+        precoRevenda = dto.precoRevenda();
+
+        Produto produto = new Produto( nome, tipoEstoque, precoVarejo, precoRevenda );
+
+        produto.setDescricao( dto.descricao() );
+        produto.setImgUrl( dto.imgUrl() );
+        produto.setSku( dto.sku() );
+        produto.setDestaque( dto.destaque() );
+        produto.setAtivo( dto.ativo() );
+
+        return produto;
+    }
+
+    @Override
+    public void updateFromDto(ProdutoRequest dto, Produto entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setNome( dto.nome() );
+        entity.setDescricao( dto.descricao() );
+        entity.setTipoEstoque( dto.tipoEstoque() );
+        entity.setPrecoVarejo( dto.precoVarejo() );
+        entity.setPrecoRevenda( dto.precoRevenda() );
+        entity.setImgUrl( dto.imgUrl() );
+        entity.setSku( dto.sku() );
+        entity.setDestaque( dto.destaque() );
+        entity.setAtivo( dto.ativo() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(ProdutoRequest dto, Produto entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.nome() != null ) {
+            entity.setNome( dto.nome() );
+        }
+        if ( dto.descricao() != null ) {
+            entity.setDescricao( dto.descricao() );
+        }
+        if ( dto.tipoEstoque() != null ) {
+            entity.setTipoEstoque( dto.tipoEstoque() );
+        }
+        if ( dto.precoVarejo() != null ) {
+            entity.setPrecoVarejo( dto.precoVarejo() );
+        }
+        if ( dto.precoRevenda() != null ) {
+            entity.setPrecoRevenda( dto.precoRevenda() );
+        }
+        if ( dto.imgUrl() != null ) {
+            entity.setImgUrl( dto.imgUrl() );
+        }
+        if ( dto.sku() != null ) {
+            entity.setSku( dto.sku() );
+        }
+        entity.setDestaque( dto.destaque() );
+        entity.setAtivo( dto.ativo() );
+    }
+
+    private Long entityCategoriaId(Produto produto) {
+        if ( produto == null ) {
+            return null;
+        }
+        Categoria categoria = produto.getCategoria();
+        if ( categoria == null ) {
+            return null;
+        }
+        Long id = categoria.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/ProdutoVariacaoMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Produto;
+import com.finalphase.fabricapins.domain.entities.ProdutoVariacao;
+import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoDTO;
+import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoRequest;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class ProdutoVariacaoMapperImpl implements ProdutoVariacaoMapper {
+
+    @Override
+    public ProdutoVariacaoDTO toDTO(ProdutoVariacao entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Long produtoId = null;
+        Long id = null;
+        String nome = null;
+        String descricao = null;
+        Integer quantidadeEstoque = null;
+        Integer estoqueMinimo = null;
+        String sku = null;
+        String imgUrl = null;
+
+        produtoId = entityProdutoId( entity );
+        id = entity.getId();
+        nome = entity.getNome();
+        descricao = entity.getDescricao();
+        quantidadeEstoque = entity.getQuantidadeEstoque();
+        estoqueMinimo = entity.getEstoqueMinimo();
+        sku = entity.getSku();
+        imgUrl = entity.getImgUrl();
+
+        ProdutoVariacaoDTO produtoVariacaoDTO = new ProdutoVariacaoDTO( id, nome, descricao, quantidadeEstoque, estoqueMinimo, sku, imgUrl, produtoId );
+
+        return produtoVariacaoDTO;
+    }
+
+    @Override
+    public ProdutoVariacao toEntity(ProdutoVariacaoRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        String nome = null;
+        Integer quantidadeEstoque = null;
+        Integer estoqueMinimo = null;
+
+        nome = dto.nome();
+        quantidadeEstoque = dto.quantidadeEstoque();
+        estoqueMinimo = dto.estoqueMinimo();
+
+        Produto produto = null;
+
+        ProdutoVariacao produtoVariacao = new ProdutoVariacao( nome, quantidadeEstoque, estoqueMinimo, produto );
+
+        produtoVariacao.setDescricao( dto.descricao() );
+        produtoVariacao.setSku( dto.sku() );
+        produtoVariacao.setImgUrl( dto.imgUrl() );
+
+        return produtoVariacao;
+    }
+
+    @Override
+    public void updateFromDto(ProdutoVariacaoRequest dto, ProdutoVariacao entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setNome( dto.nome() );
+        entity.setDescricao( dto.descricao() );
+        entity.setQuantidadeEstoque( dto.quantidadeEstoque() );
+        entity.setEstoqueMinimo( dto.estoqueMinimo() );
+        entity.setSku( dto.sku() );
+        entity.setImgUrl( dto.imgUrl() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(ProdutoVariacaoRequest dto, ProdutoVariacao entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.nome() != null ) {
+            entity.setNome( dto.nome() );
+        }
+        if ( dto.descricao() != null ) {
+            entity.setDescricao( dto.descricao() );
+        }
+        if ( dto.quantidadeEstoque() != null ) {
+            entity.setQuantidadeEstoque( dto.quantidadeEstoque() );
+        }
+        if ( dto.estoqueMinimo() != null ) {
+            entity.setEstoqueMinimo( dto.estoqueMinimo() );
+        }
+        if ( dto.sku() != null ) {
+            entity.setSku( dto.sku() );
+        }
+        if ( dto.imgUrl() != null ) {
+            entity.setImgUrl( dto.imgUrl() );
+        }
+    }
+
+    private Long entityProdutoId(ProdutoVariacao produtoVariacao) {
+        if ( produtoVariacao == null ) {
+            return null;
+        }
+        Produto produto = produtoVariacao.getProduto();
+        if ( produto == null ) {
+            return null;
+        }
+        Long id = produto.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
+}
+
+
+
+===== ARQUIVO: ./target/generated-sources/annotations/com/finalphase/fabricapins/mapper/UsuarioMapperImpl.java =====
+package com.finalphase.fabricapins.mapper;
+
+import com.finalphase.fabricapins.domain.entities.Cliente;
+import com.finalphase.fabricapins.domain.entities.Usuario;
+import com.finalphase.fabricapins.dto.usuario.UsuarioDTO;
+import com.finalphase.fabricapins.dto.usuario.UsuarioRequest;
+import java.time.Instant;
+import javax.annotation.processing.Generated;
+import org.springframework.stereotype.Component;
+
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2026-02-22T19:39:47-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.1 (Oracle Corporation)"
+)
+@Component
+public class UsuarioMapperImpl implements UsuarioMapper {
+
+    @Override
+    public UsuarioDTO toDTO(Usuario entity) {
+        if ( entity == null ) {
+            return null;
+        }
+
+        Long clienteId = null;
+        Long id = null;
+        String username = null;
+        String password = null;
+        boolean ativo = false;
+        Instant dataCriacao = null;
+
+        clienteId = entityClienteId( entity );
+        id = entity.getId();
+        username = entity.getUsername();
+        password = entity.getPassword();
+        ativo = entity.isAtivo();
+        dataCriacao = entity.getDataCriacao();
+
+        UsuarioDTO usuarioDTO = new UsuarioDTO( id, username, password, ativo, dataCriacao, clienteId );
+
+        return usuarioDTO;
+    }
+
+    @Override
+    public Usuario toEntity(UsuarioRequest dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        Usuario usuario = new Usuario();
+
+        usuario.setUsername( dto.username() );
+        usuario.setPassword( dto.password() );
+        usuario.setAtivo( dto.ativo() );
+
+        return usuario;
+    }
+
+    @Override
+    public void updateFromDto(UsuarioRequest dto, Usuario entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        entity.setUsername( dto.username() );
+        entity.setPassword( dto.password() );
+        entity.setAtivo( dto.ativo() );
+    }
+
+    @Override
+    public void partialUpdateFromDto(UsuarioRequest dto, Usuario entity) {
+        if ( dto == null ) {
+            return;
+        }
+
+        if ( dto.username() != null ) {
+            entity.setUsername( dto.username() );
+        }
+        if ( dto.password() != null ) {
+            entity.setPassword( dto.password() );
+        }
+        entity.setAtivo( dto.ativo() );
+    }
+
+    private Long entityClienteId(Usuario usuario) {
+        if ( usuario == null ) {
+            return null;
+        }
+        Cliente cliente = usuario.getCliente();
+        if ( cliente == null ) {
+            return null;
+        }
+        Long id = cliente.getId();
+        if ( id == null ) {
+            return null;
+        }
+        return id;
+    }
 }
 
 

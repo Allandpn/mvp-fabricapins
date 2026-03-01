@@ -51,6 +51,11 @@ public class Produto {
     private BigDecimal precoRevenda;
 
     @Setter
+    @NotBlank
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal custoProducao;
+
+    @Setter
     private String imgUrl;
 
     @Setter
@@ -80,11 +85,12 @@ public class Produto {
     private Categoria categoria;
 
     public Produto(String nome, TipoEstoqueProduto tipoEstoque,
-                   BigDecimal precoVarejo, BigDecimal precoRevenda) {
+                   BigDecimal precoVarejo, BigDecimal precoRevenda, BigDecimal custoProducao) {
         this.nome = nome;
         this.tipoEstoque = tipoEstoque;
         this.precoVarejo = precoVarejo;
         this.precoRevenda = precoRevenda;
+        this.custoProducao = custoProducao;
     }
 
     //HELPERS

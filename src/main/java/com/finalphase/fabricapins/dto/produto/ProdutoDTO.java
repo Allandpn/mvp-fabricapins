@@ -18,5 +18,5 @@ public record ProdutoDTO(
         Instant dataAtualizacao,
         boolean destaque,
         boolean ativo,
-        Integer categoriaId
+        Long categoriaId
 ) {}

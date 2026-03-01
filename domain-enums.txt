@@ -9,6 +9,17 @@ public enum FormaPagamento {
 
 
 
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/OrigemPedido.java =====
+package com.finalphase.fabricapins.domain.enums;
+
+public enum OrigemPedido {
+    SITE,
+    WHATSAPP,
+    REDE_SOCIAL
+}
+
+
+
 ===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/StatusPagamento.java =====
 package com.finalphase.fabricapins.domain.enums;
 
@@ -46,6 +57,16 @@ public enum TipoCliente {
     VAREJO,
     REVENDA;
 
+}
+
+
+
+===== ARQUIVO: ./src/main/java/com/finalphase/fabricapins/domain/enums/TipoDesconto.java =====
+package com.finalphase.fabricapins.domain.enums;
+
+public enum TipoDesconto {
+    PERCENTUAL,
+    FIXO
 }
 
 

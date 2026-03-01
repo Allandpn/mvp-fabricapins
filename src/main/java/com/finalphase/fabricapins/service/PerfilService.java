@@ -1,7 +1,7 @@
 package com.finalphase.fabricapins.service;
 
 import com.finalphase.fabricapins.domain.entities.Perfil;
-import com.finalphase.fabricapins.dto.perfil.PerfilDTO;
+import com.finalphase.fabricapins.dto.perfil.PerfilMinDTO;
 import com.finalphase.fabricapins.dto.perfil.PerfilRequest;
 import com.finalphase.fabricapins.exception.DatabaseException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,28 +24,28 @@ public class PerfilService {
     private PerfilMapper mapper;
 
     @Transactional(readOnly = true)
-    public PerfilDTO findPerfilById(Long id){
+    public PerfilMinDTO findById(Long id){
         Perfil entity = repository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Recurso não encontrado")
         );
-        return mapper.toDTO(entity);
+        return mapper.toMinDTO(entity);
     }
 
     @Transactional(readOnly = true)
-    public Page<PerfilDTO> findAllPerfil(Pageable pageable){
+    public Page<PerfilMinDTO> findAll(Pageable pageable){
         Page<Perfil> result = repository.findAll(pageable);
-        return result.map(x -> mapper.toDTO(x));
+        return result.map(x -> mapper.toMinDTO(x));
     }
 
     @Transactional
-    public PerfilDTO insertPerfil(PerfilRequest request){
+    public PerfilMinDTO insertPerfil(PerfilRequest request){
         Perfil entity = mapper.toEntity(request);
         entity = repository.save(entity);
-        return mapper.toDTO(entity);
+        return mapper.toMinDTO(entity);
     }
 
     @Transactional
-    public PerfilDTO updatePerfil(Long id, PerfilRequest request){
+    public PerfilMinDTO updatePerfil(Long id, PerfilRequest request){
         Perfil entity = repository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Recurso não encontrado")
         );
@@ -56,7 +55,7 @@ public class PerfilService {
         catch (DataIntegrityViolationException e){
             throw new DatabaseException("Já existe um perfil com esse nome");
         }
-        return mapper.toDTO(entity);
+        return mapper.toMinDTO(entity);
     }
 
     @Transactional
@@ -69,7 +68,7 @@ public class PerfilService {
             repository.flush();
         }
         catch (DataIntegrityViolationException e){
-            throw new DatabaseException("Não é possível excluir pois há entidades relacionadas");
+            throw new DatabaseException("Não é possível excluir pois há Usuarios associados");
         }
     }
 

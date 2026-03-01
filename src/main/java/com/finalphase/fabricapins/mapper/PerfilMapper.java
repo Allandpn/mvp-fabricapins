@@ -1,8 +1,9 @@
 package com.finalphase.fabricapins.mapper;
 
 import com.finalphase.fabricapins.domain.entities.Perfil;
-import com.finalphase.fabricapins.dto.perfil.PerfilDTO;
+import com.finalphase.fabricapins.dto.perfil.PerfilMinDTO;
 import com.finalphase.fabricapins.dto.perfil.PerfilRequest;
+import com.finalphase.fabricapins.dto.perfil.PerfilWithUsuariosDTO;
 import org.mapstruct.*;
 
 @Mapper(
@@ -11,7 +12,9 @@ import org.mapstruct.*;
 )
 public interface PerfilMapper {
 
-    PerfilDTO toDTO(Perfil entity);
+    PerfilMinDTO toMinDTO(Perfil entity);
+
+    PerfilWithUsuariosDTO toWithUsersDTO(Perfil entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "usuarios", ignore = true)

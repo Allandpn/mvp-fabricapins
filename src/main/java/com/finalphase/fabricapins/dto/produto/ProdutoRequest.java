@@ -9,6 +9,7 @@ public record ProdutoRequest(
         TipoEstoqueProduto tipoEstoque,
         BigDecimal precoVarejo,
         BigDecimal precoRevenda,
+        BigDecimal custoProducao,
         String imgUrl,
         String sku,
         Instant dataCadastro,

@@ -36,6 +36,9 @@ public class ItemPedido {
     private String imgProdutoSnapshot;
 
     @Setter
+    private BigDecimal custoUnitarioSnapshot;
+
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id")
     private Pedido pedido;
@@ -45,10 +48,11 @@ public class ItemPedido {
     @JoinColumn(name = "produto_variacao_id")
     private ProdutoVariacao produtoVariacao;
 
-    public ItemPedido(Integer quantidade, BigDecimal precoUnitario, String nomeProdutoSnapshot) {
+    public ItemPedido(Integer quantidade, BigDecimal precoUnitario, String nomeProdutoSnapshot, BigDecimal getCustoUnitarioSnapshot) {
         this.quantidade = quantidade;
         this.precoUnitario = precoUnitario;
         this.nomeProdutoSnapshot = nomeProdutoSnapshot;
+        this.custoUnitarioSnapshot = getCustoUnitarioSnapshot;
     }
 
     // Calcula valores Derivados

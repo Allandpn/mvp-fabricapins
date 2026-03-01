@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.domain.entities;
 
+import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +43,11 @@ public class Pedido {
     @Enumerated(EnumType.STRING)
     private StatusPedido statusPedido;
 
+    @Setter
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrigemPedido origemPedido;
+
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal valorTotal = BigDecimal.ZERO;
 
@@ -60,6 +66,12 @@ public class Pedido {
     @Setter
     @Column(precision = 15, scale = 2)
     private BigDecimal valorFrete;
+
+    @Setter
+    private LocalDate dataPrevistaProducao;
+
+    @Setter
+    private LocalDate dataConclusaoPedido;
 
     @Setter
     private LocalDate dataEnvio;

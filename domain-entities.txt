@@ -287,6 +287,9 @@ public class ItemPedido {
     private String imgProdutoSnapshot;
 
     @Setter
+    private BigDecimal custoUnitarioSnapshot;
+
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pedido_id")
     private Pedido pedido;
@@ -296,10 +299,11 @@ public class ItemPedido {
     @JoinColumn(name = "produto_variacao_id")
     private ProdutoVariacao produtoVariacao;
 
-    public ItemPedido(Integer quantidade, BigDecimal precoUnitario, String nomeProdutoSnapshot) {
+    public ItemPedido(Integer quantidade, BigDecimal precoUnitario, String nomeProdutoSnapshot, BigDecimal getCustoUnitarioSnapshot) {
         this.quantidade = quantidade;
         this.precoUnitario = precoUnitario;
         this.nomeProdutoSnapshot = nomeProdutoSnapshot;
+        this.custoUnitarioSnapshot = getCustoUnitarioSnapshot;
     }
 
     // Calcula valores Derivados
@@ -374,6 +378,8 @@ public class Pagamento {
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Pedido {
 
+    //TODO - INCLUIR CAMPO ORIGEM PEDIDO
+
     @Id
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -390,6 +396,11 @@ public class Pedido {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusPedido statusPedido;
+
+    @Setter
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrigemPedido origemPedido;
 
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal valorTotal = BigDecimal.ZERO;
@@ -409,6 +420,12 @@ public class Pedido {
     @Setter
     @Column(precision = 15, scale = 2)
     private BigDecimal valorFrete;
+
+    @Setter
+    private LocalDate dataPrevistaProducao;
+
+    @Setter
+    private LocalDate dataConclusaoPedido;
 
     @Setter
     private LocalDate dataEnvio;
@@ -606,6 +623,11 @@ public class Produto {
     private BigDecimal precoRevenda;
 
     @Setter
+    @NotBlank
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal custoProducao;
+
+    @Setter
     private String imgUrl;
 
     @Setter
@@ -635,11 +657,12 @@ public class Produto {
     private Categoria categoria;
 
     public Produto(String nome, TipoEstoqueProduto tipoEstoque,
-                   BigDecimal precoVarejo, BigDecimal precoRevenda) {
+                   BigDecimal precoVarejo, BigDecimal precoRevenda, BigDecimal custoProducao) {
         this.nome = nome;
         this.tipoEstoque = tipoEstoque;
         this.precoVarejo = precoVarejo;
         this.precoRevenda = precoRevenda;
+        this.custoProducao = custoProducao;
     }
 
     //HELPERS
