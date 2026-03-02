@@ -11,17 +11,17 @@ import org.mapstruct.*;
 )
 public interface PedidoMapper {
 
-    @Mapping(source = "cliente.id", target = "clienteId")
-    @Mapping(source = "pagamento.id", target = "pagamentoId")
+    @Mapping(target = "cliente", ignore = true)
+    @Mapping(target = "pagamento", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
+    @Mapping(target = "pedidoCupomSet", ignore = true)
     PedidoDTO toDTO(Pedido entity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "dataCriacao", ignore = true)
-    @Mapping(target = "dataAtualizacao", ignore = true)
-    @Mapping(target = "itemsPedido", ignore = true)
-    @Mapping(target = "pedidoCupomSet", ignore = true)
     @Mapping(target = "cliente", ignore = true)
     @Mapping(target = "pagamento", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
+    @Mapping(target = "pedidoCupomSet", ignore = true)
     Pedido toEntity(PedidoRequest dto);
 
     @InheritConfiguration(name = "toEntity")

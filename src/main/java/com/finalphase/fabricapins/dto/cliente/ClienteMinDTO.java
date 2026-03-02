@@ -1,20 +1,24 @@
 package com.finalphase.fabricapins.dto.cliente;
 
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.domain.enums.TipoPessoa;
+import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
 
 import java.time.Instant;
+import java.util.List;
 
-public record ClienteDTO(
+public record ClienteMinDTO(
         Long id,
         String nome,
-        String cpf,
-        String cnpj,
         String email,
         String telefone,
+        TipoPessoa tipoPessoa,
+        String numeroDocumento,
         TipoCliente tipoCliente,
         Instant dataCadastro,
         Instant dataAtualizacao,
         boolean ativo,
-        Long usuarioId
+        String nomeUsuario,
+        List<EnderecoDTO> enderecos
 ) {}
 

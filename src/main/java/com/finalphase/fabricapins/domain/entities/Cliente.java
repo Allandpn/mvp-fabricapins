@@ -1,6 +1,7 @@
 package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.domain.enums.TipoPessoa;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -28,18 +29,8 @@ public class Cliente {
     private Long id;
 
     @Setter
-    @NotBlank
     @Column(nullable = false, length = 150)
     private String nome;
-
-    @Setter
-    @Column(length = 11, unique = true, nullable = false)
-    @CPF
-    private String cpf;
-
-    @Setter
-    @CNPJ
-    private String cnpj;
 
     @Setter
     @Email
@@ -47,7 +38,17 @@ public class Cliente {
     private String email;
 
     @Setter
+    @Column(nullable = false)
     private String telefone;
+
+    @Setter
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoPessoa tipoPessoa;
+
+    @Setter
+    @Column(nullable = false, unique = true)
+    private String numeroDocumento;
 
     @Setter
     @Column(nullable = false)
@@ -78,10 +79,20 @@ public class Cliente {
     @BatchSize(size = 5)
     private List<Endereco> enderecos = new ArrayList<>();
 
-    public Cliente(String nome, String email, String cpf, TipoCliente tipoCliente) {
+    public Cliente(String nome, String email, String telefone, TipoCliente tipoCliente, TipoPessoa tipoPessoa, String numeroDocumento) {
         this.nome = nome;
         this.email = email;
-        this.cpf = cpf;
+        this.telefone = telefone;
         this.tipoCliente = tipoCliente;
+        this.tipoPessoa = tipoPessoa;
+        this.numeroDocumento = numeroDocumento;
     }
+
+
+    // HELPERS
+    public void addEndereco(Endereco endereco){
+        endereco.setCliente(this);
+        this.enderecos.add(endereco);
+    }
+
 }

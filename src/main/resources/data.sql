@@ -1,37 +1,39 @@
 -- =============================================
 -- SEED - FabricaPins MVP
--- H2 Database - DEV (IDENTITY COMPATIBLE)
+-- H2 Database - DEV
 -- =============================================
 
 -- =============================================
 -- PERFIS (5)
 -- =============================================
-INSERT INTO tb_perfil (nome) VALUES ('ROLE_ADMIN');
-INSERT INTO tb_perfil (nome) VALUES ('ROLE_GERENTE');
-INSERT INTO tb_perfil (nome) VALUES ('ROLE_VENDEDOR');
-INSERT INTO tb_perfil (nome) VALUES ('ROLE_SUPORTE');
-INSERT INTO tb_perfil (nome) VALUES ('ROLE_CLIENTE');
+INSERT INTO tb_perfil (nome) VALUES
+('ROLE_ADMIN'),
+('ROLE_GERENTE'),
+('ROLE_VENDEDOR'),
+('ROLE_SUPORTE'),
+('ROLE_CLIENTE');
+
 
 -- =============================================
 -- CLIENTES (20)
 -- =============================================
 INSERT INTO tb_cliente
-(nome, cpf, email, telefone, tipo_cliente, data_cadastro, ativo)
+(nome, email, telefone, tipo_pessoa, numero_documento, tipo_cliente, data_cadastro, ativo)
 SELECT
-CONCAT('Cliente ', x),
-LPAD(x,11,'0'),
-CONCAT('cliente',x,'@email.com'),
-CONCAT('1199999',LPAD(x,4,'0')),
-CASE WHEN MOD(x,2)=0 THEN 'REVENDA' ELSE 'VAREJO' END,
-CURRENT_TIMESTAMP,
-true
+    CONCAT('Cliente ', x),
+    CONCAT('cliente', x, '@email.com'),
+    CONCAT('1199999', LPAD(x,4,'0')),
+    CASE WHEN MOD(x,2)=0 THEN 'FISICA' ELSE 'JURIDICA' END,
+    CASE WHEN MOD(x,2)=0 THEN LPAD(x,11,'0') ELSE LPAD(x,14,'0') END,
+    CASE WHEN MOD(x,2)=0 THEN 'VAREJO' ELSE 'REVENDA' END,
+    CURRENT_TIMESTAMP,
+    true
 FROM SYSTEM_RANGE(1,20);
+
 
 -- =============================================
 -- USUARIOS (20 + ADMIN)
 -- =============================================
-
--- Usuários vinculados aos clientes
 INSERT INTO tb_usuario
 (username, password, ativo, data_criacao)
 SELECT
@@ -41,7 +43,6 @@ true,
 CURRENT_TIMESTAMP
 FROM SYSTEM_RANGE(1,20);
 
--- Admin sem cliente
 INSERT INTO tb_usuario
 (username, password, ativo, data_criacao)
 VALUES (
@@ -51,8 +52,9 @@ true,
 CURRENT_TIMESTAMP
 );
 
+
 -- =============================================
--- VINCULAR CLIENTES AOS USUARIOS
+-- VINCULAR CLIENTE ↔ USUARIO
 -- =============================================
 UPDATE tb_cliente c
 SET usuario_id = (
@@ -64,23 +66,67 @@ SET usuario_id = (
 )
 WHERE c.nome LIKE 'Cliente %';
 
--- =============================================
--- PERFIL_USUARIO (ManyToMany)
--- =============================================
 
--- Todos usuários normais = ROLE_CLIENTE
+-- =============================================
+-- PERFIL_USUARIO
+-- =============================================
 INSERT INTO tb_perfil_usuario (usuario_id, perfil_id)
 SELECT u.id, p.id
 FROM tb_usuario u
 JOIN tb_perfil p ON p.nome = 'ROLE_CLIENTE'
 WHERE u.username LIKE 'user%';
 
--- Admin = ROLE_ADMIN
 INSERT INTO tb_perfil_usuario (usuario_id, perfil_id)
 SELECT u.id, p.id
 FROM tb_usuario u
 JOIN tb_perfil p ON p.nome = 'ROLE_ADMIN'
 WHERE u.username = 'admin';
+
+
+-- =============================================
+-- ENDERECOS (30 registros)
+-- =============================================
+
+-- Endereço principal (ENTREGA) para todos
+INSERT INTO tb_endereco
+(cep, estado, cidade, bairro, logradouro, numero,
+ endereco_principal, tipo_endereco, apelido,
+ data_cadastro, cliente_id)
+SELECT
+'12345678',
+'SP',
+'Sao Paulo',
+'Centro',
+CONCAT('Rua Cliente ', c.id),
+'100',
+true,
+'ENTREGA',
+'Casa',
+CURRENT_TIMESTAMP,
+c.id
+FROM tb_cliente c;
+
+
+-- Endereço de COBRANCA para clientes pares
+INSERT INTO tb_endereco
+(cep, estado, cidade, bairro, logradouro, numero,
+ endereco_principal, tipo_endereco, apelido,
+ data_cadastro, cliente_id)
+SELECT
+'87654321',
+'SP',
+'Sao Paulo',
+'Bela Vista',
+CONCAT('Avenida Cliente ', c.id),
+'200',
+false,
+'COBRANCA',
+'Escritorio',
+CURRENT_TIMESTAMP,
+c.id
+FROM tb_cliente c
+WHERE MOD(c.id,2)=0;
+
 
 -- =============================================
 -- CATEGORIAS (5)
@@ -91,6 +137,7 @@ INSERT INTO tb_categoria (nome, descricao, ativa) VALUES
 ('Chaveiros','Chaveiros personalizados',true),
 ('Adesivos','Adesivos personalizados',true),
 ('Kits','Kits promocionais',true);
+
 
 -- =============================================
 -- PRODUTOS (50)
@@ -112,10 +159,10 @@ true,
 ((x-1)/10)+1
 FROM SYSTEM_RANGE(1,50);
 
+
 -- =============================================
 -- VARIACOES (100)
 -- =============================================
--- Variação padrão
 INSERT INTO tb_produto_variacao
 (nome, quantidade_estoque, estoque_minimo, sku, produto_id)
 SELECT
@@ -126,7 +173,6 @@ CONCAT('SKU-', p.id, '-V1'),
 p.id
 FROM tb_produto p;
 
--- Variação premium
 INSERT INTO tb_produto_variacao
 (nome, quantidade_estoque, estoque_minimo, sku, produto_id)
 SELECT
@@ -136,6 +182,7 @@ SELECT
 CONCAT('SKU-', p.id, '-V2'),
 p.id
 FROM tb_produto p;
+
 
 -- =============================================
 -- CUPONS (5)
@@ -149,11 +196,13 @@ VALUES
 ('FIXO30',true,30,'FIXO','2026-12-31',50),
 ('PROMO5',true,5,'PERCENTUAL','2026-12-31',200);
 
+
 -- =============================================
 -- PEDIDOS (50)
 -- =============================================
 INSERT INTO tb_pedido
-(data_criacao, status_pedido, origem_pedido, valor_total, valor_subtotal,
+(data_criacao, status_pedido, origem_pedido,
+ valor_total, valor_subtotal,
  numero_pedido, nome_cliente_snapshot, cpf_cnpj_cliente_snapshot,
  cep, estado, cidade, bairro, logradouro, numero, cliente_id)
 SELECT
@@ -173,7 +222,7 @@ END,
 0,
 CONCAT('PED-', x),
 c.nome,
-c.cpf,
+c.numero_documento,
 '12345678',
 'SP',
 'Sao Paulo',
@@ -183,6 +232,7 @@ c.cpf,
 c.id
 FROM SYSTEM_RANGE(1,50) r
 JOIN tb_cliente c ON c.id = ((r.x-1) % 20) + 1;
+
 
 -- =============================================
 -- PAGAMENTOS (50)
@@ -196,7 +246,8 @@ CASE WHEN MOD(x,2)=0 THEN 'PIX' ELSE 'CARTAO_CREDITO' END,
 CASE WHEN MOD(x,5)=0 THEN 'RECUSADO' ELSE 'APROVADO' END
 FROM SYSTEM_RANGE(1,50);
 
--- Vinculando pagamento ao pedido (SAFE para OneToOne + H2)
+
+-- Vincular pagamento ao pedido
 MERGE INTO tb_pedido p
 USING (
     SELECT
@@ -212,6 +263,7 @@ ON p.id = x.pedido_id
 WHEN MATCHED THEN
 UPDATE SET p.pagamento_id = x.pagamento_id;
 
+
 -- =============================================
 -- ITENS PEDIDO (100)
 -- =============================================
@@ -226,3 +278,29 @@ CONCAT('Produto ', ((x-1)%50)+1),
 ((x-1)%50)+1,
 ((x-1)%50)+1
 FROM SYSTEM_RANGE(1,100);
+
+
+-- =============================================
+-- PEDIDO_CUPOM
+-- =============================================
+INSERT INTO tb_pedido_cupom
+(pedido_id, cupom_desconto_id, data_aplicacao, valor_desconto_aplicado)
+SELECT
+p.id,
+c.id,
+CURRENT_DATE,
+10
+FROM tb_pedido p
+JOIN tb_cupom_desconto c ON c.codigo = 'DESC10'
+WHERE MOD(p.id,4)=0;
+
+INSERT INTO tb_pedido_cupom
+(pedido_id, cupom_desconto_id, data_aplicacao, valor_desconto_aplicado)
+SELECT
+p.id,
+c.id,
+CURRENT_DATE,
+15
+FROM tb_pedido p
+JOIN tb_cupom_desconto c ON c.codigo = 'FIXO15'
+WHERE MOD(p.id,6)=0;

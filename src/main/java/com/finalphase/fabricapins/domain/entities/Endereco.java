@@ -22,32 +22,26 @@ public class Endereco {
     private Long id;
 
     @Setter
-    @NotBlank
     @Column(nullable = false, length = 8)
     private String cep;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String estado;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String cidade;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String bairro;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String logradouro;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String numero;
 
@@ -62,7 +56,7 @@ public class Endereco {
 
     @Setter
     @Column(nullable = false)
-    private boolean enderecoPrincipal = false;
+    private boolean enderecoPrincipal = true;
 
     @Setter
     @Column(nullable = false)
@@ -76,11 +70,12 @@ public class Endereco {
     @Setter
     private String apelido;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    public Endereco(String cep, String estado, String cidade, String bairro, String logradouro, String numero, String complemento, String pontoReferencia, String observacoes, TipoEndereco tipoEndereco, Instant dataCadastro, String apelido, Cliente cliente) {
+    public Endereco(String cep, String estado, String cidade, String bairro, String logradouro, String numero, String complemento, String pontoReferencia, String observacoes, TipoEndereco tipoEndereco, String apelido) {
         this.cep = cep;
         this.estado = estado;
         this.cidade = cidade;
@@ -91,8 +86,6 @@ public class Endereco {
         this.pontoReferencia = pontoReferencia;
         this.observacoes = observacoes;
         this.tipoEndereco = tipoEndereco;
-        this.dataCadastro = dataCadastro;
         this.apelido = apelido;
-        this.cliente = cliente;
     }
 }

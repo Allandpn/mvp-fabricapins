@@ -48,18 +48,8 @@ public class Cliente {
     private Long id;
 
     @Setter
-    @NotBlank
     @Column(nullable = false, length = 150)
     private String nome;
-
-    @Setter
-    @Column(length = 11, unique = true, nullable = false)
-    @CPF
-    private String cpf;
-
-    @Setter
-    @CNPJ
-    private String cnpj;
 
     @Setter
     @Email
@@ -67,7 +57,17 @@ public class Cliente {
     private String email;
 
     @Setter
+    @Column(nullable = false)
     private String telefone;
+
+    @Setter
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoPessoa tipoPessoa;
+
+    @Setter
+    @Column(nullable = false, unique = true)
+    private String numeroDocumento;
 
     @Setter
     @Column(nullable = false)
@@ -86,7 +86,8 @@ public class Cliente {
     @Column(nullable = false)
     private boolean ativo = true;
 
-    @OneToOne(mappedBy = "cliente")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", unique = true)
     private Usuario usuario;
 
     @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY)
@@ -97,11 +98,13 @@ public class Cliente {
     @BatchSize(size = 5)
     private List<Endereco> enderecos = new ArrayList<>();
 
-    public Cliente(String nome, String email, String cpf, TipoCliente tipoCliente) {
+    public Cliente(String nome, String email, String telefone, TipoCliente tipoCliente, TipoPessoa tipoPessoa, String numeroDocumento) {
         this.nome = nome;
         this.email = email;
-        this.cpf = cpf;
+        this.telefone = telefone;
         this.tipoCliente = tipoCliente;
+        this.tipoPessoa = tipoPessoa;
+        this.numeroDocumento = numeroDocumento;
     }
 }
 
@@ -180,32 +183,26 @@ public class Endereco {
     private Long id;
 
     @Setter
-    @NotBlank
     @Column(nullable = false, length = 8)
     private String cep;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String estado;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String cidade;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String bairro;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String logradouro;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String numero;
 
@@ -220,7 +217,7 @@ public class Endereco {
 
     @Setter
     @Column(nullable = false)
-    private boolean enderecoPrincipal = false;
+    private boolean enderecoPrincipal = true;
 
     @Setter
     @Column(nullable = false)
@@ -238,7 +235,7 @@ public class Endereco {
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    public Endereco(String cep, String estado, String cidade, String bairro, String logradouro, String numero, String complemento, String pontoReferencia, String observacoes, TipoEndereco tipoEndereco, Instant dataCadastro, String apelido, Cliente cliente) {
+    public Endereco(String cep, String estado, String cidade, String bairro, String logradouro, String numero, String complemento, String pontoReferencia, String observacoes, TipoEndereco tipoEndereco, String apelido) {
         this.cep = cep;
         this.estado = estado;
         this.cidade = cidade;
@@ -249,9 +246,7 @@ public class Endereco {
         this.pontoReferencia = pontoReferencia;
         this.observacoes = observacoes;
         this.tipoEndereco = tipoEndereco;
-        this.dataCadastro = dataCadastro;
         this.apelido = apelido;
-        this.cliente = cliente;
     }
 }
 
@@ -377,8 +372,6 @@ public class Pagamento {
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Pedido {
-
-    //TODO - INCLUIR CAMPO ORIGEM PEDIDO
 
     @Id
     @EqualsAndHashCode.Include
@@ -573,7 +566,7 @@ public class Perfil {
     @Column(nullable = false, unique = true, length = 50)
     private String nome;
 
-    @ManyToMany(mappedBy = "perfis")
+    @ManyToMany(mappedBy = "perfis", fetch = FetchType.LAZY)
     private Set<Usuario> usuarios = new HashSet<>();
 
     public Perfil(String nome) {
@@ -763,12 +756,10 @@ public class Usuario {
     private Long id;
 
     @Setter
-    @NotBlank
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false, length = 30)
     private String username;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String password;
 
@@ -780,21 +771,21 @@ public class Usuario {
     @Column(nullable = false, updatable = false)
     private Instant dataCriacao;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name="tb_perfil_usuario",
             joinColumns = @JoinColumn(name = "usuario_id"),
             inverseJoinColumns = @JoinColumn(name = "perfil_id"))
-    private Set<Perfil> perfis = new HashSet<>();
-
-    // TODO Confirmar se todo usuario sera cliente
-    @OneToOne
-    @JoinColumn(name = "cliente_id", unique = true)
-    private Cliente cliente;
+    private List<Perfil> perfis = new ArrayList<>();
 
     public Usuario(String username, String password) {
         this.username = username;
         this.password = password;
     }
+
+    public void addPerfis(List<Perfil> p){
+        this.perfis.addAll(p);
+    }
+
 }
 
 

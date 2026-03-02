@@ -32,7 +32,7 @@ public interface CategoriaMapper {
 package com.finalphase.fabricapins.mapper;
 
 import com.finalphase.fabricapins.domain.entities.Cliente;
-import com.finalphase.fabricapins.dto.cliente.ClienteDTO;
+import com.finalphase.fabricapins.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
 import org.mapstruct.*;
 
@@ -98,7 +98,7 @@ package com.finalphase.fabricapins.mapper;
 
 import com.finalphase.fabricapins.domain.entities.Endereco;
 import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
-import com.finalphase.fabricapins.dto.endereco.EnderecoRequest;
+import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
 import org.mapstruct.*;
 
 @Mapper(
@@ -412,7 +412,7 @@ package com.finalphase.fabricapins.mapper;
 import com.finalphase.fabricapins.domain.entities.Cliente;
 import com.finalphase.fabricapins.domain.entities.Usuario;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
-import com.finalphase.fabricapins.dto.cliente.ClienteDTO;
+import com.finalphase.fabricapins.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
 import java.time.Instant;
 import javax.annotation.processing.Generated;
@@ -456,9 +456,9 @@ public class ClienteMapperImpl implements ClienteMapper {
         dataAtualizacao = entity.getDataAtualizacao();
         ativo = entity.isAtivo();
 
-        ClienteDTO clienteDTO = new ClienteDTO( id, nome, cpf, cnpj, email, telefone, tipoCliente, dataCadastro, dataAtualizacao, ativo, usuarioId );
+        ClienteDTO clienteMinDTO = new ClienteDTO( id, nome, cpf, cnpj, email, telefone, tipoCliente, dataCadastro, dataAtualizacao, ativo, usuarioId );
 
-        return clienteDTO;
+        return clienteMinDTO;
     }
 
     @Override
@@ -673,7 +673,7 @@ import com.finalphase.fabricapins.domain.entities.Cliente;
 import com.finalphase.fabricapins.domain.entities.Endereco;
 import com.finalphase.fabricapins.domain.enums.TipoEndereco;
 import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
-import com.finalphase.fabricapins.dto.endereco.EnderecoRequest;
+import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
 import java.time.Instant;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;

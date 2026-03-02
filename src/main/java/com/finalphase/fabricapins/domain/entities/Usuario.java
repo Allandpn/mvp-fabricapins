@@ -24,12 +24,10 @@ public class Usuario {
     private Long id;
 
     @Setter
-    @NotBlank
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false, length = 30)
     private String username;
 
     @Setter
-    @NotBlank
     @Column(nullable = false)
     private String password;
 
