@@ -34,11 +34,11 @@ public class ClienteService {
 
     // TODO - REVISAR
     @Transactional(readOnly = true)
-    public ClienteWtihPedidoDTO findById(Long id) {
+    public ClienteMinDTO findById(Long id) {
         Cliente entity = repository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Usuario não encontrado")
         );
-        return mapper.toDTOWithPedido(entity);
+        return mapper.toDTO(entity);
     }
 
     // TODO - REVISAR
@@ -73,11 +73,11 @@ public class ClienteService {
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
 
-        if(repository.existsByNumeroDocumento(request.numeroDocumento())){
+        if(repository.existsByNumeroDocumentoAndIdNot(request.nome(), id)){
             throw new DatabaseException("Já existe um cliente com esse numero de documento");
         }
-        if(repository.existsByEmail(request.email())){
-            throw new DatabaseException("Já existe um cliente com esse numero de documento");
+        if(repository.existsByEmailAndIdNot(request.email(), id)){
+            throw new DatabaseException("Já existe um cliente com esse numero de email");
         }
         mapper.updateFromDto(request, entity);
         return mapper.toDTO(entity);
