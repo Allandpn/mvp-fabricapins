@@ -14,6 +14,8 @@ import com.finalphase.fabricapins.repository.ClienteRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,9 +43,9 @@ public class ClienteService {
 
     // TODO - REVISAR
     @Transactional(readOnly = true)
-    public List<ClienteMinDTO> findAll() {
-        List<Cliente> result = repository.findAll();
-        return result.stream().map(x -> mapper.toDTO(x)).toList();
+    public Page<ClienteMinDTO> findAll(Pageable pageable) {
+        Page<Cliente> result = repository.findAll(pageable);
+        return result.map(x -> mapper.toDTO(x));
     }
 
     // TODO - REVISAR
@@ -53,19 +55,13 @@ public class ClienteService {
             throw new DatabaseException("Já existe um cliente com esse numero de documento");
         }
         if(repository.existsByEmail(request.email())){
-            throw new DatabaseException("Já existe um cliente com esse numero de documento");
-        }
-        if(!validaEnderecoPrincipalUnico(request.enderecos())){
-            throw new DatabaseException("Deve existir apenas um endereço principal");
+            throw new DatabaseException("Já existe um cliente com esse email");
         }
         Cliente entity = mapper.toEntity(request);
-        List<Endereco> enderecos = new ArrayList<>(entity.getEnderecos());
-        entity.getEnderecos().clear();
-        enderecos.forEach(entity::addEndereco);
         try {
             repository.save(entity);
         } catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("CPF ou Email já cadastrados");
+            throw new DatabaseException("Não foi possível cadastrar o Cliente");
         }
         return mapper.toDTO(entity);
     }
@@ -82,13 +78,6 @@ public class ClienteService {
         }
         if(repository.existsByEmail(request.email())){
             throw new DatabaseException("Já existe um cliente com esse numero de documento");
-        }
-
-        // TODO - ERRO AO ATUALIZAR ENDERECOS
-        if(request.enderecos() != null){
-            List<Endereco> enderecos = new ArrayList<>(entity.getEnderecos());
-            entity.getEnderecos().clear();
-            enderecos.forEach(entity::addEndereco);
         }
         mapper.updateFromDto(request, entity);
         return mapper.toDTO(entity);

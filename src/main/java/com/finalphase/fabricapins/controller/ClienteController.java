@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -44,8 +46,8 @@ public class ClienteController {
             @ApiResponse(responseCode = "404", description = "Nenhum Cliente localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<List<ClienteMinDTO>> findAll(){
-        List<ClienteMinDTO> ListDto = service.findAll();
+    public ResponseEntity<Page<ClienteMinDTO>> findAll(Pageable pageable){
+        Page<ClienteMinDTO> ListDto = service.findAll(pageable);
         return ResponseEntity.ok(ListDto);
     }
 

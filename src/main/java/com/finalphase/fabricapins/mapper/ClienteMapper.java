@@ -10,15 +10,13 @@ import org.mapstruct.*;
 
 @Mapper(
         componentModel = "spring",
-        uses = { PedidoMapper.class, EnderecoMapper.class },
+        uses = { PedidoMapper.class},
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface ClienteMapper {
 
-    @Mapping(target = "nomeUsuario", ignore = true)
     ClienteMinDTO toDTO(Cliente entity);
 
-    @Mapping(target = "nomeUsuario", ignore = true)
     ClienteWtihPedidoDTO toDTOWithPedido(Cliente entity);
 
     @Mapping(target = "id", ignore = true)
@@ -26,6 +24,7 @@ public interface ClienteMapper {
     @Mapping(target = "dataAtualizacao", ignore = true)
     @Mapping(target = "pedidos", ignore = true)
     @Mapping(target = "usuario", ignore = true)
+    @Mapping(target = "enderecos", ignore = true)
     Cliente toEntity(ClienteRequest dto);
 
     @InheritConfiguration(name = "toEntity")

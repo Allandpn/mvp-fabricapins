@@ -13,6 +13,12 @@ import java.util.Set;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Perfil {
 
+    public static final String ADMIN = "ROLE_ADMIN";
+    public static final String GERENTE = "ROLE_GERENTE";
+    public static final String VENDEDOR = "ROLE_VENDEDOR";
+    public static final String CLIENTE = "ROLE_CLIENTE";
+
+
     @Id
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)

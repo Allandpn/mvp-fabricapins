@@ -49,6 +49,7 @@ public class ConsultasRepository extends JpaRepository{
             "LEFT JOIN FETCH p.usuarios")
     List<Perfil> searchAllWithUsuarios();
 
+
     // Busca ManyToMany completa - alternativa 2
     @EntityGraph(attributePaths = "usuarios")
     @Query("SELECT p FROM Perfil p")

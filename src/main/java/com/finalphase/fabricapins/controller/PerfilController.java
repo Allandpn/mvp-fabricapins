@@ -47,49 +47,57 @@ public class PerfilController {
             @ApiResponse(responseCode = "404", description = "Nenhum Perfil localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<List<?>> findAll(@RequestParam(defaultValue = "false") boolean withUsuarios){
-        if(withUsuarios){
-            List<PerfilWithUsuariosDTO> ListDto = service.findAllWithUsuarios();
-            return ResponseEntity.ok(ListDto);
-        }
+    public ResponseEntity<List<PerfilMinDTO>> findAll(){
         List<PerfilMinDTO> ListDto = service.findAll();
         return ResponseEntity.ok(ListDto);
     }
 
-    @Operation(summary = "Inserir Perfil")
+    @Operation(summary = "Buscar todos os Perfis com respectivos Usuarios")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro ao criar o Perfil", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Perfis localizados"),
+            @ApiResponse(responseCode = "404", description = "Nenhum Perfil localizado", content = @Content)
     })
-    @PostMapping
-    public ResponseEntity<PerfilMinDTO> insertPerfil(@Valid @RequestBody PerfilRequest request){
-        PerfilMinDTO dto = service.insertPerfil(request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
-        return ResponseEntity.created(uri).body(dto);
+    @GetMapping("/detalhado")
+    public ResponseEntity<List<PerfilWithUsuariosDTO>> findAllWithUsuarios(){
+        List<PerfilWithUsuariosDTO> ListDto = service.findAllWithUsuarios();
+        return ResponseEntity.ok(ListDto);
     }
 
-    @Operation(summary = "Atualizar Perfil")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = PerfilMinDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Perfil não localizado", content = @Content),
-            @ApiResponse(responseCode = "409", description = "Já existe um Perfil com esse nome", content = @Content)
-    })
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<PerfilMinDTO> updatePerfil(@PathVariable Long id, @Valid @RequestBody PerfilRequest request){
-        return ResponseEntity.ok(service.updatePerfil(id, request));
-    }
-
-    @Operation(summary = "Remover Perfil")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil excluido com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Perfil não localizado"),
-            @ApiResponse(responseCode = "409", description = "Não é possível excluir pois há Usuarios associados")
-    })
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deletePerfil(@PathVariable Long id){
-        service.deletePerfil(id);
-        return ResponseEntity.noContent().build();
-    }
+    // PREVISAO PARA IMPLEMENTACAO DE ROLES DINAMICAS
+//    @Operation(summary = "Inserir Perfil")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "Perfil criado com sucesso"),
+//            @ApiResponse(responseCode = "400", description = "Erro ao criar o Perfil", content = @Content)
+//    })
+//    @PostMapping
+//    public ResponseEntity<PerfilMinDTO> insertPerfil(@Valid @RequestBody PerfilRequest request){
+//        PerfilMinDTO dto = service.insertPerfil(request);
+//        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
+//        return ResponseEntity.created(uri).body(dto);
+//    }
+//
+//    @Operation(summary = "Atualizar Perfil")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso",
+//            content = @Content(mediaType = "application/json", schema = @Schema(implementation = PerfilMinDTO.class))),
+//            @ApiResponse(responseCode = "404", description = "Perfil não localizado", content = @Content),
+//            @ApiResponse(responseCode = "409", description = "Já existe um Perfil com esse nome", content = @Content)
+//    })
+//    @PutMapping(value = "/{id}")
+//    public ResponseEntity<PerfilMinDTO> updatePerfil(@PathVariable Long id, @Valid @RequestBody PerfilRequest request){
+//        return ResponseEntity.ok(service.updatePerfil(id, request));
+//    }
+//
+//    @Operation(summary = "Remover Perfil")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "Perfil excluido com sucesso"),
+//            @ApiResponse(responseCode = "404", description = "Perfil não localizado"),
+//            @ApiResponse(responseCode = "409", description = "Não é possível excluir pois há Usuarios associados")
+//    })
+//    @DeleteMapping(value = "/{id}")
+//    public ResponseEntity<Void> deletePerfil(@PathVariable Long id){
+//        service.deletePerfil(id);
+//        return ResponseEntity.noContent().build();
+//    }
 
 }

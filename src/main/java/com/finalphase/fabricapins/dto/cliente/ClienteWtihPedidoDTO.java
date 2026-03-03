@@ -19,7 +19,6 @@ public record ClienteWtihPedidoDTO(
         Instant dataCadastro,
         Instant dataAtualizacao,
         boolean ativo,
-        String nomeUsuario,
         List<EnderecoDTO> enderecos,
         List<PedidoDTO> pedidos
 ) {}

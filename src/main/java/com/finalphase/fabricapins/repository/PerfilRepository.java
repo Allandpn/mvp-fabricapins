@@ -1,8 +1,6 @@
 package com.finalphase.fabricapins.repository;
 
 import com.finalphase.fabricapins.domain.entities.Perfil;
-import com.finalphase.fabricapins.dto.perfil.PerfilWithUsuariosDTO;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,5 +16,7 @@ public interface PerfilRepository extends JpaRepository<Perfil, Long> {
     @Query(value = "SELECT p FROM Perfil p " +
             "WHERE p.nome IN :nomes")
     List<Perfil> searchAllByName(@Param("nomes") List<String> nomes);
+
+    boolean existsByNome(String nome);
 
 }

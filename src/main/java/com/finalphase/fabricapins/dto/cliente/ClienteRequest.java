@@ -40,9 +40,5 @@ public record ClienteRequest(
         String numeroDocumento,
 
         @Schema(description = "Cliente ativo", example = "true")
-        boolean ativo,
-
-        @NotNull(message = "Campo requerido")
-        @Schema(description = "Lista de Enderecos", example = "[{ . . . }]")
-        List<EnderecoDTO> enderecos
+        boolean ativo
 ) {}

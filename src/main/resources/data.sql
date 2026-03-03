@@ -10,7 +10,6 @@ INSERT INTO tb_perfil (nome) VALUES
 ('ROLE_ADMIN'),
 ('ROLE_GERENTE'),
 ('ROLE_VENDEDOR'),
-('ROLE_SUPORTE'),
 ('ROLE_CLIENTE');
 
 
@@ -81,6 +80,18 @@ SELECT u.id, p.id
 FROM tb_usuario u
 JOIN tb_perfil p ON p.nome = 'ROLE_ADMIN'
 WHERE u.username = 'admin';
+
+INSERT INTO tb_perfil_usuario (usuario_id, perfil_id)
+SELECT u.id, p.id
+FROM tb_usuario u
+JOIN tb_perfil p ON p.nome = 'ROLE_VENDEDOR'
+WHERE u.id LIKE '%4';
+
+INSERT INTO tb_perfil_usuario (usuario_id, perfil_id)
+SELECT u.id, p.id
+FROM tb_usuario u
+JOIN tb_perfil p ON p.nome = 'ROLE_GERENTE'
+WHERE u.id LIKE '%7';
 
 
 -- =============================================

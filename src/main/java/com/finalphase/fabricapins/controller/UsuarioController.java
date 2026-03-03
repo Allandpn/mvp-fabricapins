@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.controller;
 
 import com.finalphase.fabricapins.dto.usuario.UsuarioDTO;
 import com.finalphase.fabricapins.dto.usuario.UsuarioRequest;
+import com.finalphase.fabricapins.exception.model.CustomError;
 import com.finalphase.fabricapins.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,7 +31,8 @@ public class UsuarioController {
     @Operation(summary = "Buscar usuario por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario localizado"),
-            @ApiResponse(responseCode = "404", description = "Usuario não localizado", content = @Content)
+            @ApiResponse(responseCode = "404", description = "Usuario não localizado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class)))
     })
     @GetMapping(value = "/{id}")
     public ResponseEntity<UsuarioDTO> findById(@PathVariable Long id){
@@ -41,7 +43,8 @@ public class UsuarioController {
     @Operation(summary = "Buscar todos os Usuarios")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuarios localizados"),
-            @ApiResponse(responseCode = "404", description = "Nenhum Usuario localizado", content = @Content)
+            @ApiResponse(responseCode = "404", description = "Nenhum Usuario localizado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class)))
     })
     @GetMapping()
     public ResponseEntity<List<UsuarioDTO>> findAll(){
@@ -52,7 +55,8 @@ public class UsuarioController {
     @Operation(summary = "Inserir Usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario criado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro ao criar o Usuario", content = @Content)
+            @ApiResponse(responseCode = "400", description = "Erro ao criar o Usuario",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class)))
     })
     @PostMapping
     public ResponseEntity<UsuarioDTO> insertUsuario(@Valid @RequestBody UsuarioRequest request){
@@ -65,8 +69,10 @@ public class UsuarioController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario atualizado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Usuario não localizado", content = @Content),
-            @ApiResponse(responseCode = "409", description = "Já existe um Usuario com esse nome", content = @Content)
+            @ApiResponse(responseCode = "404", description = "Usuario não localizado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class))),
+            @ApiResponse(responseCode = "409", description = "Já existe um Usuario com esse nome",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class)))
     })
     @PutMapping(value = "/{id}")
     public ResponseEntity<UsuarioDTO> updateUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioRequest request){
