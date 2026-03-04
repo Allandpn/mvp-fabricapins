@@ -11,7 +11,6 @@ import com.finalphase.fabricapins.repository.PerfilRepository;
 import com.finalphase.fabricapins.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,41 +67,30 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioDTO updateUsuario(@Valid Long id, UsuarioRequest request) {
-        Usuario entity = repository.findById(id).orElseThrow(
+        Usuario entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Usuario não encontrado")
         );
-
         if(request.username() != null && repository.existsByUsernameAndIdNot(request.username(), id)){
             throw new DatabaseException("Já existe um usuário com esse nome");
         }
-
         mapper.updateFromDto(request, entity);
-
         if(request.perfis() != null ){
             List<Perfil> perfis = perfilRepository.searchAllByName(request.perfis());
             if(perfis.size() != request.perfis().size()){
                 throw new ResourceNotFoundException("Nao foi possivel atualizar o Usuario. Algum perfil informado não existe");
             }
-
             entity.getPerfis().clear();
             entity.addPerfis(perfis);
         }
-
         return mapper.toDTO(entity);
     }
 
     @Transactional
     public void deleteUsuario(Long id) {
-        Usuario entity = repository.findById(id).orElseThrow(
+        Usuario entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Usuario não encontrado")
         );
-        try {
-            repository.delete(entity);
-            repository.flush();
-        }
-        catch (DataIntegrityViolationException e){
-            throw new DatabaseException("Não é possível excluir pois há Cliente ou Perfis associados");
-        }
+        entity.setAtivo(false);
     }
 
 }

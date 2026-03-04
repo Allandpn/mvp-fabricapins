@@ -1,17 +1,13 @@
 package com.finalphase.fabricapins.service;
 
 import com.finalphase.fabricapins.domain.entities.Cliente;
-import com.finalphase.fabricapins.domain.entities.Endereco;
 import com.finalphase.fabricapins.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
-import com.finalphase.fabricapins.dto.cliente.ClienteWtihPedidoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
 import com.finalphase.fabricapins.exception.DatabaseException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.mapper.ClienteMapper;
-import com.finalphase.fabricapins.mapper.EnderecoMapper;
 import com.finalphase.fabricapins.repository.ClienteRepository;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -19,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,7 +30,7 @@ public class ClienteService {
     // TODO - REVISAR
     @Transactional(readOnly = true)
     public ClienteMinDTO findById(Long id) {
-        Cliente entity = repository.findById(id).orElseThrow(
+        Cliente entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
         return mapper.toDTO(entity);
@@ -44,7 +39,7 @@ public class ClienteService {
     // TODO - REVISAR
     @Transactional(readOnly = true)
     public Page<ClienteMinDTO> findAll(Pageable pageable) {
-        Page<Cliente> result = repository.findAll(pageable);
+        Page<Cliente> result = repository.findAllByAtivoTrue(pageable);
         return result.map(x -> mapper.toDTO(x));
     }
 
@@ -59,6 +54,7 @@ public class ClienteService {
         }
         Cliente entity = mapper.toEntity(request);
         try {
+            entity.setAtivo(true);
             repository.save(entity);
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Não foi possível cadastrar o Cliente");
@@ -69,11 +65,11 @@ public class ClienteService {
     // TODO - REVISAR
     @Transactional()
     public ClienteMinDTO updateCliente(Long id, ClienteRequest request) {
-        Cliente entity = repository.findById(id).orElseThrow(
+        Cliente entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
 
-        if(repository.existsByNumeroDocumentoAndIdNot(request.nome(), id)){
+        if(repository.existsByNumeroDocumentoAndIdNot(request.numeroDocumento(), id)){
             throw new DatabaseException("Já existe um cliente com esse numero de documento");
         }
         if(repository.existsByEmailAndIdNot(request.email(), id)){
@@ -86,16 +82,10 @@ public class ClienteService {
     // TODO - REVISAR
     @Transactional()
     public void deleteCliente(Long id) {
-        Cliente entity = repository.findById(id).orElseThrow(
+        Cliente entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
-        try {
-            repository.delete(entity);
-            repository.flush();
-        }
-        catch (DataIntegrityViolationException e){
-            throw new DatabaseException("Não é possível excluir pois há entidades associadas");
-        }
+        entity.setAtivo(false);
     }
 
 

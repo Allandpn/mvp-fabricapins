@@ -1,13 +1,13 @@
 package com.finalphase.fabricapins.repository;
 
 import com.finalphase.fabricapins.domain.entities.Cliente;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
@@ -21,4 +21,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     boolean existsByNumeroDocumento(String s);
 
     boolean existsByEmailAndIdNot(String email, Long id);
+
+    Optional<Cliente> findByIdAndAtivoTrue(Long id);
+
+    Page<Cliente> findAllByAtivoTrue(Pageable pageable);
 }
