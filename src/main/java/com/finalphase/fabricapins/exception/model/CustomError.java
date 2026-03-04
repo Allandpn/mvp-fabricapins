@@ -12,22 +12,22 @@ import java.time.Instant;
 public class CustomError {
 
     @Schema(description = "Momento em que o erro ocorreu",
-            example = "2026-02-28T22:45:10Z")
+            example = " ")
     private Instant timestamp;
 
     @Schema(description = "Código HTTP do erro",
-            example = "404")
+            example = " ")
     private Integer status;
 
     @Schema(description = "Descrição do erro",
-            example = "Recurso não encontrado")
+            example = " ")
     private String error;
 
     @Schema(description = "Mensagem detalhada",
-            example = "Perfil com id 5 não encontrado")
+            example = " ")
     private String message;
 
     @Schema(description = "Caminho da requisição",
-            example = "/perfil/5")
+            example = " ")
     private String path;
 }
