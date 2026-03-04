@@ -24,7 +24,7 @@ public class Categoria {
 
     @Setter
     @NotBlank
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, unique = true, length = 100)
     private String nome;
 
     @Setter

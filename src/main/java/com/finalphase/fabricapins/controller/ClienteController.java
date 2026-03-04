@@ -2,7 +2,6 @@ package com.finalphase.fabricapins.controller;
 
 import com.finalphase.fabricapins.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
-import com.finalphase.fabricapins.dto.cliente.ClienteWtihPedidoDTO;
 import com.finalphase.fabricapins.service.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/clientes")

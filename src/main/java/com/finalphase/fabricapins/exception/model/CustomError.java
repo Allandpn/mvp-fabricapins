@@ -12,22 +12,22 @@ import java.time.Instant;
 public class CustomError {
 
     @Schema(description = "Momento em que o erro ocorreu",
-            example = " ")
+            example = "")
     private Instant timestamp;
 
     @Schema(description = "Código HTTP do erro",
-            example = " ")
+            example = "integer")
     private Integer status;
 
     @Schema(description = "Descrição do erro",
-            example = " ")
+            example = "string")
     private String error;
 
     @Schema(description = "Mensagem detalhada",
-            example = " ")
+            example = "string")
     private String message;
 
     @Schema(description = "Caminho da requisição",
-            example = " ")
+            example = "string")
     private String path;
 }
