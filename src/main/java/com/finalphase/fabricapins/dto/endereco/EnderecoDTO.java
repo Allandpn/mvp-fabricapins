@@ -4,12 +4,17 @@ import com.finalphase.fabricapins.domain.enums.TipoEndereco;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 
 @Schema(description = "DTO de requisição do Endereço")
 public record EnderecoDTO(
+
+        Long id,
+
         @NotBlank(message = "Campo requerido")
+        @Size(min= 8, max = 8, message = "CEP deve conter 8 caracteres")
         @Schema(description = "CEP", example = "89000000")
         String cep,
 

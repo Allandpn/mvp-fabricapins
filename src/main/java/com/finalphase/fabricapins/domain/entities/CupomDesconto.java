@@ -20,6 +20,7 @@ import java.util.*;
 public class CupomDesconto {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

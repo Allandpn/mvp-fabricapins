@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/cliente")
+@RequestMapping(value = "/clientes")
 @Tag(name = "Cliente", description = "Operações relacionados ao Cliente")
 public class ClienteController {
 

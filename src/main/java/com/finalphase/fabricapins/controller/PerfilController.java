@@ -23,7 +23,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/perfil")
+@RequestMapping(value = "/perfis")
 @Tag(name = "Perfil", description = "Operações relacionados ao Perfil do Usuário")
 public class PerfilController {
 

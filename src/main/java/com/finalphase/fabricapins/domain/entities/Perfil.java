@@ -20,11 +20,11 @@ public class Perfil {
 
 
     @Id
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter
+    @EqualsAndHashCode.Include
     @Column(nullable = false, unique = true, length = 50)
     private String nome;
 

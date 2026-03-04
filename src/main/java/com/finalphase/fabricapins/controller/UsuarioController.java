@@ -21,7 +21,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping(value = "/usuario")
+@RequestMapping(value = "/usuarios")
 @Tag(name = "Usuario", description = "Operações relacionados ao Usuario")
 public class UsuarioController {
 

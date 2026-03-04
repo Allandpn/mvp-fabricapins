@@ -36,7 +36,7 @@ public class ClienteService {
     @Transactional(readOnly = true)
     public ClienteMinDTO findById(Long id) {
         Cliente entity = repository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Usuario não encontrado")
+                () -> new ResourceNotFoundException("Cliente não encontrado")
         );
         return mapper.toDTO(entity);
     }
@@ -50,7 +50,7 @@ public class ClienteService {
 
     // TODO - REVISAR
     @Transactional()
-    public ClienteMinDTO insertCliente(@Valid ClienteRequest request) {
+    public ClienteMinDTO insertCliente(ClienteRequest request) {
         if(repository.existsByNumeroDocumento(request.numeroDocumento())){
             throw new DatabaseException("Já existe um cliente com esse numero de documento");
         }
@@ -68,7 +68,7 @@ public class ClienteService {
 
     // TODO - REVISAR
     @Transactional()
-    public ClienteMinDTO updateCliente(Long id, @Valid ClienteRequest request) {
+    public ClienteMinDTO updateCliente(Long id, ClienteRequest request) {
         Cliente entity = repository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
