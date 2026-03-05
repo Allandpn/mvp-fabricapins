@@ -7,12 +7,13 @@
 public class Categoria {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter
     @NotBlank
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, unique = true, length = 100)
     private String nome;
 
     @Setter
@@ -106,6 +107,14 @@ public class Cliente {
         this.tipoPessoa = tipoPessoa;
         this.numeroDocumento = numeroDocumento;
     }
+
+
+    // HELPERS
+    public void addEndereco(Endereco endereco){
+        endereco.setCliente(this);
+        this.enderecos.add(endereco);
+    }
+
 }
 
 
@@ -119,6 +128,7 @@ public class Cliente {
 public class CupomDesconto {
 
     @Id
+    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -231,6 +241,7 @@ public class Endereco {
     @Setter
     private String apelido;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
@@ -557,12 +568,18 @@ public class PedidoCupomPK {
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Perfil {
 
+    public static final String ADMIN = "ROLE_ADMIN";
+    public static final String GERENTE = "ROLE_GERENTE";
+    public static final String VENDEDOR = "ROLE_VENDEDOR";
+    public static final String CLIENTE = "ROLE_CLIENTE";
+
+
     @Id
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter
+    @EqualsAndHashCode.Include
     @Column(nullable = false, unique = true, length = 50)
     private String nome;
 

@@ -7,6 +7,7 @@ import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -26,7 +27,6 @@ public class Produto {
     private Long id;
 
     @Setter
-    @NotBlank
     @Column(nullable = false, length = 150)
     private String nome;
 
@@ -35,33 +35,25 @@ public class Produto {
     private String descricao;
 
     @Setter
-    @NotBlank
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TipoEstoqueProduto tipoEstoque;
-
-    @Setter
-    @NotBlank
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal precoVarejo;
-
-    @Setter
-    @NotBlank
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal precoRevenda;
-
-    @Setter
-    @NotBlank
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal custoProducao;
-
-    @Setter
     private String imgUrl;
 
     @Setter
+    @Column(nullable = false)
+    private Double peso;
+
+    @Setter
+    private Double altura;
+
+    @Setter
+    private Double largura;
+
+    @Setter
+    private Double comprimento;
+
+    @Setter
     @NotBlank
-    @Column(unique = true, length = 100)
-    private String sku;
+    @Column(nullable = false,unique = true, length = 150)
+    private String slug;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -84,13 +76,12 @@ public class Produto {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
-    public Produto(String nome, TipoEstoqueProduto tipoEstoque,
-                   BigDecimal precoVarejo, BigDecimal precoRevenda, BigDecimal custoProducao) {
+    public Produto(String nome, String descricao, String imgUrl, String slug, boolean destaque) {
         this.nome = nome;
-        this.tipoEstoque = tipoEstoque;
-        this.precoVarejo = precoVarejo;
-        this.precoRevenda = precoRevenda;
-        this.custoProducao = custoProducao;
+        this.descricao = descricao;
+        this.imgUrl = imgUrl;
+        this.slug = slug;
+        this.destaque = destaque;
     }
 
     //HELPERS

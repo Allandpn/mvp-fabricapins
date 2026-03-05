@@ -1,11 +1,17 @@
 package com.finalphase.fabricapins.domain.entities;
 
+import com.finalphase.fabricapins.domain.enums.TipoEstoqueProduto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +28,6 @@ public class ProdutoVariacao {
     private Long id;
 
     @Setter
-    @NotBlank
     @Column(nullable = false, length = 100)
     private String nome;
 
@@ -31,24 +36,43 @@ public class ProdutoVariacao {
     private String descricao;
 
     @Setter
-    @Min(0)
-    @NotBlank
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoEstoqueProduto tipoEstoque;
+
+    @Setter
     @Column(nullable = false)
     private Integer quantidadeEstoque;
 
     @Setter
-    @Min(0)
-    @NotBlank
     @Column(nullable = false)
     private Integer estoqueMinimo;
 
     @Setter
     @NotBlank
-    @Column(nullable = false, length = 100)
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal precoVarejo;
+
+    @Setter
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal precoRevenda;
+
+    @Setter
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal custoProducao;
+
+    @Setter
+    private LocalDate dataPrevistaEnvio;
+
+    @Setter
+    @Column(nullable = false,unique = true, length = 100)
     private String sku;
 
     @Setter
     private String imgUrl;
+
+    @UpdateTimestamp
+    private Instant dataAtualizacao;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)

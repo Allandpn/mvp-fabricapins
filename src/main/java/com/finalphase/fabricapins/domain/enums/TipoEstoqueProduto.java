@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.domain.enums;
 
 public enum TipoEstoqueProduto {
     ESTOQUE,
-    PRODUCAO;
+    PRODUCAO,
+    PRE_VENDA;
 
 }

@@ -1,20 +1,45 @@
 package com.finalphase.fabricapins.dto.produto;
-import com.finalphase.fabricapins.domain.enums.TipoEstoqueProduto;
-import java.math.BigDecimal;
-import java.time.Instant;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
+
+@Schema(description = "DTO de requisição do Produto")
 public record ProdutoRequest(
+
+        @NotBlank(message = "Campo requerido")
+        @Size(min = 3, max = 150, message = "Nome do Produto precisa estar entre 3 e 150 caracteres")
+        @Schema(description = "Nome do Produto", example = "Pin Girassol")
         String nome,
+
+        @NotBlank(message = "Campo requerido")
+        @Size(min = 3, max = 3000, message = "Descrição precisa estar entre 3 e 3000 caracteres")
+        @Schema(description = "Descrição do Produto", example = "Pin dourado metálico 30x13x2mm com acabamento esmaltado")
         String descricao,
-        TipoEstoqueProduto tipoEstoque,
-        BigDecimal precoVarejo,
-        BigDecimal precoRevenda,
-        BigDecimal custoProducao,
+
+        @Schema(description = "URL da imagem do produto", example = "images/produto-123.jpg")
         String imgUrl,
-        String sku,
-        Instant dataCadastro,
-        Instant dataAtualizacao,
+
+        @NotNull
+        @PositiveOrZero
+        @Schema(description = "Peso do produto (g)", example = "13")
+        Double peso,
+
+        @Positive
+        @Schema(description = "Altura do produto (mm)", example = "10")
+        Double altura,
+
+        @Positive
+        @Schema(description = "Largura do produto (mm)", example = "20")
+        Double largura,
+
+        @Positive
+        @Schema(description = "Comprimento do produto (mm)", example = "30")
+        Double comprimento,
+
+        @Schema(description = "Indica se o produto será exibido como destaque na loja", example = "true")
         boolean destaque,
-        boolean ativo,
+
+        @NotNull
+        @Schema(description = "ID da categoria do produto", example = "2")
         Long categoriaId
 ) {}
