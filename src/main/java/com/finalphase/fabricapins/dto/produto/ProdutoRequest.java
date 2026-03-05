@@ -39,6 +39,9 @@ public record ProdutoRequest(
         @Schema(description = "Indica se o produto será exibido como destaque na loja", example = "true")
         boolean destaque,
 
+        @Schema(description = "Produto ativo", example = "true")
+        boolean ativo,
+
         @NotNull
         @Schema(description = "ID da categoria do produto", example = "2")
         Long categoriaId

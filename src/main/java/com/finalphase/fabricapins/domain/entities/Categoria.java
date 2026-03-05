@@ -35,6 +35,7 @@ public class Categoria {
     @Column(nullable = false)
     private boolean ativa = true;
 
+    @Setter
     @OneToMany(mappedBy = "categoria")
     private List<Produto> produtos = new ArrayList<>();
 
@@ -42,4 +43,5 @@ public class Categoria {
         this.nome = nome;
         this.descricao = descricao;
     }
+
 }

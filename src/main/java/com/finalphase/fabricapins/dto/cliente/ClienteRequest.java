@@ -36,6 +36,7 @@ public record ClienteRequest(
         @Schema(description = "Numero do Documento", example = "00055522266")
         String numeroDocumento,
 
+        @NotNull
         @Schema(description = "Cliente ativo", example = "true")
         boolean ativo
 ) {}

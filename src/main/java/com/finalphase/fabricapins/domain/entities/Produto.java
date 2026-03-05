@@ -63,12 +63,14 @@ public class Produto {
     private boolean destaque = false;
 
     @Setter
+    @Column(nullable = false)
     private boolean ativo = true;
 
     @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 20)
     private List<ProdutoVariacao> produtosVariacao = new ArrayList<>();
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
@@ -90,6 +92,15 @@ public class Produto {
     public void removerProdutoVariacao(ProdutoVariacao prodV){
         produtosVariacao.remove(prodV);
         prodV.setProduto(null);
+    }
+
+    // GERAR SLUG
+    public String gerarSlug(String nome) {
+        String slug = nome
+                .toLowerCase()
+                .replaceAll("[^a-z0-9\\s]", "")
+                .replaceAll("\\s+", "-");
+        return slug;
     }
 
 }
