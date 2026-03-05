@@ -3,6 +3,7 @@ package com.finalphase.fabricapins.dto.produto_variacao;
 import com.finalphase.fabricapins.domain.enums.TipoEstoqueProduto;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 public record ProdutoVariacaoDTO(
@@ -18,5 +19,6 @@ public record ProdutoVariacaoDTO(
         LocalDate dataPrevistaEnvio,
         String sku,
         String imgUrl,
+        Instant dataAtualizacao,
         Long produtoId
 ) {}

@@ -21,6 +21,8 @@ public interface ProdutoMapper {
     @Mapping(target = "dataCadastro", ignore = true)
     @Mapping(target = "dataAtualizacao", ignore = true)
     @Mapping(target = "categoria", ignore = true)
+    @Mapping(target = "slug", ignore = true)
+    @Mapping(target = "ativo", ignore = true)
     Produto toEntity(ProdutoRequest dto);
 
     @InheritConfiguration(name = "toEntity")

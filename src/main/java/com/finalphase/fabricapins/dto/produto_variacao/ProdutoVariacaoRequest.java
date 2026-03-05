@@ -56,9 +56,5 @@ public record ProdutoVariacaoRequest(
         String sku,
 
         @Schema(description = "URL da imagem do produto", example = "images/produto-123.jpg")
-        String imgUrl,
-
-        @NotNull
-        @Schema(description = "ID do produto", example = "2")
-        Long produtoId
+        String imgUrl
 ) {}

@@ -2,9 +2,7 @@ package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.TipoEstoqueProduto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.UpdateTimestamp;
