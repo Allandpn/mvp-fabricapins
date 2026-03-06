@@ -8,5 +8,5 @@ public record CatalogoProdutoVariacaoDTO (
         String nomeVariacao,
         String imgUrl,
         BigDecimal precoVarejo,
-        String slug
+        String sku
 ){}

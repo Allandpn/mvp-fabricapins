@@ -80,6 +80,7 @@ public class ProdutoService {
         );
         entity.setCategoria(categoria);
         entity.setSlug(slug);
+        // TODO - REVISAR UPDATE
         mapper.partialUpdateFromDto(request, entity);
         return mapper.toMinDTO(entity);
     }

@@ -20,5 +20,6 @@ public record ProdutoVariacaoDTO(
         String sku,
         String imgUrl,
         Instant dataAtualizacao,
-        Long produtoId
+        Long produtoId,
+        String produtoNome
 ) {}

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -47,7 +48,6 @@ public class ProdutoVariacao {
     private Integer estoqueMinimo;
 
     @Setter
-    @NotBlank
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal precoVarejo;
 
@@ -68,6 +68,14 @@ public class ProdutoVariacao {
 
     @Setter
     private String imgUrl;
+
+    @Setter
+    @Column(nullable = false)
+    private boolean ativo = true;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant dataCadastro;
 
     @UpdateTimestamp
     private Instant dataAtualizacao;

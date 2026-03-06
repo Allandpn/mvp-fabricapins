@@ -1,10 +1,13 @@
 package com.finalphase.fabricapins.controller;
 
-
 import com.finalphase.fabricapins.dto.produto.ProdutoDTO;
 import com.finalphase.fabricapins.dto.produto.ProdutoMinDTO;
 import com.finalphase.fabricapins.dto.produto.ProdutoRequest;
-import com.finalphase.fabricapins.service.ProdutoService;
+import com.finalphase.fabricapins.dto.produto_variacao.CatalogoProdutoVariacaoDTO;
+import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoDTO;
+import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoMinDTO;
+import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoRequest;
+import com.finalphase.fabricapins.service.ProdutoVariacaoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,23 +23,24 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
-@RequestMapping(value = "/produtos")
-@Tag(name = "Produto", description = "Operações relacionados ao Produto")
-public class ProdutoController {
+@RequestMapping(value = "/produtos/{produtoId}/variacoes")
+@Tag(name = "Variação do Produto", description = "Operações relacionados às Variações do Produto")
+public class ProdutoVariacaoController {
 
     @Autowired
-    private ProdutoService service;
+    private ProdutoVariacaoService service;
 
     @Operation(summary = "Buscar Produto por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto localizado"),
             @ApiResponse(responseCode = "404", description = "Produto não localizado", content = @Content)
     })
-    @GetMapping(value = "/{id}")
-    public ResponseEntity<ProdutoDTO> findById(@PathVariable Long id){
-        ProdutoDTO dto = service.findById(id);
+    @GetMapping(value = "/{variacaoId}")
+    public ResponseEntity<ProdutoVariacaoDTO> findById(@PathVariable Long produtoId, @PathVariable Long variacaoId){
+        ProdutoVariacaoDTO dto = service.findById(produtoId, variacaoId);
         return ResponseEntity.ok(dto);
     }
 
@@ -46,8 +50,8 @@ public class ProdutoController {
             @ApiResponse(responseCode = "404", description = "Nenhum Produto localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<Page<ProdutoMinDTO>> findAll(Pageable pageable){
-        Page<ProdutoMinDTO> ListDto = service.findAll(pageable);
+    public ResponseEntity<List<CatalogoProdutoVariacaoDTO>> findAll(@PathVariable Long produtoId){
+        List<CatalogoProdutoVariacaoDTO> ListDto = service.findAll(produtoId);
         return ResponseEntity.ok(ListDto);
     }
 
@@ -57,8 +61,8 @@ public class ProdutoController {
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Produto", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<ProdutoMinDTO> insertProduto(@Valid @RequestBody ProdutoRequest request){
-        ProdutoMinDTO dto = service.insertProduto(request);
+    public ResponseEntity<ProdutoVariacaoDTO> insertProduto(@PathVariable Long produtoId, @Valid @RequestBody ProdutoVariacaoRequest request){
+        ProdutoVariacaoDTO dto = service.insertProduto(produtoId, request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
@@ -66,13 +70,15 @@ public class ProdutoController {
     @Operation(summary = "Atualizar Produto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProdutoMinDTO.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProdutoVariacaoDTO.class))),
             @ApiResponse(responseCode = "404", description = "Produto não localizado", content = @Content),
             @ApiResponse(responseCode = "409", description = "Já existe um Produto com esse nome", content = @Content)
     })
-    @PutMapping(value = "/{id}")
-    public ResponseEntity<ProdutoMinDTO> updateProduto(@PathVariable Long id, @Valid @RequestBody ProdutoRequest request){
-        return ResponseEntity.ok(service.updateProduto(id, request));
+    @PutMapping(value = "/{variacaoId}")
+    public ResponseEntity<ProdutoVariacaoDTO> updateProduto(@PathVariable Long produtoId,
+                                                            @PathVariable Long variacaoId,
+                                                            @Valid @RequestBody ProdutoVariacaoRequest request){
+        return ResponseEntity.ok(service.updateProduto(produtoId, variacaoId, request));
     }
 
     @Operation(summary = "Remover Produto")
@@ -81,12 +87,9 @@ public class ProdutoController {
             @ApiResponse(responseCode = "404", description = "Produto não localizado"),
             @ApiResponse(responseCode = "409", description = "Não é possível excluir pois existe alguma entidade associada")
     })
-    @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteProduto(@PathVariable Long id){
-        service.deleteProduto(id);
+    @DeleteMapping(value = "/{variacaoId}")
+    public ResponseEntity<Void> deleteProduto(@PathVariable Long produtoId, @PathVariable Long variacaoId){
+        service.deleteProduto(produtoId, variacaoId);
         return ResponseEntity.noContent().build();
     }
-
 }
-
-

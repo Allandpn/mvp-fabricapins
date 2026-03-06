@@ -185,7 +185,7 @@ INSERT INTO tb_produto_variacao
 (nome, descricao, tipo_estoque,
  quantidade_estoque, estoque_minimo,
  preco_varejo, preco_revenda, custo_producao,
- sku, img_url, produto_id)
+ sku, img_url, ativo, data_cadastro, produto_id)
 SELECT
 'Padrao',
 'Versao padrao',
@@ -200,7 +200,8 @@ SELECT
 
 CONCAT('SKU-', p.id, '-V1'),
 CONCAT('produto',p.id,'-v1.png'),
-
+true,
+CURRENT_TIMESTAMP,
 p.id
 
 FROM tb_produto p;
@@ -213,7 +214,7 @@ INSERT INTO tb_produto_variacao
  quantidade_estoque, estoque_minimo,
  preco_varejo, preco_revenda, custo_producao,
  data_prevista_envio,
- sku, img_url, produto_id)
+ sku, img_url, ativo, data_cadastro, produto_id)
 SELECT
 'Premium',
 'Versao premium',
@@ -230,7 +231,8 @@ CURRENT_DATE + 7,
 
 CONCAT('SKU-', p.id, '-V2'),
 CONCAT('produto',p.id,'-v2.png'),
-
+true,
+CURRENT_TIMESTAMP,
 p.id
 
 FROM tb_produto p;

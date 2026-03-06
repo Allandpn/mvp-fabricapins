@@ -25,14 +25,13 @@ public interface ProdutoMapper {
     @Mapping(target = "dataAtualizacao", ignore = true)
     @Mapping(target = "categoria", ignore = true)
     @Mapping(target = "slug", ignore = true)
+    @Mapping(target = "ativo", ignore = true)
     Produto toEntity(ProdutoRequest dto);
 
     @InheritConfiguration(name = "toEntity")
-    @Mapping(target = "ativo", ignore = true)
     void updateFromDto(ProdutoRequest dto, @MappingTarget Produto entity);
 
     @InheritConfiguration(name = "toEntity")
-    @Mapping(target = "ativo", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void partialUpdateFromDto(ProdutoRequest dto, @MappingTarget Produto entity);
 }
