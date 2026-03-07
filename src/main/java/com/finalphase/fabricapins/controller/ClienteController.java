@@ -19,6 +19,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+//TODO - implementar rota: GET /clientes/{clienteId}/pedidos
+
 @RestController
 @RequestMapping(value = "/clientes")
 @Tag(name = "Cliente", description = "Operações relacionados ao Cliente")

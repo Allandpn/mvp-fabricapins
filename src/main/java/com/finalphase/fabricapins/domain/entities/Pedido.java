@@ -12,10 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_pedido")
@@ -55,7 +52,7 @@ public class Pedido {
 
     @Setter
     @Column(precision = 15, scale = 2)
-    private BigDecimal desconto;
+    private BigDecimal desconto = BigDecimal.ZERO;
 
     @Setter
     @Column(nullable = false, unique = true, length = 50)
@@ -63,7 +60,7 @@ public class Pedido {
 
     @Setter
     @Column(precision = 15, scale = 2)
-    private BigDecimal valorFrete;
+    private BigDecimal valorFrete = BigDecimal.ZERO;
 
     @Setter
     private LocalDate dataPrevistaProducao;
@@ -103,12 +100,14 @@ public class Pedido {
     private String logradouro;
     @Setter
     @Column(nullable = false)
-    private Integer numero;
+    private String numero;
     @Setter
     private String complemento;
+    @Setter
+    private String pontoReferencia;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id", nullable = false)
+    @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -122,9 +121,11 @@ public class Pedido {
     @OneToMany(mappedBy = "id.pedido")
     private Set<PedidoCupom> pedidoCupomSet = new HashSet<>();
 
-    public Pedido(Cliente cliente, String numeroPedido) {
+    public Pedido(Cliente cliente, String numeroPedido, String nomeClienteSnapshot, String cpfCnpjClienteSnapshot) {
         this.cliente = cliente;
         this.numeroPedido = numeroPedido;
+        this.nomeClienteSnapshot = nomeClienteSnapshot;
+        this.cpfCnpjClienteSnapshot = cpfCnpjClienteSnapshot;
         this.statusPedido = StatusPedido.AGUARDANDO_PAGAMENTO;
         this.valorTotal = BigDecimal.ZERO;
         this.valorSubtotal = BigDecimal.ZERO;
@@ -152,5 +153,9 @@ public class Pedido {
                 .subtract(desc)
                 .add(valorFrete != null ? valorFrete : BigDecimal.ZERO);
         this.valorSubtotal = subTotal;
+    }
+
+    public String gerarNumeroPedido() {
+        return "PED-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 }

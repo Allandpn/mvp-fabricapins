@@ -40,9 +40,7 @@ public class EnderecoService {
     @Transactional(readOnly = true)
     public List<EnderecoDTO> findAllByClienteId(Long clienteId) {
         List<Endereco> result = repository
-                .findByClienteId(clienteId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Nenhum endereço encontrado"));
+                .findByClienteId(clienteId);
         return result.stream().map(mapper::toDTO).toList();
     }
 

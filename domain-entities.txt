@@ -24,6 +24,7 @@ public class Categoria {
     @Column(nullable = false)
     private boolean ativa = true;
 
+    @Setter
     @OneToMany(mappedBy = "categoria")
     private List<Produto> produtos = new ArrayList<>();
 
@@ -31,6 +32,7 @@ public class Categoria {
         this.nome = nome;
         this.descricao = descricao;
     }
+
 }
 
 
@@ -608,7 +610,6 @@ public class Produto {
     private Long id;
 
     @Setter
-    @NotBlank
     @Column(nullable = false, length = 150)
     private String nome;
 
@@ -617,33 +618,25 @@ public class Produto {
     private String descricao;
 
     @Setter
-    @NotBlank
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private TipoEstoqueProduto tipoEstoque;
-
-    @Setter
-    @NotBlank
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal precoVarejo;
-
-    @Setter
-    @NotBlank
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal precoRevenda;
-
-    @Setter
-    @NotBlank
-    @Column(precision = 15, scale = 2, nullable = false)
-    private BigDecimal custoProducao;
-
-    @Setter
     private String imgUrl;
 
     @Setter
+    @Column(nullable = false)
+    private Double peso;
+
+    @Setter
+    private Double altura;
+
+    @Setter
+    private Double largura;
+
+    @Setter
+    private Double comprimento;
+
+    @Setter
     @NotBlank
-    @Column(unique = true, length = 100)
-    private String sku;
+    @Column(nullable = false,unique = true, length = 150)
+    private String slug;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -656,23 +649,24 @@ public class Produto {
     private boolean destaque = false;
 
     @Setter
+    @Column(nullable = false)
     private boolean ativo = true;
 
     @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @BatchSize(size = 20)
     private List<ProdutoVariacao> produtosVariacao = new ArrayList<>();
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
-    public Produto(String nome, TipoEstoqueProduto tipoEstoque,
-                   BigDecimal precoVarejo, BigDecimal precoRevenda, BigDecimal custoProducao) {
+    public Produto(String nome, String descricao, String imgUrl, String slug, boolean destaque) {
         this.nome = nome;
-        this.tipoEstoque = tipoEstoque;
-        this.precoVarejo = precoVarejo;
-        this.precoRevenda = precoRevenda;
-        this.custoProducao = custoProducao;
+        this.descricao = descricao;
+        this.imgUrl = imgUrl;
+        this.slug = slug;
+        this.destaque = destaque;
     }
 
     //HELPERS
@@ -684,6 +678,15 @@ public class Produto {
     public void removerProdutoVariacao(ProdutoVariacao prodV){
         produtosVariacao.remove(prodV);
         prodV.setProduto(null);
+    }
+
+    // GERAR SLUG
+    public String gerarSlug(String nome) {
+        String slug = nome
+                .toLowerCase()
+                .replaceAll("[^a-z0-9\\s]", "")
+                .replaceAll("\\s+", "-");
+        return slug;
     }
 
 }
@@ -704,7 +707,6 @@ public class ProdutoVariacao {
     private Long id;
 
     @Setter
-    @NotBlank
     @Column(nullable = false, length = 100)
     private String nome;
 
@@ -713,24 +715,50 @@ public class ProdutoVariacao {
     private String descricao;
 
     @Setter
-    @Min(0)
-    @NotBlank
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoEstoqueProduto tipoEstoque;
+
+    @Setter
     @Column(nullable = false)
     private Integer quantidadeEstoque;
 
     @Setter
-    @Min(0)
-    @NotBlank
     @Column(nullable = false)
     private Integer estoqueMinimo;
 
     @Setter
-    @NotBlank
-    @Column(nullable = false, length = 100)
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal precoVarejo;
+
+    @Setter
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal precoRevenda;
+
+    @Setter
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal custoProducao;
+
+    @Setter
+    private LocalDate dataPrevistaEnvio;
+
+    @Setter
+    @Column(nullable = false,unique = true, length = 100)
     private String sku;
 
     @Setter
     private String imgUrl;
+
+    @Setter
+    @Column(nullable = false)
+    private boolean ativo = true;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant dataCadastro;
+
+    @UpdateTimestamp
+    private Instant dataAtualizacao;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)

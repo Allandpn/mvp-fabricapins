@@ -1,6 +1,8 @@
 package com.finalphase.fabricapins.repository;
 
 import com.finalphase.fabricapins.domain.entities.ProdutoVariacao;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -14,4 +16,6 @@ public interface ProdutoVariacaoRepository extends JpaRepository<ProdutoVariacao
     boolean existsBySku(String sku);
 
     Optional<List<ProdutoVariacao>> findAllByProdutoIdAndProdutoAtivoTrueAndAtivoTrue(Long produtoId);
+
+    boolean existsBySkuAndIdNot(String sku, Long variacaoId);
 }

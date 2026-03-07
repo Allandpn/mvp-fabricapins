@@ -12,6 +12,12 @@ done > domain-entities.txt
 
 find . -type f -path "*/mapper/*.java" -print0 | while IFS= read -r -d '' file; do
   echo "===== ARQUIVO: $file ====="
-  cat "$file"
+  sed -n '/@/,$p' "$file"
   echo -e "\n\n"
 done > domain-mappers.txt
+
+find . -type f -path "*/service/*.java" -print0 | while IFS= read -r -d '' file; do
+  echo "===== ARQUIVO: $file ====="
+  sed -n '/@/,$p' "$file"
+  echo -e "\n\n"
+done > services.txt

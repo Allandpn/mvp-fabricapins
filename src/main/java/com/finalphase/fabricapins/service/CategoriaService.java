@@ -29,7 +29,7 @@ public class CategoriaService {
     @Transactional(readOnly = true)
     public CategoriaDTO findById(Long id) {
         Categoria entity = repository.findByIdAndAtivaTrue(id).orElseThrow(
-                () -> new ResourceNotFoundException("Cliente não encontrado")
+                () -> new ResourceNotFoundException("Categoria não encontrada")
         );
         return mapper.toDTO(entity);
     }

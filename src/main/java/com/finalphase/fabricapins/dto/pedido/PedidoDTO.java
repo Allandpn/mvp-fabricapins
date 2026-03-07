@@ -6,6 +6,12 @@ import com.finalphase.fabricapins.domain.entities.Pagamento;
 import com.finalphase.fabricapins.domain.entities.PedidoCupom;
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
+import com.finalphase.fabricapins.dto.cliente.ClienteMinPedidoDTO;
+import com.finalphase.fabricapins.dto.cupom_desconto.CupomMinPedidoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
+import com.finalphase.fabricapins.dto.pagamento.PagamentoDTO;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,17 +34,9 @@ public record PedidoDTO(
         LocalDate dataConclusaoPedido,
         LocalDate dataEnvio,
         LocalDate dataEntrega,
-        String nomeClienteSnapshot,
-        String cpfCnpjClienteSnapshot,
-        String cep,
-        String estado,
-        String cidade,
-        String bairro,
-        String logradouro,
-        Integer numero,
-        String complemento,
-        Cliente cliente,
-        Pagamento pagamento,
-        List<ItemPedido> itemsPedido,
-        Set<PedidoCupom> pedidoCupomSet
+        ClienteMinPedidoDTO cliente,
+        EnderecoPedidoDTO enderecoDTO,
+        PagamentoDTO pagamento,
+        List<ItemPedidoDTO> itemsPedido,
+        Set<CupomMinPedidoDTO> cupons
 ) {}

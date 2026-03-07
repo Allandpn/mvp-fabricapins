@@ -72,7 +72,7 @@ public class ProdutoVariacaoService {
                 .findByProdutoIdAndIdAndProdutoAtivoTrueAndAtivoTrue(produtoId, variacaoId).orElseThrow(
                         () -> new ResourceNotFoundException("Produto não encontrado")
                 );
-        if(produtoVariacaoRepository.existsBySku(request.sku())){
+        if(produtoVariacaoRepository.existsBySkuAndIdNot(request.sku(), variacaoId)){
             throw new DatabaseException("Já existe um produto com esse nome");
         }
         mapper.updateFromDto(request, entity);
