@@ -1,8 +1,10 @@
 package com.finalphase.fabricapins.dto.cupom_desconto;
 import com.finalphase.fabricapins.domain.enums.TipoDesconto;
+import com.finalphase.fabricapins.dto.PedidoCupom.PedidoCupomDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Set;
 
 public record CupomDescontoDTO(
         Long id,
@@ -13,7 +15,8 @@ public record CupomDescontoDTO(
         LocalDate dataValidade,
         Integer quantidadeMinimaItens,
         BigDecimal valorMinimoPedido,
-        Integer limiteUsos
+        Integer limiteUsos,
+        Set<PedidoCupomDTO> pedidoCupomSet
 ) {}
 
 

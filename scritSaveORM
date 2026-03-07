@@ -2,22 +2,34 @@ find . -type f -path "*/domain/enums/*.java" -print0 | while IFS= read -r -d '' 
   echo "===== ARQUIVO: $file ====="
   cat "$file"
   echo -e "\n\n"
-done > domain-enums.txt
+done > compiled/domain-enums.txt
 
 find . -type f -path "*/domain/entities/*.java" -print0 | while IFS= read -r -d '' file; do
   echo "===== ARQUIVO: $file ====="
   sed -n '/@/,$p' "$file"
   echo -e "\n\n"
-done > domain-entities.txt
+done > compiled/domain-entities.txt
+
+find . -type f -path "*/dto/*" -name "*.java" -print0 | while IFS= read -r -d '' file; do
+  echo "===== ARQUIVO: $file ====="
+  sed -n '/@/,$p' "$file"
+  echo -e "\n\n"
+done > compiled/domain-dto.txt
 
 find . -type f -path "*/mapper/*.java" -print0 | while IFS= read -r -d '' file; do
   echo "===== ARQUIVO: $file ====="
   sed -n '/@/,$p' "$file"
   echo -e "\n\n"
-done > domain-mappers.txt
+done > compiled/domain-mappers.txt
 
 find . -type f -path "*/service/*.java" -print0 | while IFS= read -r -d '' file; do
   echo "===== ARQUIVO: $file ====="
   sed -n '/@/,$p' "$file"
   echo -e "\n\n"
-done > services.txt
+done > compiled/services.txt
+
+find . -type f -path "*/mapper/*.java" -print0 | while IFS= read -r -d '' file; do
+  echo "===== ARQUIVO: $file ====="
+  sed -n '/@/,$p' "$file"
+  echo -e "\n\n"
+done > compiled/mapper.txt

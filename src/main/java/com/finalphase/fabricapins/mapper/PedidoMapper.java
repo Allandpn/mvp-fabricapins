@@ -13,7 +13,8 @@ import org.mapstruct.*;
         uses = {ClienteMapper.class,
                 PagamentoMapper.class,
                 ItemPedidoMapper.class,
-                CupomDescontoMapper.class
+                CupomDescontoMapper.class,
+                PedidoCupomMapper.class
         }
 )
 public interface PedidoMapper {

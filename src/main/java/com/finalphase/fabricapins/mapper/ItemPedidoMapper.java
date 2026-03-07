@@ -1,11 +1,28 @@
 package com.finalphase.fabricapins.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
+import com.finalphase.fabricapins.domain.entities.ItemPedido;
+import com.finalphase.fabricapins.domain.entities.Pedido;
+import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
+import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
+import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
+import org.mapstruct.*;
 
 @Mapper(
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface ItemPedidoMapper {
+
+    @Mapping(source = "produtoVariacao.id", target ="produtoVariacaoId")
+    @Mapping(source = "produtoVariacao.nome", target ="produtoVariacaoNome")
+    ItemPedidoDTO toDTO(ItemPedido entity);
+
+//    ItemPedido toEntity(ItemPedidoDTO dto);
+
+//    void updateFromDto(ItemPedidoRequest dto, @MappingTarget ItemPedido entity);
+//
+//    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+//    void partialUpdateFromDto(ItemPedidoRequest dto, @MappingTarget ItemPedido entity);
+
+
 }

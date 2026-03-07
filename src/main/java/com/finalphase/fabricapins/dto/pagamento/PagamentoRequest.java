@@ -8,10 +8,8 @@ import java.math.BigDecimal;
 public record PagamentoRequest(
         BigDecimal valorPago,
         FormaPagamento formaPagamento,
-        StatusPagamento statusPagamento,
         String codigoTransacao,
         String gatewayPagamento,
         Integer parcelasCartao,
-        String motivoRecusa,
         Long pedidoId
 ) {}

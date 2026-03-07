@@ -15,9 +15,11 @@ public interface PagamentoMapper {
     PagamentoDTO toDTO(Pagamento entity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "pedido", ignore = true)
     @Mapping(target = "dataPagamento", ignore = true)
+    @Mapping(target = "statusPagamento", ignore = true)
     @Mapping(target = "dataConfirmacao", ignore = true)
+    @Mapping(target = "motivoRecusa", ignore = true)
+    @Mapping(target = "pedido", ignore = true)
     Pagamento toEntity(PagamentoRequest dto);
 
     @InheritConfiguration(name = "toEntity")
