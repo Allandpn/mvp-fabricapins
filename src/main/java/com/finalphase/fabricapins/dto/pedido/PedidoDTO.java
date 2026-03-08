@@ -29,15 +29,15 @@ public record PedidoDTO(
         BigDecimal valorTotal,
         BigDecimal valorSubtotal,
         BigDecimal desconto,
-        String numeroPedido,
+        String codigoPedido,
         BigDecimal valorFrete,
         LocalDate dataPrevistaProducao,
         LocalDate dataConclusaoPedido,
         LocalDate dataEnvio,
         LocalDate dataEntrega,
         ClienteMinPedidoDTO cliente,
-        EnderecoPedidoDTO enderecoDTO,
+        EnderecoPedidoDTO enderecoEntrega,
         PagamentoDTO pagamento,
-        List<ItemPedidoDTO> itemsPedido,
-        Set<PedidoCupomDTO> pedidoCupomSet
+        List<ItemPedidoDTO> items,
+        List<PedidoCupomDTO> cupons
 ) {}

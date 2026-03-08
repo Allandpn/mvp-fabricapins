@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
+import com.finalphase.fabricapins.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -9,6 +10,7 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.naming.InsufficientResourcesException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -56,7 +58,7 @@ public class Pedido {
 
     @Setter
     @Column(nullable = false, unique = true, length = 50)
-    private String numeroPedido;
+    private String codigoPedido;
 
     @Setter
     @Column(precision = 15, scale = 2)
@@ -80,7 +82,7 @@ public class Pedido {
     private String nomeClienteSnapshot;
     @Setter
     @Column(nullable = false)
-    private String cpfCnpjClienteSnapshot;
+    private String documentoClienteSnapshot;
 
     // Endereco snapshot
     @Setter
@@ -106,26 +108,29 @@ public class Pedido {
     @Setter
     private String pontoReferencia;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
+    @Setter
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "pagamento_id")
     private Pagamento pagamento;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @BatchSize(size = 20)
+    @Column(nullable = false)
     private List<ItemPedido> itemsPedido = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.pedido")
-    private Set<PedidoCupom> pedidoCupomSet = new HashSet<>();
+    @OneToMany(mappedBy = "id.pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<PedidoCupom> cupons = new HashSet<>();
 
-    public Pedido(Cliente cliente, String numeroPedido, String nomeClienteSnapshot, String cpfCnpjClienteSnapshot) {
+    public Pedido(Cliente cliente, String codigoPedido, String nomeClienteSnapshot, String documentoClienteSnapshot) {
         this.cliente = cliente;
-        this.numeroPedido = numeroPedido;
+        this.codigoPedido = codigoPedido;
         this.nomeClienteSnapshot = nomeClienteSnapshot;
-        this.cpfCnpjClienteSnapshot = cpfCnpjClienteSnapshot;
+        this.documentoClienteSnapshot = documentoClienteSnapshot;
         this.statusPedido = StatusPedido.AGUARDANDO_PAGAMENTO;
         this.valorTotal = BigDecimal.ZERO;
         this.valorSubtotal = BigDecimal.ZERO;
@@ -133,8 +138,14 @@ public class Pedido {
 
     // HELPERS
     public void adicionarItem(ItemPedido item){
-        itemsPedido.add(item);
+        ProdutoVariacao produtoVariacao = item.getProdutoVariacao();
+        if(produtoVariacao.getQuantidadeEstoque() < item.getQuantidade()){
+            throw new InsufficientStockException(
+                    "Estoque insuficiente para o produto: " + produtoVariacao.getNome() + "- id: " + produtoVariacao.getId());
+        }
+        produtoVariacao.reduzirEstoque(item.getQuantidade());
         item.setPedido(this);
+        this.itemsPedido.add(item);
         recalcularTotal();
     }
 
@@ -148,11 +159,28 @@ public class Pedido {
         BigDecimal subTotal = itemsPedido.stream()
                 .map(ItemPedido::calcularSubTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        this.valorSubtotal = subTotal;
         BigDecimal desc = desconto != null ? desconto : BigDecimal.ZERO;
+        BigDecimal frete = valorFrete != null ? valorFrete : BigDecimal.ZERO;
         this.valorTotal = subTotal
                 .subtract(desc)
-                .add(valorFrete != null ? valorFrete : BigDecimal.ZERO);
-        this.valorSubtotal = subTotal;
+                .add(frete);
+    }
+
+    public void aplicarCupom(PedidoCupom cupom){
+        cupons.add(cupom);
+        cupom.adicionarPedido(this);
+        this.desconto = desconto.add(cupom.getValorDescontoAplicado());
+        recalcularTotal();
+    }
+
+    public void removerItem(PedidoCupom cupom){
+        cupons.remove(cupom);
+        cupom.removerPedido();
+        this.desconto = cupons.stream()
+                .map(PedidoCupom::getValorDescontoAplicado)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        recalcularTotal();
     }
 
     public String gerarNumeroPedido() {

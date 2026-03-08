@@ -26,4 +26,12 @@ public class PedidoCupom {
     private BigDecimal valorDescontoAplicado;
 
 
+    // HELPERS
+    public void adicionarPedido(Pedido pedido){
+        this.id.setPedido(pedido);
+    }
+
+    public void removerPedido(){
+        this.id.setPedido(null);
+    }
 }

@@ -29,6 +29,10 @@ public class ItemPedido {
     private BigDecimal precoUnitario;
 
     @Setter
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal subTotal;
+
+    @Setter
     @Column(nullable = false, length = 150)
     private String nomeProdutoSnapshot;
 
@@ -48,15 +52,18 @@ public class ItemPedido {
     @JoinColumn(name = "produto_variacao_id")
     private ProdutoVariacao produtoVariacao;
 
-    public ItemPedido(Integer quantidade, BigDecimal precoUnitario, String nomeProdutoSnapshot, BigDecimal getCustoUnitarioSnapshot) {
+    public ItemPedido(Integer quantidade, BigDecimal precoUnitario, String nomeProdutoSnapshot, BigDecimal custoUnitarioSnapshot, String imgProdutoSnapshot) {
         this.quantidade = quantidade;
         this.precoUnitario = precoUnitario;
         this.nomeProdutoSnapshot = nomeProdutoSnapshot;
-        this.custoUnitarioSnapshot = getCustoUnitarioSnapshot;
+        this.custoUnitarioSnapshot = custoUnitarioSnapshot;
+        this.imgProdutoSnapshot = imgProdutoSnapshot;
     }
 
     // Calcula valores Derivados
     public BigDecimal calcularSubTotal(){
-        return precoUnitario.multiply(new BigDecimal(quantidade));
+        BigDecimal subTotal = precoUnitario.multiply(new BigDecimal(quantidade));
+        this.subTotal = subTotal;
+        return subTotal;
     }
 }

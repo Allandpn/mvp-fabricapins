@@ -11,7 +11,6 @@ import org.mapstruct.*;
 )
 public interface PagamentoMapper {
 
-    @Mapping(source = "pedido.id", target = "pedidoId")
     PagamentoDTO toDTO(Pagamento entity);
 
     @Mapping(target = "id", ignore = true)

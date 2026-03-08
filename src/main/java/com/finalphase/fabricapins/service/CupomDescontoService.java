@@ -1,0 +1,34 @@
+package com.finalphase.fabricapins.service;
+
+import com.finalphase.fabricapins.domain.entities.CupomDesconto;
+import com.finalphase.fabricapins.exception.DateOutOfBoundsException;
+import com.finalphase.fabricapins.exception.ResourceNotFoundException;
+import com.finalphase.fabricapins.repository.CupomDescontoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.naming.InsufficientResourcesException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+
+@Service
+public class CupomDescontoService {
+
+    @Autowired
+    private CupomDescontoRepository repository;
+
+    @Transactional(readOnly = true)
+    public CupomDesconto findByCodigo(String codigo) throws InsufficientResourcesException {
+        CupomDesconto cupom = repository.findByCodigoAndAtivoTrue(codigo).orElseThrow(
+                () -> new ResourceNotFoundException("Cupom não encontrado")
+        );
+        if(cupom.getDataValidade().plusDays(1).atStartOfDay().isAfter(LocalDateTime.now())){;
+            throw new DateOutOfBoundsException("Cupom expirado");
+        }
+        if(cupom.getLimiteUsos() == 0){
+            throw new InsufficientResourcesException("Cupom atingiu limite de uso");
+        }
+        return cupom;
+    }
+}

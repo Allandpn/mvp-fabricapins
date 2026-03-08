@@ -16,7 +16,6 @@ public record PagamentoDTO(
         String gatewayPagamento,
         Integer parcelasCartao,
         Instant dataConfirmacao,
-        String motivoRecusa,
-        Long pedidoId
+        String motivoRecusa
 ) {}
 
