@@ -78,6 +78,9 @@ public class Pedido {
     @Setter
     private LocalDate dataEntrega;
 
+    @Setter
+    private String observacao;
+
     // Dados do cliente snapshot
     @Setter
     @Column(nullable = false)

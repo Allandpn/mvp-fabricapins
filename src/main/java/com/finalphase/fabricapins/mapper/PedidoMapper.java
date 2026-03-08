@@ -1,11 +1,10 @@
 package com.finalphase.fabricapins.mapper;
 
 import com.finalphase.fabricapins.domain.entities.Pedido;
-import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
-import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
 import org.mapstruct.*;
 
 @Mapper(
@@ -43,22 +42,22 @@ public interface PedidoMapper {
     @Mapping(target = "pagamento", ignore = true)
     @Mapping(target = "itemsPedido", ignore = true)
     @Mapping(target = "cupons", ignore = true)
-    @Mapping(source="enderecoDTO.cep", target = "cep")
-    @Mapping(source="enderecoDTO.estado", target = "estado")
-    @Mapping(source="enderecoDTO.cidade", target = "cidade")
-    @Mapping(source="enderecoDTO.bairro", target = "bairro")
-    @Mapping(source="enderecoDTO.logradouro", target = "logradouro")
-    @Mapping(source="enderecoDTO.numero", target = "numero")
-    @Mapping(source="enderecoDTO.complemento", target = "complemento")
-    @Mapping(source="enderecoDTO.pontoReferencia", target = "pontoReferencia")
-    Pedido toEntity(PedidoRequest dto);
+    @Mapping(source="enderecoEntrega.cep", target = "cep")
+    @Mapping(source="enderecoEntrega.estado", target = "estado")
+    @Mapping(source="enderecoEntrega.cidade", target = "cidade")
+    @Mapping(source="enderecoEntrega.bairro", target = "bairro")
+    @Mapping(source="enderecoEntrega.logradouro", target = "logradouro")
+    @Mapping(source="enderecoEntrega.numero", target = "numero")
+    @Mapping(source="enderecoEntrega.complemento", target = "complemento")
+    @Mapping(source="enderecoEntrega.pontoReferencia", target = "pontoReferencia")
+    Pedido toEntity(PedidoAdminRequest dto);
 
     @InheritConfiguration(name = "toEntity")
-    void updateFromDto(PedidoRequest dto, @MappingTarget Pedido entity);
+    void updateFromDto(PedidoAdminRequest dto, @MappingTarget Pedido entity);
 
     @InheritConfiguration(name = "toEntity")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void partialUpdateFromDto(PedidoRequest dto, @MappingTarget Pedido entity);
+    void partialUpdateFromDto(PedidoAdminRequest dto, @MappingTarget Pedido entity);
 
 
     //HELPERS

@@ -1,28 +1,23 @@
 package com.finalphase.fabricapins.dto.pedido;
 
-import com.finalphase.fabricapins.domain.entities.ItemPedido;
-import com.finalphase.fabricapins.domain.entities.PedidoCupom;
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
-import com.finalphase.fabricapins.domain.enums.StatusPedido;
-import com.finalphase.fabricapins.dto.cliente.ClienteMinPedidoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
-import com.finalphase.fabricapins.dto.pagamento.PagamentoDTO;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-@Schema(description = "DTO de requisição do Pedido")
-public record PedidoRequest(
+@Schema(description = "DTO de requisição do Pedido feito por Admin")
+public record PedidoAdminRequest(
         @NotNull(message = "Campo requerido")
-        @Schema(description = "Origem do Pedido", example = "WHATSAPP")
+        @Schema(description = "Origem do Pedido", example = "SITE")
         OrigemPedido origemPedido,
 
         @Schema(description = "Id do Cliente", example = "1")
@@ -38,13 +33,29 @@ public record PedidoRequest(
         String documentoClienteSnapshot,
 
         @NotNull(message = "Campo requerido")
-        @Schema(description = "Endereco de entrega", example = "{'cep': '12345678','estado': 'SP','cidade': 'Sao Paulo','bairro': 'Centro','logradouro': 'Rua Sao paulo','numero': '100','complemento': 'casa 03','pontoReferencia': 'proximo Praça da Sé'}")
-        EnderecoPedidoDTO enderecoDTO,
+        @Schema(description = "Endereco de entrega", implementation = EnderecoPedidoDTO.class)
+        EnderecoPedidoDTO enderecoEntrega,
+
+        @Schema(description = "Observações do pedido")
+        String observacao,
+
+        @PositiveOrZero
+        @Schema(description = "Desconto manual do pedido", example = "3.00")
+        BigDecimal descontoManual,
+
+        @PositiveOrZero
+        @Schema(description = "Valor do Frete", example = "3.00")
+        BigDecimal valorFrete,
 
         @NotNull(message = "Campo requerido")
-        @Schema(description = "Itens do Pedido", example = "{'produtoVariacaoId': 12,'quantidade': 2}")
+        @ArraySchema(schema = @Schema(implementation = ItemPedidoRequest.class),
+        arraySchema = @Schema(description = "Itens do pedido")
+        )
         List<ItemPedidoRequest> items,
 
-        @Schema(description = "Cupons de Desconto", example = "['DESC10', 'FIXO15']")
+        @ArraySchema(
+                arraySchema = @Schema(description = "Cupons de desconto aplicados"),
+                schema = @Schema(example = "DESC10")
+        )
         Set<String> cupons
 ) {}

@@ -1,10 +1,7 @@
 package com.finalphase.fabricapins.mapper;
 
 import com.finalphase.fabricapins.domain.entities.ItemPedido;
-import com.finalphase.fabricapins.domain.entities.Pedido;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
-import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
-import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
 import org.mapstruct.*;
 
 @Mapper(

@@ -29,9 +29,7 @@ public class ItemPedidoService {
         String nomeProdutoSnapshot = produtoVariacao.getNome();
         String imgProdutoSnapshot = produtoVariacao.getImgUrl();
         BigDecimal custoUnitarioSnapshot = produtoVariacao.getCustoProducao();
-
         ItemPedido itemPedido = new ItemPedido(dto.quantidade(), precoUnitario, nomeProdutoSnapshot, custoUnitarioSnapshot, imgProdutoSnapshot);
-        itemPedido.calcularSubTotal();
         itemPedido.setProdutoVariacao(produtoVariacao);
         return itemPedido;
     }

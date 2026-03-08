@@ -6,23 +6,20 @@ import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
-import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
+import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.exception.BusinessException;
-import com.finalphase.fabricapins.exception.InsufficientStockException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.mapper.PedidoMapper;
 import com.finalphase.fabricapins.repository.ClienteRepository;
 import com.finalphase.fabricapins.repository.PedidoRepository;
 import com.finalphase.fabricapins.repository.ProdutoVariacaoRepository;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.InsufficientResourcesException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,7 +66,7 @@ public class PedidoService {
     }
 
     @Transactional()
-    public PedidoMinDTO insertPedido(@Valid PedidoRequest request) {
+    public PedidoMinDTO insertPedido(@Valid PedidoAdminRequest request) {
        validaSeListaItensVazia(request);
        Cliente cliente = buscarCliente(request.clienteId());
        TipoCliente tipoCliente = resolverTipoCliente(cliente);
@@ -137,12 +134,15 @@ public class PedidoService {
 
 
     // Validadores
-    private void validaSeListaItensVazia(PedidoRequest request){
+    private void validaSeListaItensVazia(PedidoAdminRequest request){
         if(request.items() == null || request.items().isEmpty()){
             throw new BusinessException("Pedido deve possui no mínimo um item");
         }
     }
 
 
+    public PedidoMinDTO alterarStatusPedido(@Valid PedidoAdminRequest request) {
+        return null;
+    }
 }
 

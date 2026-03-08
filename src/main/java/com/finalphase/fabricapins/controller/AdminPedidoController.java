@@ -1,11 +1,9 @@
 package com.finalphase.fabricapins.controller;
 
 
-import com.finalphase.fabricapins.dto.cliente.ClienteMinDTO;
-import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
-import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
+import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,10 +21,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping(value = "/pedidos")
+@RequestMapping(value = "/admin/pedidos")
 @Tag(name = "Pedido", description = "Operações relacionados ao Pedido")
-public class PedidoController {
-    //TODO - GET /pedidos/{numeroPedido}
+public class AdminPedidoController {
 
     @Autowired
     private PedidoService pedidoService;
@@ -70,8 +67,20 @@ public class PedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Pedido", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<PedidoMinDTO> insertPedido(@Valid @RequestBody PedidoRequest request){
+    public ResponseEntity<PedidoMinDTO> insertPedido(@Valid @RequestBody PedidoAdminRequest request){
         PedidoMinDTO dto = pedidoService.insertPedido(request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
+        return ResponseEntity.created(uri).body(dto);
+    }
+
+    @Operation(summary = "Alterar Status do Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido alterado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao alterar o Pedido", content = @Content)
+    })
+    @PatchMapping(value = "/{id}/status")
+    public ResponseEntity<PedidoMinDTO> alterarStatusPedido(@Valid @RequestBody PedidoAdminRequest request){
+        PedidoMinDTO dto = pedidoService.alterarStatusPedido(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
