@@ -21,7 +21,6 @@ import java.time.Instant;
 public class PedidoCupom {
 
     @Id
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -39,6 +38,7 @@ public class PedidoCupom {
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal valorDescontoAplicado;
 
+    @EqualsAndHashCode.Include
     @Column(nullable = false)
     private String codigoCupom;
 
@@ -50,28 +50,14 @@ public class PedidoCupom {
     public PedidoCupom(Pedido pedido, CupomDesconto cupom){
         this.pedido = pedido;
         this.cupomDesconto = cupom;
-        this.valorDescontoAplicado = calculaDescontoCupom(pedido, cupom);
+        this.valorDescontoAplicado = cupom.calculaDesconto(pedido);
         this.codigoCupom = cupom.getCodigo();
         this.tipoDesconto = cupom.getTipoDesconto();
-        pedido.getCupons().add(this);
-        cupom.getPedidos().add(this);
     }
 
 
 
     // HELPERS
-    private BigDecimal calculaDescontoCupom(Pedido pedido,CupomDesconto cupom){
-        if(cupom.getTipoDesconto() == TipoDesconto.PERCENTUAL){
-            return pedido.getValorSubtotal()
-                    .multiply(cupom.getValorDesconto())
-                    .divide(BigDecimal.valueOf(100),2, RoundingMode.HALF_UP);
-        }
-        return cupom.getValorDesconto();
-    }
-
-    public BigDecimal recalcularValor(Pedido pedido){
-        return calculaDescontoCupom(pedido, this.cupomDesconto);
-    }
 
     public void desvincular(){
         if(pedido != null){

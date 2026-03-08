@@ -19,16 +19,13 @@ public class ItemPedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     @Min(1)
     @Column(nullable = false)
     private Integer quantidade;
 
-    @Setter
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal precoUnitario;
 
-    @Setter
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal subTotal;
 
@@ -58,12 +55,18 @@ public class ItemPedido {
         this.nomeProdutoSnapshot = nomeProdutoSnapshot;
         this.custoUnitarioSnapshot = custoUnitarioSnapshot;
         this.imgProdutoSnapshot = imgProdutoSnapshot;
+        calcularSubTotal();
     }
 
-    // Calcula valores Derivados
-    public BigDecimal calcularSubTotal(){
-        BigDecimal subTotal = precoUnitario.multiply(new BigDecimal(quantidade));
-        this.subTotal = subTotal;
-        return subTotal;
+    // HELPERS
+    public void calcularSubTotal(){
+        this.subTotal = precoUnitario.multiply(BigDecimal.valueOf(quantidade));
     }
+
+    public void alterarQuantidade(Integer quantidade){
+        this.quantidade = quantidade;
+    }
+
+
+
 }

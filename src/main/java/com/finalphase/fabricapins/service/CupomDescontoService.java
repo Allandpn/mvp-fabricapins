@@ -1,40 +1,43 @@
 package com.finalphase.fabricapins.service;
 
 import com.finalphase.fabricapins.domain.entities.CupomDesconto;
+import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.DateOutOfBoundsException;
 import com.finalphase.fabricapins.exception.InsufficientStockException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.repository.CupomDescontoRepository;
+import com.finalphase.fabricapins.repository.PedidoCupomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.InsufficientResourcesException;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 @Service
 public class CupomDescontoService {
 
     @Autowired
     private CupomDescontoRepository repository;
+    @Autowired
+    private PedidoCupomRepository pedidoCupomRepository;
 
     @Transactional(readOnly = true)
     public CupomDesconto findByCodigo(String codigo){
         CupomDesconto cupom = repository.findByCodigoAndAtivoTrue(codigo).orElseThrow(
-                () -> new ResourceNotFoundException("Cupom não encontrado")
+                () -> new ResourceNotFoundException("Cupom " + codigo + " não encontrado")
         );
-        if(cupom.getDataValidade().plusDays(1).atStartOfDay().isBefore(LocalDateTime.now())){;
-            throw new DateOutOfBoundsException("Cupom expirado");
-        }
-        if(cupom.getLimiteUsos() == 0){
-            throw new InsufficientStockException("Cupom atingiu limite de uso");
-        }
         return cupom;
+    }
+
+    public void validarLimiteUso(CupomDesconto cupom){
+        if(cupom.getLimiteUsos() == null){
+            return;
+        }
+        long usos = pedidoCupomRepository.countByCupomDescontoId(cupom.getId());
+
+        if(usos >= cupom.getLimiteUsos()){
+            throw new BusinessException("Cupom " + cupom.getCodigo() + " esgotado");
+        }
     }
 
 

@@ -82,8 +82,9 @@ public class PedidoService {
        for(ItemPedido item : itemsPedido){
            pedido.adicionarItem(item);
        }
-       List< CupomDesconto> cuponsDesconto = buscarCupons(request.cupons());
+       List<CupomDesconto> cuponsDesconto = buscarCupons(request.cupons());
         for(CupomDesconto cupom : cuponsDesconto){
+            cupomDescontoService.validarLimiteUso(cupom);
             pedido.aplicarCupom(cupom);
         }
        pedido = pedidoRepository.save(pedido);
@@ -141,9 +142,6 @@ public class PedidoService {
             throw new BusinessException("Pedido deve possui no mínimo um item");
         }
     }
-
-
-
 
 
 }

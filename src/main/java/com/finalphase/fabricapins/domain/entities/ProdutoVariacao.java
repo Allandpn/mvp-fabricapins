@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.TipoEstoqueProduto;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -56,7 +57,7 @@ public class ProdutoVariacao {
     private BigDecimal precoRevenda;
 
     @Setter
-    @Column(precision = 15, scale = 2, nullable = false)
+    @Column(precision = 15, scale = 4, nullable = false)
     private BigDecimal custoProducao;
 
     @Setter
@@ -102,5 +103,9 @@ public class ProdutoVariacao {
             throw new IllegalStateException("Estoque insuficiente");
         }
         this.quantidadeEstoque -= quantidade;
+    }
+
+    public void aumentarEstoque(int quantidade) {
+        this.quantidadeEstoque += quantidade;
     }
 }

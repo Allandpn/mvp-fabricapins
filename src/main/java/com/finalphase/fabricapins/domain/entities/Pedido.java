@@ -151,6 +151,8 @@ public class Pedido {
     }
 
     public void removerItem(ItemPedido item){
+        ProdutoVariacao produto = item.getProdutoVariacao();
+        produto.aumentarEstoque(item.getQuantidade());
         itemsPedido.remove(item);
         item.setPedido(null);
         recalcularTotal();
@@ -158,11 +160,11 @@ public class Pedido {
 
     private  void recalcularTotal(){
         BigDecimal subTotal = itemsPedido.stream()
-                .map(ItemPedido::calcularSubTotal)
+                .map(ItemPedido::getSubTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         this.valorSubtotal = subTotal;
         BigDecimal descontoCupons = cupons.stream()
-                .map(pc -> pc.recalcularValor(this))
+                .map(PedidoCupom::getValorDescontoAplicado)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal descontoFinal = descontoCupons.min(subTotal);
         this.desconto = descontoFinal;
@@ -174,14 +176,9 @@ public class Pedido {
     }
 
     public void aplicarCupom(CupomDesconto cupom){
-        validaSeCupomAtivo(cupom);
-        validaCupomPercentualDuplicado(cupom);
-        validaQuantidadeMinimaItens(cupom);
-        validaValorMinimoPedido(cupom);
-        validaCupomDuplicado(cupom);
-        validaDataLimiteUso(cupom);
-        validaLimiteUsos(cupom);
+        cupom.validarAplicacaoCupom(this);
         PedidoCupom pedidoCupom = new PedidoCupom(this, cupom);
+        this.cupons.add(pedidoCupom);
         recalcularTotal();
     }
 
@@ -203,57 +200,7 @@ public class Pedido {
     }
 
 
-    //VALIDADORES
 
-    private void validaCupomDuplicado(CupomDesconto cupom) {
-        boolean match = cupons.stream()
-                .anyMatch(pedidoCupom -> pedidoCupom.getCodigoCupom().equals(cupom.getCodigo()));
-        if (match) {
-            throw new BusinessException("Cupom já aplicado no pedido");
-        }
-    }
-
-    private void validaCupomPercentualDuplicado(CupomDesconto cupom) {
-        boolean percentualJaAplicado = cupons.stream()
-                .anyMatch(pedidoCupom -> pedidoCupom.getTipoDesconto().equals(TipoDesconto.PERCENTUAL));
-        if(cupom.getTipoDesconto() == TipoDesconto.PERCENTUAL && percentualJaAplicado){
-            throw new BusinessException("Ja existe um cupom de desconto percentual aplicado");
-        }
-    }
-
-    private void validaQuantidadeMinimaItens(CupomDesconto cupom) {
-        Integer qntItems = itemsPedido.stream().map(ItemPedido::getQuantidade).reduce(0, Integer::sum);
-        if(cupom.getQuantidadeMinimaItens() != null &&
-            qntItems.compareTo(cupom.getQuantidadeMinimaItens()) < 0){
-                throw new BusinessException(
-                        "Pedido não atingiu a quantidade mínima de produdos [" + cupom.getQuantidadeMinimaItens() + "]");
-        }
-    }
-
-    private void validaValorMinimoPedido(CupomDesconto cupom) {
-        if(cupom.getValorMinimoPedido() != null &&
-            valorSubtotal.compareTo(cupom.getValorMinimoPedido()) < 0) {
-                throw new BusinessException("Pedido não atingiu o valor mínimo necessário [" + cupom.getValorMinimoPedido() + "]");
-        }
-    }
-
-    private void validaLimiteUsos(CupomDesconto cupom) {
-        if(cupom.atingiuLimiteUsos()){
-            throw new BusinessException("Cupom esgotado");
-        }
-    }
-
-    private void validaDataLimiteUso(CupomDesconto cupom) {
-        if(cupom.getDataValidade() != null && cupom.getDataValidade().plusDays(1).atStartOfDay().isBefore(LocalDateTime.now())){;
-            throw new DateOutOfBoundsException("Cupom expirado");
-        }
-    }
-
-    private void validaSeCupomAtivo(CupomDesconto cupom) {
-        if(!cupom.isAtivo()){;
-            throw new DateOutOfBoundsException("Cupom não encontrado");
-        }
-    }
 }
 
 

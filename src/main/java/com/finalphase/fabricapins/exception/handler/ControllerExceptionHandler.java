@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.exception.handler;
 
+import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.DatabaseException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.exception.model.CustomError;
@@ -38,6 +39,13 @@ public class ControllerExceptionHandler {
         for(FieldError f : e.getBindingResult().getFieldErrors()){
             err.addError(f.getField(), f.getDefaultMessage());
         };
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<CustomError> databaseException(BusinessException e , HttpServletRequest request){
+        HttpStatus status = HttpStatus.PRECONDITION_FAILED;
+        CustomError err = new CustomError(Instant.now(), status.value(), status.getReasonPhrase(), e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 
