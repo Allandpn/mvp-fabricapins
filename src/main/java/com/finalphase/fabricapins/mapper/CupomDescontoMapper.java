@@ -16,7 +16,7 @@ public interface CupomDescontoMapper {
     CupomDescontoDTO toDTO(CupomDesconto entity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "pedidoCupomSet", ignore = true)
+    @Mapping(target = "pedidos", ignore = true)
     CupomDesconto toEntity(CupomDescontoRequest dto);
 
     @InheritConfiguration(name = "toEntity")

@@ -2,18 +2,20 @@ package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
+import com.finalphase.fabricapins.domain.enums.TipoDesconto;
+import com.finalphase.fabricapins.exception.BusinessException;
+import com.finalphase.fabricapins.exception.DateOutOfBoundsException;
 import com.finalphase.fabricapins.exception.InsufficientStockException;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.naming.InsufficientResourcesException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -120,10 +122,9 @@ public class Pedido {
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @BatchSize(size = 20)
-    @Column(nullable = false)
     private List<ItemPedido> itemsPedido = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<PedidoCupom> cupons = new HashSet<>();
 
     public Pedido(Cliente cliente, String codigoPedido, String nomeClienteSnapshot, String documentoClienteSnapshot) {
@@ -160,30 +161,99 @@ public class Pedido {
                 .map(ItemPedido::calcularSubTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         this.valorSubtotal = subTotal;
-        BigDecimal desc = desconto != null ? desconto : BigDecimal.ZERO;
+        BigDecimal descontoCupons = cupons.stream()
+                .map(pc -> pc.recalcularValor(this))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal descontoFinal = descontoCupons.min(subTotal);
+        this.desconto = descontoFinal;
         BigDecimal frete = valorFrete != null ? valorFrete : BigDecimal.ZERO;
         this.valorTotal = subTotal
-                .subtract(desc)
-                .add(frete);
+                .subtract(descontoFinal)
+                .add(frete)
+                .max(BigDecimal.ZERO);
     }
 
     public void aplicarCupom(CupomDesconto cupom){
-        cupons.add(cupom);
-        cupom.adicionarPedido(this);
-        this.desconto = desconto.add(cupom.getValorDescontoAplicado());
+        validaSeCupomAtivo(cupom);
+        validaCupomPercentualDuplicado(cupom);
+        validaQuantidadeMinimaItens(cupom);
+        validaValorMinimoPedido(cupom);
+        validaCupomDuplicado(cupom);
+        validaDataLimiteUso(cupom);
+        validaLimiteUsos(cupom);
+        PedidoCupom pedidoCupom = new PedidoCupom(this, cupom);
         recalcularTotal();
     }
 
-    public void removerCupom(CupomDesconto cupom){
-        cupons.remove(cupom);
-        cupom.removerPedido();
-        this.desconto = cupons.stream()
-                .map(PedidoCupom::getValorDescontoAplicado)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    public void removerCupom(String codigoCupom){
+        Iterator<PedidoCupom> iterator = cupons.iterator();
+
+        while (iterator.hasNext()){
+            PedidoCupom pedidoCupom = iterator.next();
+            if(pedidoCupom.getCodigoCupom().equals(codigoCupom)){
+                iterator.remove();
+                pedidoCupom.desvincular();
+            }
+        }
         recalcularTotal();
     }
 
-    public String gerarNumeroPedido() {
+    public String gerarCodigoPedido() {
         return "PED-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
+
+
+    //VALIDADORES
+
+    private void validaCupomDuplicado(CupomDesconto cupom) {
+        boolean match = cupons.stream()
+                .anyMatch(pedidoCupom -> pedidoCupom.getCodigoCupom().equals(cupom.getCodigo()));
+        if (match) {
+            throw new BusinessException("Cupom já aplicado no pedido");
+        }
+    }
+
+    private void validaCupomPercentualDuplicado(CupomDesconto cupom) {
+        boolean percentualJaAplicado = cupons.stream()
+                .anyMatch(pedidoCupom -> pedidoCupom.getTipoDesconto().equals(TipoDesconto.PERCENTUAL));
+        if(cupom.getTipoDesconto() == TipoDesconto.PERCENTUAL && percentualJaAplicado){
+            throw new BusinessException("Ja existe um cupom de desconto percentual aplicado");
+        }
+    }
+
+    private void validaQuantidadeMinimaItens(CupomDesconto cupom) {
+        Integer qntItems = itemsPedido.stream().map(ItemPedido::getQuantidade).reduce(0, Integer::sum);
+        if(cupom.getQuantidadeMinimaItens() != null &&
+            qntItems.compareTo(cupom.getQuantidadeMinimaItens()) < 0){
+                throw new BusinessException(
+                        "Pedido não atingiu a quantidade mínima de produdos [" + cupom.getQuantidadeMinimaItens() + "]");
+        }
+    }
+
+    private void validaValorMinimoPedido(CupomDesconto cupom) {
+        if(cupom.getValorMinimoPedido() != null &&
+            valorSubtotal.compareTo(cupom.getValorMinimoPedido()) < 0) {
+                throw new BusinessException("Pedido não atingiu o valor mínimo necessário [" + cupom.getValorMinimoPedido() + "]");
+        }
+    }
+
+    private void validaLimiteUsos(CupomDesconto cupom) {
+        if(cupom.atingiuLimiteUsos()){
+            throw new BusinessException("Cupom esgotado");
+        }
+    }
+
+    private void validaDataLimiteUso(CupomDesconto cupom) {
+        if(cupom.getDataValidade() != null && cupom.getDataValidade().plusDays(1).atStartOfDay().isBefore(LocalDateTime.now())){;
+            throw new DateOutOfBoundsException("Cupom expirado");
+        }
+    }
+
+    private void validaSeCupomAtivo(CupomDesconto cupom) {
+        if(!cupom.isAtivo()){;
+            throw new DateOutOfBoundsException("Cupom não encontrado");
+        }
+    }
 }
+
+

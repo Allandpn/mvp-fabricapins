@@ -20,4 +20,6 @@ public interface ProdutoVariacaoRepository extends JpaRepository<ProdutoVariacao
     boolean existsBySkuAndIdNot(String sku, Long variacaoId);
 
     Optional<ProdutoVariacao> findByIdAndAtivoTrue(Long aLong);
+
+    List<ProdutoVariacao> findAllByIdInAndAtivoTrue(List<Long> id);
 }

@@ -7,6 +7,7 @@ import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoRequest;
+import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.InsufficientStockException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.mapper.PedidoMapper;
@@ -22,9 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.InsufficientResourcesException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PedidoService {
@@ -34,9 +34,11 @@ public class PedidoService {
     @Autowired
     private ClienteRepository clienteRepository;
     @Autowired
-    private ItemPedidoService itemPedidoService;
-    @Autowired
     private ProdutoVariacaoRepository produtoVariacaoRepository;
+    @Autowired
+    private ProdutoVariacaoService produtoVariacaoService;
+    @Autowired
+    private ItemPedidoService itemPedidoService;
     @Autowired
     private CupomDescontoService cupomDescontoService;
 
@@ -68,17 +70,19 @@ public class PedidoService {
 
     @Transactional()
     public PedidoMinDTO insertPedido(@Valid PedidoRequest request) {
+       validaSeListaItensVazia(request);
        Cliente cliente = buscarCliente(request.clienteId());
        TipoCliente tipoCliente = resolverTipoCliente(cliente);
        Pedido pedido = mapper.toEntity(request);
        pedido.setCliente(cliente);
        pedido.setStatusPedido(StatusPedido.AGUARDANDO_PAGAMENTO);
-       List<ProdutoVariacao> produtos = buscarProdutos(request.items());
+       pedido.setCodigoPedido(pedido.gerarCodigoPedido());
+       List<ProdutoVariacao> produtos = produtoVariacaoService.buscarProdutos(request.items());
        List<ItemPedido> itemsPedido =  criarItemPedido(produtos, request.items(), tipoCliente);
-       List< CupomDesconto> cuponsDesconto = buscarCupons(request.cupons());
        for(ItemPedido item : itemsPedido){
            pedido.adicionarItem(item);
        }
+       List< CupomDesconto> cuponsDesconto = buscarCupons(request.cupons());
         for(CupomDesconto cupom : cuponsDesconto){
             pedido.aplicarCupom(cupom);
         }
@@ -103,23 +107,15 @@ public class PedidoService {
         return cliente.getTipoCliente();
     }
 
-    private List<ProdutoVariacao> buscarProdutos(List<ItemPedidoRequest> items){
-        List<ProdutoVariacao> produtos = new ArrayList<>();
-        for(ItemPedidoRequest item : items){
-            ProdutoVariacao produtoVariacao = produtoVariacaoRepository
-                    .findByIdAndAtivoTrue(item.produtoVariacaoId()).orElseThrow(
-                            () -> new ResourceNotFoundException("Produto não encontrado")
-                    );
-            produtos.add(produtoVariacao);
-        }
-        return produtos;
-    }
-
     private List<ItemPedido> criarItemPedido(List<ProdutoVariacao> produtos, List<ItemPedidoRequest> items, TipoCliente tipoCliente) {
+        //diminui complexidade para 0n
+        Map<Long, ProdutoVariacao> produtosMap = produtos.stream().collect(
+                Collectors.toMap(ProdutoVariacao::getId, p -> p));
+
         List<ItemPedido> listaPedidos = new ArrayList<>();
         for(ItemPedidoRequest item : items) {
-          ProdutoVariacao produto = (ProdutoVariacao) produtos.stream().filter(x -> x.getId().equals(item.produtoVariacaoId()));
-            ItemPedido itemPedido = itemPedidoService.createItemPedido(item, produto, tipoCliente);
+          ProdutoVariacao produto = produtosMap.get(item.produtoVariacaoId());
+          ItemPedido itemPedido = itemPedidoService.createItemPedido(item, produto, tipoCliente);
             listaPedidos.add(itemPedido);
         }
         return listaPedidos;
@@ -127,6 +123,9 @@ public class PedidoService {
 
 
     private List<CupomDesconto> buscarCupons(Set<String> cupons) {
+        if(cupons == null || cupons.isEmpty()){
+            return Collections.emptyList();
+        }
         List<CupomDesconto> listaCupons = new ArrayList<>();
         for(String codigo : cupons){
             CupomDesconto cupom = cupomDescontoService.findByCodigo(codigo);
@@ -134,6 +133,15 @@ public class PedidoService {
         }
         return listaCupons;
     }
+
+
+    // Validadores
+    private void validaSeListaItensVazia(PedidoRequest request){
+        if(request.items() == null || request.items().isEmpty()){
+            throw new BusinessException("Pedido deve possui no mínimo um item");
+        }
+    }
+
 
 
 

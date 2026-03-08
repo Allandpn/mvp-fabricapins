@@ -15,7 +15,7 @@ import java.util.Set;
 )
 public interface PedidoCupomMapper {
 
-    @Mapping(source = "id.cupomDesconto.codigo", target = "codigo")
+    @Mapping(source = "codigoCupom", target = "codigo")
     PedidoCupomDTO toDTO(PedidoCupom entity);
 
     List<PedidoCupomDTO> toDTOSet(Set<PedidoCupom> entities);

@@ -2,9 +2,11 @@ package com.finalphase.fabricapins.service;
 
 import com.finalphase.fabricapins.domain.entities.Produto;
 import com.finalphase.fabricapins.domain.entities.ProdutoVariacao;
+import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.produto_variacao.CatalogoProdutoVariacaoDTO;
 import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoDTO;
 import com.finalphase.fabricapins.dto.produto_variacao.ProdutoVariacaoRequest;
+import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.DatabaseException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.mapper.ProdutoVariacaoMapper;
@@ -15,7 +17,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ProdutoVariacaoService {
@@ -46,6 +50,23 @@ public class ProdutoVariacaoService {
                 );
         return entity.stream().map(mapper::toCatalogoDTO).toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<ProdutoVariacao> buscarProdutos(List<ItemPedidoRequest> items){
+        Set<Long> idsPedido = new HashSet<>();
+        for(ItemPedidoRequest item : items) {
+            if (!idsPedido.add(item.produtoVariacaoId())) {
+                throw new BusinessException("Produto duplicado");
+            }
+        }
+        List<Long> ids = items.stream().map(ItemPedidoRequest::produtoVariacaoId).toList();
+        List<ProdutoVariacao> listaProdutos = produtoVariacaoRepository.findAllByIdInAndAtivoTrue(ids);
+        if(listaProdutos.size() != ids.size()){
+            throw new ResourceNotFoundException("Um ou mais produtos não foram encontrados");
+        }
+        return listaProdutos;
+    }
+
 
     @Transactional
     public ProdutoVariacaoDTO insertProduto(Long produtoId,ProdutoVariacaoRequest request) {

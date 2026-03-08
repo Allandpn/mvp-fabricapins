@@ -256,7 +256,7 @@ VALUES
 -- =============================================
 INSERT INTO tb_pedido
 (data_criacao, status_pedido, origem_pedido,
- valor_total, valor_subtotal,
+ valor_total, valor_subtotal, desconto, valor_frete,
  codigo_pedido, nome_cliente_snapshot, documento_cliente_snapshot,
  cep, estado, cidade, bairro, logradouro, numero, cliente_id)
 SELECT
@@ -272,6 +272,8 @@ CASE
     WHEN MOD(x,2)=0 THEN 'REDE_SOCIAL'
     ELSE 'SITE'
 END,
+0,
+0,
 0,
 0,
 CONCAT('PED-', x),
@@ -339,23 +341,27 @@ FROM SYSTEM_RANGE(1,100);
 -- PEDIDO_CUPOM
 -- =============================================
 INSERT INTO tb_pedido_cupom
-(pedido_id, cupom_desconto_id, data_aplicacao, valor_desconto_aplicado)
+(pedido_id, cupom_id, data_aplicacao, valor_desconto_aplicado, codigo_cupom, tipo_desconto)
 SELECT
 p.id,
 c.id,
-CURRENT_DATE,
-10
+CURRENT_TIMESTAMP,
+10,
+c.codigo,
+c.tipo_desconto
 FROM tb_pedido p
 JOIN tb_cupom_desconto c ON c.codigo = 'DESC10'
 WHERE MOD(p.id,4)=0;
 
 INSERT INTO tb_pedido_cupom
-(pedido_id, cupom_desconto_id, data_aplicacao, valor_desconto_aplicado)
+(pedido_id, cupom_id, data_aplicacao, valor_desconto_aplicado, codigo_cupom, tipo_desconto)
 SELECT
 p.id,
 c.id,
-CURRENT_DATE,
-15
+CURRENT_TIMESTAMP,
+15,
+c.codigo,
+c.tipo_desconto
 FROM tb_pedido p
 JOIN tb_cupom_desconto c ON c.codigo = 'FIXO15'
 WHERE MOD(p.id,6)=0;

@@ -1,7 +1,6 @@
 package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.TipoDesconto;
-import com.finalphase.fabricapins.domain.enums.TipoEndereco;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,7 +9,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -55,8 +55,8 @@ public class CupomDesconto {
     @Column(nullable = false)
     private Integer limiteUsos;
 
-    @OneToMany(mappedBy = "id.cupomDesconto")
-    private Set<PedidoCupom> pedidoCupomSet = new HashSet<>();
+    @OneToMany(mappedBy = "cupomDesconto")
+    private Set<PedidoCupom> pedidos = new HashSet<>();
 
     public CupomDesconto(String codigo, BigDecimal valorDesconto, TipoDesconto tipoDesconto, LocalDate dataValidade, Integer quantidadeMinimaItens, BigDecimal valorMinimoPedido, Integer limiteUsos) {
         this.codigo = codigo;
@@ -68,12 +68,17 @@ public class CupomDesconto {
         this.limiteUsos = limiteUsos;
     }
 
-    public void adicionarPedido(Pedido pedido){
-        pedidoCupomSet.add(pedido);
 
+    // HELPERS
+    public void addPedidoCupom(PedidoCupom pedidoCupom){
+        pedidos.add(pedidoCupom);
     }
 
-    public void removerPedido(){
-        this.id.setPedido(null);
+    //TODO - AJUSTAR PARA QUERY COUNT NO BANCO
+    public boolean atingiuLimiteUsos(){
+        return limiteUsos != null && pedidos.size() >= limiteUsos;
     }
+
+
+
 }
