@@ -27,11 +27,5 @@ public class PedidoCupom {
 
 
     // HELPERS
-    public void adicionarPedido(Pedido pedido){
-        this.id.setPedido(pedido);
-    }
 
-    public void removerPedido(){
-        this.id.setPedido(null);
-    }
 }

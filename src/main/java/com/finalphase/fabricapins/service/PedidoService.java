@@ -79,6 +79,9 @@ public class PedidoService {
        for(ItemPedido item : itemsPedido){
            pedido.adicionarItem(item);
        }
+        for(CupomDesconto cupom : cuponsDesconto){
+            pedido.aplicarCupom(cupom);
+        }
        pedido = pedidoRepository.save(pedido);
        return mapper.toMinDTO(pedido);
     }
@@ -123,10 +126,13 @@ public class PedidoService {
     }
 
 
-    private List<CupomDesconto> buscarCupons(Set<String> cupons){
+    private List<CupomDesconto> buscarCupons(Set<String> cupons) {
         List<CupomDesconto> listaCupons = new ArrayList<>();
-        cupons.stream().map(listaCupons.add(x -> cupomDescontoService.findByCodigo(x))).map(x -> listaCupons.add(x));
+        for(String codigo : cupons){
+            CupomDesconto cupom = cupomDescontoService.findByCodigo(codigo);
+            listaCupons.add(cupom);
         }
+        return listaCupons;
     }
 
 

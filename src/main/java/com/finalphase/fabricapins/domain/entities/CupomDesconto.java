@@ -67,4 +67,13 @@ public class CupomDesconto {
         this.valorMinimoPedido = valorMinimoPedido;
         this.limiteUsos = limiteUsos;
     }
+
+    public void adicionarPedido(Pedido pedido){
+        pedidoCupomSet.add(pedido);
+
+    }
+
+    public void removerPedido(){
+        this.id.setPedido(null);
+    }
 }

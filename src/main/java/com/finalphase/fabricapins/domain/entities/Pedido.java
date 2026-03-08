@@ -167,14 +167,14 @@ public class Pedido {
                 .add(frete);
     }
 
-    public void aplicarCupom(PedidoCupom cupom){
+    public void aplicarCupom(CupomDesconto cupom){
         cupons.add(cupom);
         cupom.adicionarPedido(this);
         this.desconto = desconto.add(cupom.getValorDescontoAplicado());
         recalcularTotal();
     }
 
-    public void removerItem(PedidoCupom cupom){
+    public void removerCupom(CupomDesconto cupom){
         cupons.remove(cupom);
         cupom.removerPedido();
         this.desconto = cupons.stream()
