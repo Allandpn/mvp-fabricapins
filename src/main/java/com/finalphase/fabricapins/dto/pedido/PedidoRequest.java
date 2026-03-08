@@ -22,7 +22,7 @@ import java.util.Set;
 @Schema(description = "DTO de requisição do Pedido")
 public record PedidoRequest(
         @NotNull(message = "Campo requerido")
-        @Schema(description = "Origem do Pedido", example = "SITE")
+        @Schema(description = "Origem do Pedido", example = "WHATSAPP")
         OrigemPedido origemPedido,
 
         @Schema(description = "Id do Cliente", example = "1")
