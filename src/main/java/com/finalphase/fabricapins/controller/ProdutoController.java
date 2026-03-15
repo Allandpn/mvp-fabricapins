@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -29,6 +30,7 @@ public class ProdutoController {
     @Autowired
     private ProdutoService service;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Buscar Produto por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto localizado"),
@@ -51,6 +53,7 @@ public class ProdutoController {
         return ResponseEntity.ok(ListDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Inserir Produto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto criado com sucesso"),
@@ -63,6 +66,7 @@ public class ProdutoController {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Atualizar Produto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso",
@@ -75,6 +79,7 @@ public class ProdutoController {
         return ResponseEntity.ok(service.updateProduto(id, request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Remover Produto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Produto excluido com sucesso"),

@@ -8,11 +8,13 @@ import com.finalphase.fabricapins.exception.model.ValidationError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 
 @ControllerAdvice
@@ -43,8 +45,28 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<CustomError> databaseException(BusinessException e , HttpServletRequest request){
+    public ResponseEntity<CustomError> businessException(BusinessException e , HttpServletRequest request){
         HttpStatus status = HttpStatus.PRECONDITION_FAILED;
+        CustomError err = new CustomError(Instant.now(), status.value(), status.getReasonPhrase(), e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<CustomError> badCredentials(BadCredentialsException e,HttpServletRequest request) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        CustomError err = new CustomError(
+                Instant.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                "Usuário ou senha inválidos",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<CustomError> badCredentials(AccessDeniedException e,HttpServletRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
         CustomError err = new CustomError(Instant.now(), status.value(), status.getReasonPhrase(), e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,6 +29,7 @@ public class AdminPedidoController {
     @Autowired
     private PedidoService pedidoService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar Pedido por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pedido localizado"),
@@ -39,6 +41,7 @@ public class AdminPedidoController {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar Pedido por Codigo do Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pedido localizado"),
@@ -50,6 +53,7 @@ public class AdminPedidoController {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar todos os Pedidos")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pedidos localizados"),
@@ -61,6 +65,7 @@ public class AdminPedidoController {
         return ResponseEntity.ok(ListDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Inserir Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pedido criado com sucesso"),
@@ -73,6 +78,7 @@ public class AdminPedidoController {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Alterar Status do Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pedido alterado com sucesso"),
