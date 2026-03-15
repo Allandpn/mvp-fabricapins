@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -51,6 +52,7 @@ public class CategoriaController {
         return ResponseEntity.ok(ListDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Inserir Categoria")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Categoria criado com sucesso"),
@@ -63,6 +65,7 @@ public class CategoriaController {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Atualizar Categoria")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Categoria atualizada com sucesso",
@@ -75,6 +78,7 @@ public class CategoriaController {
         return ResponseEntity.ok(service.updateCategoria(id, request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Remover Categoria")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Categoria excluida com sucesso"),

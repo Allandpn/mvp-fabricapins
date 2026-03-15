@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,6 +29,7 @@ public class UsuarioController {
     @Autowired
     private UsuarioService service;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar usuario por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario localizado"),
@@ -40,6 +42,7 @@ public class UsuarioController {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar todos os Usuarios")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuarios localizados"),
@@ -65,6 +68,7 @@ public class UsuarioController {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Atualizar Usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario atualizado com sucesso",
@@ -79,6 +83,7 @@ public class UsuarioController {
         return ResponseEntity.ok(service.updateUsuario(id, request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Remover Usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario excluido com sucesso"),

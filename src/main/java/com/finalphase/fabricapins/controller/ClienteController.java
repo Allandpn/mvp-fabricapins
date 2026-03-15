@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -29,6 +30,7 @@ public class ClienteController {
     @Autowired
     private ClienteService service;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar cliente por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente localizado"),
@@ -40,6 +42,7 @@ public class ClienteController {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar todos os Clientes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Clientes localizados"),
@@ -63,6 +66,7 @@ public class ClienteController {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Atualizar Cliente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso",
@@ -75,6 +79,7 @@ public class ClienteController {
         return ResponseEntity.ok(service.updateCliente(id, request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Remover Cliente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cliente excluido com sucesso"),
