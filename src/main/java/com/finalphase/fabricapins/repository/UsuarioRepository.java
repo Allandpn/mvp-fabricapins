@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.repository;
 
 import com.finalphase.fabricapins.domain.entities.Usuario;
 import jakarta.validation.Valid;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +29,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByUsernameAndIdNot(String username, Long id);
 
     Optional<Usuario> findByIdAndAtivoTrue(@Valid Long id);
+
+
+    @EntityGraph(attributePaths = "perfis") // ja retorna perfis do banco para o SpringSecurity
+    Optional<Usuario> findByUsername(String username);
 }

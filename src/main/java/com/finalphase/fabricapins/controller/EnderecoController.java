@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -27,6 +28,7 @@ public class EnderecoController {
 
     private final EnderecoService service;
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Buscar endereco por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereco localizado"),
@@ -39,6 +41,7 @@ public class EnderecoController {
         return ResponseEntity.ok(dto);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Buscar Enderecos do CLiente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Enderecos localizados"),
@@ -51,6 +54,7 @@ public class EnderecoController {
         return ResponseEntity.ok(ListDto);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Adiconar Endereco ao Cliente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereco criado com sucesso"),
@@ -64,6 +68,7 @@ public class EnderecoController {
         return ResponseEntity.created(uri).body(dto);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Atualizar Endereco")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereco atualizado com sucesso",
@@ -78,6 +83,7 @@ public class EnderecoController {
         return ResponseEntity.ok(service.updateEndereco(clienteId, enderecoId, request));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     @Operation(summary = "Remover Endereco")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Endereco excluido com sucesso"),

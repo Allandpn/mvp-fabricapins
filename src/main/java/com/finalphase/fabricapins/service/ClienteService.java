@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.service;
 
+import com.finalphase.fabricapins.config.security.SecurityService;
 import com.finalphase.fabricapins.domain.entities.Cliente;
 import com.finalphase.fabricapins.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
@@ -12,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 
@@ -22,9 +25,10 @@ public class ClienteService {
 
     @Autowired
     private ClienteRepository repository;
-
     @Autowired
     private ClienteMapper mapper;
+    @Autowired
+    private SecurityService securityService;
 
 
     // TODO - REVISAR
@@ -65,9 +69,12 @@ public class ClienteService {
     // TODO - REVISAR
     @Transactional()
     public ClienteMinDTO updateCliente(Long id, ClienteRequest request) {
+
         Cliente entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
+        //valida se cliente é dono do recurso ou é admin
+        securityService.validateSelfOrAdmin(entity.getUsuario().getUsername());
 
         if(repository.existsByNumeroDocumentoAndIdNot(request.numeroDocumento(), id)){
             throw new DatabaseException("Já existe um cliente com esse numero de documento");
@@ -85,6 +92,9 @@ public class ClienteService {
         Cliente entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
+        //valida se cliente é dono do recurso ou é admin
+        securityService.validateSelfOrAdmin(entity.getUsuario().getUsername());
+
         entity.setAtivo(false);
     }
 

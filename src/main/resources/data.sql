@@ -37,7 +37,7 @@ INSERT INTO tb_usuario
 (username, password, ativo, data_criacao)
 SELECT
 CONCAT('user', x),
-'$2a$10$7QJ8z3e1k2mN4pL6oR0iXuVwYsAtBcDeFgHiJkLmNoPqRsTuVwXyZ',
+'$2a$10$dkW/YG2RWe3/uCvi6APfxO0XNfbDFQ3NJS3n8IAp/nmdOQVj7sIZG',
 true,
 CURRENT_TIMESTAMP
 FROM SYSTEM_RANGE(1,20);
@@ -46,7 +46,7 @@ INSERT INTO tb_usuario
 (username, password, ativo, data_criacao)
 VALUES (
 'admin',
-'$2a$10$7QJ8z3e1k2mN4pL6oR0iXuVwYsAtBcDeFgHiJkLmNoPqRsTuVwXyZ',
+'$2a$10$dkW/YG2RWe3/uCvi6APfxO0XNfbDFQ3NJS3n8IAp/nmdOQVj7sIZG',
 true,
 CURRENT_TIMESTAMP
 );
