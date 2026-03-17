@@ -26,11 +26,11 @@ public record PedidoAdminRequest(
         @NotBlank(message = "Campo requerido")
         @Size(min = 3, max = 150, message = "Nome do Cliente precisa estar entre 3 e 150 caracteres")
         @Schema(description = "Nome do Cliente", example = "Maria da Silva")
-        String nomeClienteSnapshot,
+        String nomeCliente,
 
         @NotBlank(message = "Campo requerido")
         @Schema(description = "Numero do Documento", example = "00055522266")
-        String documentoClienteSnapshot,
+        String documentoCliente,
 
         @NotNull(message = "Campo requerido")
         @Schema(description = "Endereco de entrega", implementation = EnderecoPedidoDTO.class)

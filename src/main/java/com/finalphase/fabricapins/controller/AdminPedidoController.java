@@ -4,6 +4,7 @@ package com.finalphase.fabricapins.controller;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
+import com.finalphase.fabricapins.dto.pedido.PedidoRascunhoRequest;
 import com.finalphase.fabricapins.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +22,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+@PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping(value = "/admin/pedidos")
 @Tag(name = "Pedido", description = "Operações relacionados ao Pedido")
@@ -29,7 +31,8 @@ public class AdminPedidoController {
     @Autowired
     private PedidoService pedidoService;
 
-    @PreAuthorize("hasRole('ADMIN')")
+
+    // Busca de Pedidos
     @Operation(summary = "Buscar Pedido por Id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pedido localizado"),
@@ -41,7 +44,6 @@ public class AdminPedidoController {
         return ResponseEntity.ok(dto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar Pedido por Codigo do Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pedido localizado"),
@@ -53,7 +55,6 @@ public class AdminPedidoController {
         return ResponseEntity.ok(dto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Buscar todos os Pedidos")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pedidos localizados"),
@@ -65,23 +66,43 @@ public class AdminPedidoController {
         return ResponseEntity.ok(ListDto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Inserir Pedido")
+
+    // Inserir Novos Pedidos
+
+    // Inserir Pedido Completo
+    @Operation(summary = "Inserir Pedido Completo")
+    @GetMapping(value = "/completo")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedido criado com sucesso"),
+            @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Pedido", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<PedidoMinDTO> insertPedido(@Valid @RequestBody PedidoAdminRequest request){
-        PedidoMinDTO dto = pedidoService.insertPedido(request);
+    public ResponseEntity<PedidoMinDTO> insertPedidoCompleto(@Valid @RequestBody PedidoAdminRequest request){
+        PedidoMinDTO dto = pedidoService.insertPedidoCompleto(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+
+    // Inserir Pedidos em Etapas
+    @Operation(summary = "Inserir Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao criar o Pedido", content = @Content)
+    })
+    @PostMapping
+    public ResponseEntity<PedidoMinDTO> insertPedidoRascunho(@Valid @RequestBody PedidoRascunhoRequest request){
+        PedidoMinDTO dto = pedidoService.insertPedidoRascunho(request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
+        return ResponseEntity.created(uri).body(dto);
+    }
+
+
+
+    // TODO - Implementar
     @Operation(summary = "Alterar Status do Pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Pedido alterado com sucesso"),
+            @ApiResponse(responseCode = "201", description = "Pedido alterado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao alterar o Pedido", content = @Content)
     })
     @PatchMapping(value = "/{id}/status")

@@ -3,10 +3,12 @@ package com.finalphase.fabricapins.service;
 import com.finalphase.fabricapins.domain.entities.*;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
+import com.finalphase.fabricapins.dto.pedido.PedidoRascunhoRequest;
 import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.mapper.PedidoMapper;
@@ -65,8 +67,9 @@ public class PedidoService {
         return result.map(mapper::toMinDTO);
     }
 
+    // Cria Pedido Completo
     @Transactional()
-    public PedidoMinDTO insertPedido(@Valid PedidoAdminRequest request) {
+    public PedidoMinDTO insertPedidoCompleto(PedidoAdminRequest request) {
        validaSeListaItensVazia(request);
        Cliente cliente = buscarCliente(request.clienteId());
        TipoCliente tipoCliente = resolverTipoCliente(cliente);
@@ -86,6 +89,19 @@ public class PedidoService {
         }
        pedido = pedidoRepository.save(pedido);
        return mapper.toMinDTO(pedido);
+    }
+
+    // Cria pedidos em etapas
+    @Transactional()
+    public PedidoMinDTO insertPedidoRascunho(PedidoRascunhoRequest request) {
+        ClienteSnapshot cliente = resolveCliente(request);
+        Pedido pedido = new Pedido(cliente.cliente(), cliente.nomeCliente(), cliente.numeroDocumento());
+        pedido.setCodigoPedido(pedido.gerarCodigoPedido());
+        pedido.setOrigemPedido(request.origemPedido());
+        pedido.setStatusPedido(StatusPedido.RASCUNHO);
+        pedido.setObservacao(request.observacao());
+        pedido = pedidoRepository.save(pedido);
+        return mapper.toMinDTO(pedido);
     }
 
 
@@ -141,8 +157,26 @@ public class PedidoService {
     }
 
 
-    public PedidoMinDTO alterarStatusPedido(@Valid PedidoAdminRequest request) {
+    public PedidoMinDTO alterarStatusPedido(PedidoAdminRequest request) {
         return null;
     }
+
+    //HELPERS
+    public ClienteSnapshot resolveCliente(PedidoRascunhoRequest request){
+        if(request.clienteId() != null){
+            Cliente cliente = clienteRepository.findByIdAndAtivoTrue(request.clienteId()).orElseThrow(
+                    () -> new ResourceNotFoundException("Cliente não encontrado")
+            );
+            return new ClienteSnapshot(cliente, cliente.getNome(), cliente.getNumeroDocumento());
+        }
+        if(request.nomeCliente() == null || request.documentoCliente() == null){
+            throw new BusinessException("Nome e numero de Documento obrigatórios para cliente avulso");
+        }
+
+        return new ClienteSnapshot(null, request.nomeCliente(), request.documentoCliente());
+
+    }
+
+
 }
 

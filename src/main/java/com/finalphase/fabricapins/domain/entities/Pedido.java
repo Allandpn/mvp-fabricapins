@@ -2,9 +2,6 @@ package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
-import com.finalphase.fabricapins.domain.enums.TipoDesconto;
-import com.finalphase.fabricapins.exception.BusinessException;
-import com.finalphase.fabricapins.exception.DateOutOfBoundsException;
 import com.finalphase.fabricapins.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +12,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -84,29 +80,23 @@ public class Pedido {
     // Dados do cliente snapshot
     @Setter
     @Column(nullable = false)
-    private String nomeClienteSnapshot;
+    private String nomeCliente;
     @Setter
     @Column(nullable = false)
-    private String documentoClienteSnapshot;
+    private String documentoCliente;
 
     // Endereco snapshot
     @Setter
-    @Column(nullable = false)
     private String cep;
     @Setter
-    @Column(nullable = false)
     private String estado;
     @Setter
-    @Column(nullable = false)
     private String cidade;
     @Setter
-    @Column(nullable = false)
     private String bairro;
     @Setter
-    @Column(nullable = false)
     private String logradouro;
     @Setter
-    @Column(nullable = false)
     private String numero;
     @Setter
     private String complemento;
@@ -130,14 +120,15 @@ public class Pedido {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<PedidoCupom> cupons = new HashSet<>();
 
-    public Pedido(Cliente cliente, String codigoPedido, String nomeClienteSnapshot, String documentoClienteSnapshot) {
+    public Pedido(Cliente cliente, String nomeCliente, String documentoCliente) {
         this.cliente = cliente;
-        this.codigoPedido = codigoPedido;
-        this.nomeClienteSnapshot = nomeClienteSnapshot;
-        this.documentoClienteSnapshot = documentoClienteSnapshot;
-        this.statusPedido = StatusPedido.AGUARDANDO_PAGAMENTO;
+        this.nomeCliente = nomeCliente;
+        this.documentoCliente = documentoCliente;
+        this.statusPedido = StatusPedido.RASCUNHO;
         this.valorTotal = BigDecimal.ZERO;
         this.valorSubtotal = BigDecimal.ZERO;
+        this.desconto = BigDecimal.ZERO;
+        this.valorFrete = BigDecimal.ZERO;
     }
 
     // HELPERS

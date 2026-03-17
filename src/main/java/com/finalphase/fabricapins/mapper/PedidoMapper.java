@@ -5,6 +5,7 @@ import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
+import com.finalphase.fabricapins.dto.pedido.PedidoRascunhoRequest;
 import org.mapstruct.*;
 
 @Mapper(

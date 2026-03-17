@@ -257,7 +257,7 @@ VALUES
 INSERT INTO tb_pedido
 (data_criacao, status_pedido, origem_pedido,
  valor_total, valor_subtotal, desconto, valor_frete,
- codigo_pedido, nome_cliente_snapshot, documento_cliente_snapshot,
+ codigo_pedido, nome_cliente, documento_cliente,
  cep, estado, cidade, bairro, logradouro, numero, cliente_id)
 SELECT
 CURRENT_TIMESTAMP,
