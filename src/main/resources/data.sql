@@ -324,12 +324,11 @@ UPDATE SET p.pagamento_id = x.pagamento_id;
 -- ITENS PEDIDO (100)
 -- =============================================
 INSERT INTO tb_item_pedido
-(quantidade, preco_unitario, sub_total, nome_produto_snapshot,
+(quantidade, preco_unitario, nome_produto_snapshot,
  custo_unitario_snapshot, pedido_id, produto_variacao_id)
 SELECT
 2,
 39.90,
-39.90 * 2,
 CONCAT('Produto ', ((x-1)%50)+1),
 20.00,
 ((x-1)%50)+1,

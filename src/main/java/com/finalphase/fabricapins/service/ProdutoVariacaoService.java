@@ -55,11 +55,11 @@ public class ProdutoVariacaoService {
     public List<ProdutoVariacao> buscarProdutos(List<ItemPedidoRequest> items){
         Set<Long> idsPedido = new HashSet<>();
         for(ItemPedidoRequest item : items) {
-            if (!idsPedido.add(item.produtoVariacaoId())) {
+            if (!idsPedido.add(item.id())) {
                 throw new BusinessException("Produto duplicado");
             }
         }
-        List<Long> ids = items.stream().map(ItemPedidoRequest::produtoVariacaoId).toList();
+        List<Long> ids = items.stream().map(ItemPedidoRequest::id).toList();
         List<ProdutoVariacao> listaProdutos = produtoVariacaoRepository.findAllByIdInAndAtivoTrue(ids);
         if(listaProdutos.size() != ids.size()){
             throw new ResourceNotFoundException("Um ou mais produtos não foram encontrados");

@@ -1,6 +1,7 @@
 package com.finalphase.fabricapins.dto.pedido;
 
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,6 +32,14 @@ public record PedidoAdminRequest(
         @NotBlank(message = "Campo requerido")
         @Schema(description = "Numero do Documento", example = "00055522266")
         String documentoCliente,
+
+        @NotBlank(message = "Campo requerido")
+        @Schema(description = "Telefone do Cliente", example = "49999999999")
+        String telefone,
+
+        @NotNull(message = "Campo requerido")
+        @Schema(description = "Tipo de Cliente", example = "VAREJO")
+        TipoCliente tipoCliente,
 
         @NotNull(message = "Campo requerido")
         @Schema(description = "Endereco de entrega", implementation = EnderecoPedidoDTO.class)

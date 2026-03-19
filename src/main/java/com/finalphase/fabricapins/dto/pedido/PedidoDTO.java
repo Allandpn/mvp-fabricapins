@@ -4,6 +4,7 @@ import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.dto.PedidoCupom.PedidoCupomDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteMinPedidoDTO;
+import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.pagamento.PagamentoDTO;

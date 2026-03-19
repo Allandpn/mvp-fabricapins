@@ -1,9 +1,13 @@
 package com.finalphase.fabricapins.dto.cliente;
 
 import com.finalphase.fabricapins.domain.entities.Cliente;
+import com.finalphase.fabricapins.domain.enums.TipoCliente;
+
 
 public record ClienteSnapshot(
         Cliente cliente,
-        String nomeCliente,
-        String numeroDocumento
+        String nome,
+        String numeroDocumento,
+        String telefone,
+        TipoCliente tipoCliente
 ) {}

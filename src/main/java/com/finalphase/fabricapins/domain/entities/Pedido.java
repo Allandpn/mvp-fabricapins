@@ -2,6 +2,9 @@ package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
+import com.finalphase.fabricapins.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -79,11 +82,14 @@ public class Pedido {
 
     // Dados do cliente snapshot
     @Setter
-    @Column(nullable = false)
     private String nomeCliente;
     @Setter
-    @Column(nullable = false)
     private String documentoCliente;
+    @Setter
+    private String telefone;
+    @Setter
+    @Enumerated(EnumType.STRING)
+    private TipoCliente tipoCliente;
 
     // Endereco snapshot
     @Setter
@@ -120,10 +126,12 @@ public class Pedido {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<PedidoCupom> cupons = new HashSet<>();
 
-    public Pedido(Cliente cliente, String nomeCliente, String documentoCliente) {
-        this.cliente = cliente;
-        this.nomeCliente = nomeCliente;
-        this.documentoCliente = documentoCliente;
+    public Pedido(ClienteSnapshot cliente) {
+        this.cliente = cliente.cliente();
+        this.nomeCliente = cliente.nome();
+        this.documentoCliente = cliente.numeroDocumento();
+        this.telefone = cliente.telefone();
+        this.tipoCliente = cliente.tipoCliente();
         this.statusPedido = StatusPedido.RASCUNHO;
         this.valorTotal = BigDecimal.ZERO;
         this.valorSubtotal = BigDecimal.ZERO;
@@ -134,7 +142,7 @@ public class Pedido {
     // HELPERS
     public void adicionarItem(ItemPedido item){
         ProdutoVariacao produtoVariacao = item.getProdutoVariacao();
-        if(produtoVariacao.getQuantidadeEstoque() < item.getQuantidade()){
+        if(produtoVariacao.getQuantidadeEstoque().compareTo(item.getQuantidade()) < 0){
             throw new InsufficientStockException(
                     "Estoque insuficiente para o produto: " + produtoVariacao.getNome() + "- id: " + produtoVariacao.getId());
         }
@@ -144,6 +152,18 @@ public class Pedido {
         recalcularTotal();
     }
 
+    public void incrementarItem(ItemPedido item, Integer quantidade){
+        ProdutoVariacao produto = item.getProdutoVariacao();
+        if(produto.getQuantidadeEstoque().compareTo(quantidade) < 0){
+            throw new InsufficientStockException(
+                    "Estoque insuficiente para o produto: " + produto.getNome() + "- id: " + produto.getId());
+        }
+        produto.reduzirEstoque(quantidade);
+        item.setQuantidade(item.getQuantidade() + quantidade);
+        recalcularTotal();
+    }
+
+
     public void removerItem(ItemPedido item){
         ProdutoVariacao produto = item.getProdutoVariacao();
         produto.aumentarEstoque(item.getQuantidade());
@@ -152,7 +172,7 @@ public class Pedido {
         recalcularTotal();
     }
 
-    private  void recalcularTotal(){
+    public void recalcularTotal(){
         BigDecimal subTotal = itemsPedido.stream()
                 .map(ItemPedido::getSubTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -193,6 +213,18 @@ public class Pedido {
         return "PED-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
+
+    public void definirEndereco(EnderecoPedidoDTO dto){
+            this.cep = dto.cep();
+            this.estado = dto.estado();
+            this.cidade = dto.cidade();
+            this.bairro = dto.bairro();
+            this.logradouro = dto.logradouro();
+            this.numero = dto.numero();
+            this.complemento = dto.complemento();
+            this.pontoReferencia = dto.pontoReferencia();
+            this.valorFrete = BigDecimal.ZERO;
+    }
 
 
 }

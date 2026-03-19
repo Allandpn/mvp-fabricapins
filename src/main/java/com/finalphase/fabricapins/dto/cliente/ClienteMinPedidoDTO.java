@@ -7,6 +7,9 @@ import java.time.Instant;
 
 public record ClienteMinPedidoDTO(
         Long id,
-        String nome
+        String nome,
+        String numeroDocumento,
+        String telefone,
+        TipoCliente tipoCliente
 ) {}
 

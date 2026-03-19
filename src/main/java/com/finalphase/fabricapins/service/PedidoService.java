@@ -4,13 +4,16 @@ import com.finalphase.fabricapins.domain.entities.*;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
+import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
-import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoRascunhoRequest;
 import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
+import com.finalphase.fabricapins.mapper.ItemPedidoMapper;
 import com.finalphase.fabricapins.mapper.PedidoMapper;
 import com.finalphase.fabricapins.repository.ClienteRepository;
 import com.finalphase.fabricapins.repository.PedidoRepository;
@@ -43,6 +46,8 @@ public class PedidoService {
 
     @Autowired
     private PedidoMapper mapper;
+    @Autowired
+    ItemPedidoMapper itemPedidoMapper;
 
 
     @Transactional(readOnly = true)
@@ -91,17 +96,88 @@ public class PedidoService {
        return mapper.toMinDTO(pedido);
     }
 
-    // Cria pedidos em etapas
+    // Cria pedidos em etapas - Criar rascunho do pedido
     @Transactional()
     public PedidoMinDTO insertPedidoRascunho(PedidoRascunhoRequest request) {
         ClienteSnapshot cliente = resolveCliente(request);
-        Pedido pedido = new Pedido(cliente.cliente(), cliente.nomeCliente(), cliente.numeroDocumento());
+        Pedido pedido = new Pedido(cliente);
         pedido.setCodigoPedido(pedido.gerarCodigoPedido());
         pedido.setOrigemPedido(request.origemPedido());
         pedido.setStatusPedido(StatusPedido.RASCUNHO);
         pedido.setObservacao(request.observacao());
         pedido = pedidoRepository.save(pedido);
         return mapper.toMinDTO(pedido);
+    }
+
+    // adicionar item ao pedido
+    @Transactional
+    public ItemPedidoDTO insertItemPedido(Long pedidoId, ItemPedidoRequest request) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        validaPedidoRascunho(pedido);
+        ProdutoVariacao produto = produtoVariacaoRepository.findByIdAndAtivoTrue(request.id()).orElseThrow(
+                () -> new ResourceNotFoundException("Produto não encontrado")
+        );
+        // adiciona a item existente
+        Optional<ItemPedido> itemPedidoExistente = pedido.getItemsPedido()
+                .stream()
+                .filter(x -> x.getProdutoVariacao().getId().equals(produto.getId())).findFirst();
+        if(itemPedidoExistente.isPresent()){
+            ItemPedido item = itemPedidoExistente.get();
+            pedido.incrementarItem(item, request.quantidade());
+            return itemPedidoMapper.toDTO(item);
+        }
+        // cria novo item
+        ItemPedido item = itemPedidoService.createItemPedido(
+                request,
+                produto,
+                pedido.getTipoCliente()
+        );
+        pedido.adicionarItem(item);
+        pedidoRepository.save(pedido);
+        return itemPedidoMapper.toDTO(item);
+    }
+
+
+    // adicionar endereco ao pedido
+    @Transactional
+    public PedidoMinDTO definirEndereco(Long pedidoId, @Valid EnderecoPedidoDTO request) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        validaPedidoRascunho(pedido);
+        pedido.definirEndereco(request);
+        pedidoRepository.save(pedido);
+        return mapper.toMinDTO(pedido);
+    }
+
+
+
+
+    //HELPERS
+    public ClienteSnapshot resolveCliente(PedidoRascunhoRequest request){
+        if(request.clienteId() != null){
+            return resolveClienteCadastrado(request);
+        }
+        return resolveClienteAvulso(request);
+    }
+
+    public ClienteSnapshot resolveClienteCadastrado(PedidoRascunhoRequest request){
+        if(request.nomeCliente() != null || request.documentoCliente() != null || request.telefone() != null || request.tipoCliente() != null){
+            throw new BusinessException("Dados do cliente não devem ser enviados ao inserir o Id do Cliente");
+        }
+        Cliente cliente = clienteRepository.findByIdAndAtivoTrue(request.clienteId()).orElseThrow(
+                () -> new ResourceNotFoundException("Cliente não encontrado")
+        );
+        return new ClienteSnapshot(cliente, cliente.getNome(), cliente.getNumeroDocumento(), cliente.getTelefone(), cliente.getTipoCliente());
+    }
+
+    public ClienteSnapshot resolveClienteAvulso(PedidoRascunhoRequest request){
+        if(request.nomeCliente() == null || request.documentoCliente() == null || request.telefone() == null || request.tipoCliente() == null){
+            throw new BusinessException("Dados do Cliente são obrigatórios para cliente avulso");
+        }
+        return new ClienteSnapshot(null, request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
     }
 
 
@@ -128,7 +204,7 @@ public class PedidoService {
 
         List<ItemPedido> listaPedidos = new ArrayList<>();
         for(ItemPedidoRequest item : items) {
-          ProdutoVariacao produto = produtosMap.get(item.produtoVariacaoId());
+          ProdutoVariacao produto = produtosMap.get(item.id());
           ItemPedido itemPedido = itemPedidoService.createItemPedido(item, produto, tipoCliente);
             listaPedidos.add(itemPedido);
         }
@@ -156,25 +232,16 @@ public class PedidoService {
         }
     }
 
+    private void validaPedidoRascunho(Pedido pedido) {
+        if(pedido.getStatusPedido() != StatusPedido.RASCUNHO){
+            throw new BusinessException("Pedido não pode ser alterado");
+        }
+    }
+
+
 
     public PedidoMinDTO alterarStatusPedido(PedidoAdminRequest request) {
         return null;
-    }
-
-    //HELPERS
-    public ClienteSnapshot resolveCliente(PedidoRascunhoRequest request){
-        if(request.clienteId() != null){
-            Cliente cliente = clienteRepository.findByIdAndAtivoTrue(request.clienteId()).orElseThrow(
-                    () -> new ResourceNotFoundException("Cliente não encontrado")
-            );
-            return new ClienteSnapshot(cliente, cliente.getNome(), cliente.getNumeroDocumento());
-        }
-        if(request.nomeCliente() == null || request.documentoCliente() == null){
-            throw new BusinessException("Nome e numero de Documento obrigatórios para cliente avulso");
-        }
-
-        return new ClienteSnapshot(null, request.nomeCliente(), request.documentoCliente());
-
     }
 
 

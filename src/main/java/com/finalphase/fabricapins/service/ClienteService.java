@@ -56,7 +56,7 @@ public class ClienteService {
         if(repository.existsByEmail(request.email())){
             throw new DatabaseException("Já existe um cliente com esse email");
         }
-        Cliente entity = mapper.toEntity(request);
+        Cliente entity = new Cliente(request);
         try {
             entity.setAtivo(true);
             repository.save(entity);

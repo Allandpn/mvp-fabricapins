@@ -1,6 +1,9 @@
 package com.finalphase.fabricapins.controller;
 
 
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
+import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
@@ -85,6 +88,7 @@ public class AdminPedidoController {
 
 
     // Inserir Pedidos em Etapas
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Inserir Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
@@ -93,6 +97,32 @@ public class AdminPedidoController {
     @PostMapping
     public ResponseEntity<PedidoMinDTO> insertPedidoRascunho(@Valid @RequestBody PedidoRascunhoRequest request){
         PedidoMinDTO dto = pedidoService.insertPedidoRascunho(request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
+        return ResponseEntity.created(uri).body(dto);
+    }
+
+    // inseri itens no pedido criado
+    @Operation(summary = "Adiciona Items no Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Item adicionado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao adcionar item", content = @Content)
+    })
+    @PostMapping(value = "/{pedidoId}/items")
+    public ResponseEntity<ItemPedidoDTO> insertItemPedido(@PathVariable Long pedidoId, @Valid @RequestBody ItemPedidoRequest request){
+        ItemPedidoDTO dto = pedidoService.insertItemPedido(pedidoId, request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
+        return ResponseEntity.created(uri).body(dto);
+    }
+
+    // adiciona endereco no pedido criado
+    @Operation(summary = "Adiciona Endereco no Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Endereco adicionado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao adcionar endereco", content = @Content)
+    })
+    @PostMapping(value = "/{pedidoId}/endereco")
+    public ResponseEntity<PedidoMinDTO> definirEndereco(@PathVariable Long pedidoId, @Valid @RequestBody EnderecoPedidoDTO request){
+        PedidoMinDTO dto = pedidoService.definirEndereco(pedidoId, request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }

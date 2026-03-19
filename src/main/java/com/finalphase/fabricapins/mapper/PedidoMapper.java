@@ -1,6 +1,9 @@
 package com.finalphase.fabricapins.mapper;
 
+import com.finalphase.fabricapins.domain.entities.Cliente;
 import com.finalphase.fabricapins.domain.entities.Pedido;
+import com.finalphase.fabricapins.dto.cliente.ClienteMinPedidoDTO;
+import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
@@ -22,6 +25,7 @@ public interface PedidoMapper {
 
     @Mapping(source = "itemsPedido", target = "items")
     @Mapping(target = "enderecoEntrega", expression = "java(mapEnderecoToDTO(entity))")
+    @Mapping(target = "cliente", expression = "java(mapCliente(entity))")
     PedidoDTO toDTO(Pedido entity);
 
     PedidoMinDTO toMinDTO(Pedido entity);
@@ -72,6 +76,26 @@ public interface PedidoMapper {
                 pedido.getNumero(),
                 pedido.getComplemento(),
                 pedido.getPontoReferencia()
+        );
+    }
+
+    default ClienteMinPedidoDTO mapCliente(Pedido pedido){
+        if(pedido.getCliente() != null){
+            Cliente c = pedido.getCliente();
+            return new ClienteMinPedidoDTO(
+                    c.getId(),
+                    c.getNome(),
+                    c.getNumeroDocumento(),
+                    c.getTelefone(),
+                    c.getTipoCliente()
+            );
+        }
+        return new ClienteMinPedidoDTO(
+                null,
+                pedido.getNomeCliente(),
+                pedido.getDocumentoCliente(),
+                pedido.getTelefone(),
+                pedido.getTipoCliente()
         );
     }
 }

@@ -1,8 +1,8 @@
 package com.finalphase.fabricapins.dto.pedido;
 
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -21,6 +21,12 @@ public record PedidoRascunhoRequest(
 
         @Schema(description = "Numero do Documento", example = "00055522266")
         String documentoCliente,
+
+        @Schema(description = "Telefone do Cliente", example = "49999999999")
+        String telefone,
+
+        @Schema(description = "Tipo de Cliente", example = "VAREJO")
+        TipoCliente tipoCliente,
 
         @Schema(description = "Observações do pedido")
         String observacao
