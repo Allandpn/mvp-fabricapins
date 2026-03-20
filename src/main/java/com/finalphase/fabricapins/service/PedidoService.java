@@ -5,6 +5,9 @@ import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
+import com.finalphase.fabricapins.dto.frete.FreteRequest;
+import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
@@ -13,18 +16,20 @@ import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoRascunhoRequest;
 import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
+import com.finalphase.fabricapins.mapper.EnderecoMapper;
 import com.finalphase.fabricapins.mapper.ItemPedidoMapper;
 import com.finalphase.fabricapins.mapper.PedidoMapper;
 import com.finalphase.fabricapins.repository.ClienteRepository;
+import com.finalphase.fabricapins.repository.EnderecoRepository;
 import com.finalphase.fabricapins.repository.PedidoRepository;
 import com.finalphase.fabricapins.repository.ProdutoVariacaoRepository;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +43,9 @@ public class PedidoService {
     @Autowired
     private ProdutoVariacaoRepository produtoVariacaoRepository;
     @Autowired
+    EnderecoRepository enderecoRepository;
+
+    @Autowired
     private ProdutoVariacaoService produtoVariacaoService;
     @Autowired
     private ItemPedidoService itemPedidoService;
@@ -48,6 +56,8 @@ public class PedidoService {
     private PedidoMapper mapper;
     @Autowired
     ItemPedidoMapper itemPedidoMapper;
+    @Autowired
+    EnderecoMapper enderecoMapper;
 
 
     @Transactional(readOnly = true)
@@ -142,20 +152,126 @@ public class PedidoService {
 
     // adicionar endereco ao pedido
     @Transactional
-    public PedidoMinDTO definirEndereco(Long pedidoId, @Valid EnderecoPedidoDTO request) {
+    public PedidoMinDTO definirEndereco(Long pedidoId, EnderecoPedidoRequest request) {
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
         validaPedidoRascunho(pedido);
-        pedido.definirEndereco(request);
+        EnderecoPedidoDTO endereco = resolveEndereco(pedido, request);
+        pedido.definirEndereco(endereco);
         pedidoRepository.save(pedido);
         return mapper.toMinDTO(pedido);
     }
 
+    // define frete
+    @Transactional()
+    public PedidoMinDTO definirFrete(Long pedidoId, FreteRequest request){
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        validaPedidoRascunho(pedido);
+        if(pedido.getCep() == null){
+            throw new BusinessException("Endereço deve ser informado antes de selecionar frete");
+        }
+        if(pedido.getItemsPedido().isEmpty()){
+            throw new BusinessException("Pedido deve possuir itens para selecionar frete");
+        }
+        if (pedido.getOpcoesFreteCalculadas() == null){
+            throw new BusinessException("Frete ainda não foi calculado");
+        }
+        OpcaoFreteDTO opcao = pedido.getOpcoesFreteCalculadas()
+                .stream()
+                .filter(x -> x.serviceId().equals(request.serviceId()))
+                .findFirst()
+                .orElseThrow(() -> new BusinessException("Opção de frete inválida"));
 
+        pedido.definirFrete(opcao);
+        return mapper.toMinDTO(pedido);
+    }
+
+    // calcula frete
+    @Transactional(readOnly = true)
+    public List<OpcaoFreteDTO> calcularFrete(Long pedidoId){
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        validaPedidoRascunho(pedido);
+        if(pedido.getCep() == null){
+            throw new BusinessException("Endereço deve ser informado antes de calcular frete");
+        }
+        if(pedido.getItemsPedido().isEmpty()){
+            throw new BusinessException("Pedido deve possuir itens para calcular frete");
+        }
+        //MOCK
+        BigDecimal subtotal = pedido.getValorSubtotal();
+        List<OpcaoFreteDTO> opcoesFrete = new ArrayList<>();
+        opcoesFrete.add(new OpcaoFreteDTO(
+                "1",
+                "PAC",
+                new BigDecimal("15.00"),
+                5
+        ));
+        opcoesFrete.add(new OpcaoFreteDTO(
+                "2",
+                "SEDEX",
+                new BigDecimal("25.00"),
+                2
+        ));
+        pedido.setOpcoesFreteCalculadas(opcoesFrete);
+        return opcoesFrete;
+    }
 
 
     //HELPERS
+    private EnderecoPedidoDTO resolveEndereco(Pedido pedido, EnderecoPedidoRequest request) {
+        if(request.enderecoId() != null){
+            return resolveEnderecoExistente(pedido, request);
+        }
+        return resolveEnderecoManual(request);
+    }
+
+    private EnderecoPedidoDTO resolveEnderecoManual(EnderecoPedidoRequest request) {
+        if(request.cep() == null ||
+        request.estado() == null ||
+        request.cidade() == null ||
+        request.bairro() == null ||
+        request.logradouro() == null ||
+        request.numero() == null ){
+            throw new BusinessException("Dados do endereço são obrigatórios");
+        }
+        return new EnderecoPedidoDTO(
+                request.cep(),
+                request.estado(),
+                request.cidade(),
+                request.bairro(),
+                request.logradouro(),
+                request.numero(),
+                request.complemento(),
+                request.pontoReferencia()
+        );
+    }
+
+    private EnderecoPedidoDTO resolveEnderecoExistente(Pedido pedido, EnderecoPedidoRequest request) {
+        if(request.cep() != null ||
+        request.estado() != null ||
+        request.cidade() != null ||
+        request.bairro() != null ||
+        request.logradouro() != null ||
+        request.numero() != null ||
+        request.complemento() != null ||
+        request.pontoReferencia() != null){
+            throw new BusinessException("Dados do endereço não devem ser enviados ao informar o enderecoId");
+        }
+        if(pedido.getCliente() == null || pedido.getCliente().getId() == null){
+            throw new BusinessException("Cliente não informado");
+        }
+        Endereco endereco = enderecoRepository.findByIdAndClienteId(request.enderecoId(), pedido.getCliente().getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Endereço não localizado")
+        );
+        return enderecoMapper.toEnderecoPedidoDTO(endereco);
+    }
+
+
     public ClienteSnapshot resolveCliente(PedidoRascunhoRequest request){
         if(request.clienteId() != null){
             return resolveClienteCadastrado(request);

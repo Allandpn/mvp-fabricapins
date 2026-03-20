@@ -1,7 +1,9 @@
 package com.finalphase.fabricapins.controller;
 
 
-import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
+import com.finalphase.fabricapins.dto.frete.FreteRequest;
+import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @PreAuthorize("hasRole('ADMIN')")
 @RestController
@@ -121,10 +124,35 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao adcionar endereco", content = @Content)
     })
     @PostMapping(value = "/{pedidoId}/endereco")
-    public ResponseEntity<PedidoMinDTO> definirEndereco(@PathVariable Long pedidoId, @Valid @RequestBody EnderecoPedidoDTO request){
+    public ResponseEntity<PedidoMinDTO> definirEndereco(@PathVariable Long pedidoId, @Valid @RequestBody EnderecoPedidoRequest request){
         PedidoMinDTO dto = pedidoService.definirEndereco(pedidoId, request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
+    }
+
+    // define frete
+    @Operation(summary = "Define Frete do Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Frete definido com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao definir o frete", content = @Content)
+    })
+    @PostMapping(value = "/{pedidoId}/frete")
+    public ResponseEntity<PedidoMinDTO> definirFrete(@PathVariable Long pedidoId, @Valid @RequestBody FreteRequest request){
+        PedidoMinDTO dto = pedidoService.definirFrete(pedidoId, request);
+        return ResponseEntity.ok(dto);
+    }
+
+
+    // calcula frete do pedido
+    @Operation(summary = "Calcula Frete do Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Frete calculado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao calcular o frete", content = @Content)
+    })
+    @PostMapping(value = "/{pedidoId}/frete/opcoes")
+    public ResponseEntity<List<OpcaoFreteDTO>> calcularFrete(@PathVariable Long pedidoId){
+        List<OpcaoFreteDTO> dto = pedidoService.calcularFrete(pedidoId);
+        return ResponseEntity.ok(dto);
     }
 
 

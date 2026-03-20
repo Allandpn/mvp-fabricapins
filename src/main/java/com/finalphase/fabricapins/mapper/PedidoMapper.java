@@ -3,12 +3,11 @@ package com.finalphase.fabricapins.mapper;
 import com.finalphase.fabricapins.domain.entities.Cliente;
 import com.finalphase.fabricapins.domain.entities.Pedido;
 import com.finalphase.fabricapins.dto.cliente.ClienteMinPedidoDTO;
-import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
-import com.finalphase.fabricapins.dto.pedido.PedidoRascunhoRequest;
 import org.mapstruct.*;
 
 @Mapper(
@@ -38,7 +37,10 @@ public interface PedidoMapper {
     @Mapping(target = "valorSubtotal", ignore = true)
     @Mapping(target = "desconto", ignore = true)
     @Mapping(target = "codigoPedido", ignore = true)
+    @Mapping(target = "freteServiceId", ignore = true)
     @Mapping(target = "valorFrete", ignore = true)
+    @Mapping(target = "nomeServicoFrete", ignore = true)
+    @Mapping(target = "prazoEntregaDias", ignore = true)
     @Mapping(target = "dataPrevistaProducao", ignore = true)
     @Mapping(target = "dataConclusaoPedido", ignore = true)
     @Mapping(target = "dataEnvio", ignore = true)
@@ -47,6 +49,7 @@ public interface PedidoMapper {
     @Mapping(target = "pagamento", ignore = true)
     @Mapping(target = "itemsPedido", ignore = true)
     @Mapping(target = "cupons", ignore = true)
+    @Mapping(target = "opcoesFreteCalculadas", ignore = true)
     @Mapping(source="enderecoEntrega.cep", target = "cep")
     @Mapping(source="enderecoEntrega.estado", target = "estado")
     @Mapping(source="enderecoEntrega.cidade", target = "cidade")

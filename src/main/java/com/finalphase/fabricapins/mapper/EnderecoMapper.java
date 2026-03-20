@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.mapper;
 
 import com.finalphase.fabricapins.domain.entities.Endereco;
 import com.finalphase.fabricapins.dto.endereco.EnderecoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import org.mapstruct.*;
 
 @Mapper(
@@ -11,6 +12,8 @@ import org.mapstruct.*;
 public interface EnderecoMapper {
 
     EnderecoDTO toDTO(Endereco entity);
+
+    EnderecoPedidoDTO toEnderecoPedidoDTO(Endereco entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "cliente", ignore = true)

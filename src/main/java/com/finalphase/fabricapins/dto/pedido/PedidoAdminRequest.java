@@ -2,7 +2,7 @@ package com.finalphase.fabricapins.dto.pedido;
 
 import com.finalphase.fabricapins.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
-import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,8 +42,8 @@ public record PedidoAdminRequest(
         TipoCliente tipoCliente,
 
         @NotNull(message = "Campo requerido")
-        @Schema(description = "Endereco de entrega", implementation = EnderecoPedidoDTO.class)
-        EnderecoPedidoDTO enderecoEntrega,
+        @Schema(description = "Endereco de entrega", implementation = EnderecoPedidoRequest.class)
+        EnderecoPedidoRequest enderecoEntrega,
 
         @Schema(description = "Observações do pedido")
         String observacao,

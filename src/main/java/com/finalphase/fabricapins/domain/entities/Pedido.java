@@ -5,6 +5,8 @@ import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
+import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -62,8 +64,17 @@ public class Pedido {
     private String codigoPedido;
 
     @Setter
+    private String freteServiceId;
+
+    @Setter
     @Column(precision = 15, scale = 2)
     private BigDecimal valorFrete = BigDecimal.ZERO;
+
+    @Setter
+    private String nomeServicoFrete;
+
+    @Setter
+    private Integer prazoEntregaDias;
 
     @Setter
     private LocalDate dataPrevistaProducao;
@@ -126,6 +137,11 @@ public class Pedido {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<PedidoCupom> cupons = new HashSet<>();
 
+    // TODO - evoluir para cache/redis
+    @Setter
+    @Transient
+    private List<OpcaoFreteDTO> opcoesFreteCalculadas;
+
     public Pedido(ClienteSnapshot cliente) {
         this.cliente = cliente.cliente();
         this.nomeCliente = cliente.nome();
@@ -149,6 +165,7 @@ public class Pedido {
         produtoVariacao.reduzirEstoque(item.getQuantidade());
         item.setPedido(this);
         this.itemsPedido.add(item);
+        invalidarFrete();
         recalcularTotal();
     }
 
@@ -160,6 +177,7 @@ public class Pedido {
         }
         produto.reduzirEstoque(quantidade);
         item.setQuantidade(item.getQuantidade() + quantidade);
+        invalidarFrete();
         recalcularTotal();
     }
 
@@ -169,6 +187,7 @@ public class Pedido {
         produto.aumentarEstoque(item.getQuantidade());
         itemsPedido.remove(item);
         item.setPedido(null);
+        invalidarFrete();
         recalcularTotal();
     }
 
@@ -223,8 +242,25 @@ public class Pedido {
             this.numero = dto.numero();
             this.complemento = dto.complemento();
             this.pontoReferencia = dto.pontoReferencia();
-            this.valorFrete = BigDecimal.ZERO;
+            invalidarFrete();
     }
+
+    public void definirFrete(OpcaoFreteDTO opcao){
+        this.freteServiceId = opcao.serviceId();
+        this.valorFrete = opcao.valor();
+        this.nomeServicoFrete = opcao.nome();
+        this.prazoEntregaDias = opcao.prazoDias();
+        recalcularTotal();
+    }
+
+    public void invalidarFrete(){
+        this.freteServiceId = null;
+        this.valorFrete = BigDecimal.ZERO;
+        this.nomeServicoFrete = null;
+        this.prazoEntregaDias = null;
+        this.opcoesFreteCalculadas = null;
+    }
+
 
 
 }
