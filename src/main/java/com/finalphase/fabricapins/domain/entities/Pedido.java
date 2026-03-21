@@ -67,6 +67,9 @@ public class Pedido {
     private String freteServiceId;
 
     @Setter
+    private Instant dataCalculoFrete;
+
+    @Setter
     @Column(precision = 15, scale = 2)
     private BigDecimal valorFrete = BigDecimal.ZERO;
 
@@ -75,6 +78,9 @@ public class Pedido {
 
     @Setter
     private Integer prazoEntregaDias;
+
+    @Setter
+    private String freteProvider;
 
     @Setter
     private LocalDate dataPrevistaProducao;
@@ -137,10 +143,9 @@ public class Pedido {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<PedidoCupom> cupons = new HashSet<>();
 
-    // TODO - evoluir para cache/redis
     @Setter
-    @Transient
-    private List<OpcaoFreteDTO> opcoesFreteCalculadas;
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OpcaoFretePedido> opcoesFrete = new ArrayList<>();
 
     public Pedido(ClienteSnapshot cliente) {
         this.cliente = cliente.cliente();
@@ -245,11 +250,13 @@ public class Pedido {
             invalidarFrete();
     }
 
-    public void definirFrete(OpcaoFreteDTO opcao){
-        this.freteServiceId = opcao.serviceId();
-        this.valorFrete = opcao.valor();
-        this.nomeServicoFrete = opcao.nome();
-        this.prazoEntregaDias = opcao.prazoDias();
+    public void definirFrete(OpcaoFretePedido opcao){
+        this.freteServiceId = opcao.getServiceId();
+        this.valorFrete = opcao.getValor();
+        this.nomeServicoFrete = opcao.getNome();
+        this.prazoEntregaDias = opcao.getPrazoDias();
+        this.freteProvider = opcao.getProvider();
+        this.dataCalculoFrete = Instant.now();
         recalcularTotal();
     }
 
@@ -258,7 +265,9 @@ public class Pedido {
         this.valorFrete = BigDecimal.ZERO;
         this.nomeServicoFrete = null;
         this.prazoEntregaDias = null;
-        this.opcoesFreteCalculadas = null;
+        this.freteProvider = null;
+        this.dataCalculoFrete = null;
+        this.opcoesFrete.clear();
     }
 
 

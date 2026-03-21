@@ -1,6 +1,7 @@
 package com.finalphase.fabricapins.service;
 
 import com.finalphase.fabricapins.domain.entities.*;
+import com.finalphase.fabricapins.domain.enums.FreteProvider;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
@@ -16,8 +17,11 @@ import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoRascunhoRequest;
 import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.ResourceNotFoundException;
+import com.finalphase.fabricapins.integration.frete.FreteGateway;
+import com.finalphase.fabricapins.integration.frete.FreteGatewayResolver;
 import com.finalphase.fabricapins.mapper.EnderecoMapper;
 import com.finalphase.fabricapins.mapper.ItemPedidoMapper;
+import com.finalphase.fabricapins.mapper.OpcaoFreteMapper;
 import com.finalphase.fabricapins.mapper.PedidoMapper;
 import com.finalphase.fabricapins.repository.ClienteRepository;
 import com.finalphase.fabricapins.repository.EnderecoRepository;
@@ -55,9 +59,15 @@ public class PedidoService {
     @Autowired
     private PedidoMapper mapper;
     @Autowired
-    ItemPedidoMapper itemPedidoMapper;
+    private ItemPedidoMapper itemPedidoMapper;
     @Autowired
-    EnderecoMapper enderecoMapper;
+    private EnderecoMapper enderecoMapper;
+    @Autowired
+    private OpcaoFreteMapper opcaoFreteMapper;
+
+    @Autowired
+    private FreteGatewayResolver freteGatewayResolver;
+
 
 
     @Transactional(readOnly = true)
@@ -176,12 +186,12 @@ public class PedidoService {
         if(pedido.getItemsPedido().isEmpty()){
             throw new BusinessException("Pedido deve possuir itens para selecionar frete");
         }
-        if (pedido.getOpcoesFreteCalculadas() == null){
+        if (pedido.getOpcoesFrete() == null){
             throw new BusinessException("Frete ainda não foi calculado");
         }
-        OpcaoFreteDTO opcao = pedido.getOpcoesFreteCalculadas()
+        OpcaoFretePedido opcao = pedido.getOpcoesFrete()
                 .stream()
-                .filter(x -> x.serviceId().equals(request.serviceId()))
+                .filter(x -> x.getServiceId().equals(request.serviceId()))
                 .findFirst()
                 .orElseThrow(() -> new BusinessException("Opção de frete inválida"));
 
@@ -190,8 +200,9 @@ public class PedidoService {
     }
 
     // calcula frete
-    @Transactional(readOnly = true)
+    @Transactional()
     public List<OpcaoFreteDTO> calcularFrete(Long pedidoId){
+
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
@@ -202,23 +213,17 @@ public class PedidoService {
         if(pedido.getItemsPedido().isEmpty()){
             throw new BusinessException("Pedido deve possuir itens para calcular frete");
         }
-        //MOCK
-        BigDecimal subtotal = pedido.getValorSubtotal();
-        List<OpcaoFreteDTO> opcoesFrete = new ArrayList<>();
-        opcoesFrete.add(new OpcaoFreteDTO(
-                "1",
-                "PAC",
-                new BigDecimal("15.00"),
-                5
-        ));
-        opcoesFrete.add(new OpcaoFreteDTO(
-                "2",
-                "SEDEX",
-                new BigDecimal("25.00"),
-                2
-        ));
-        pedido.setOpcoesFreteCalculadas(opcoesFrete);
-        return opcoesFrete;
+
+        pedido.getOpcoesFrete().clear();
+        FreteGateway gateway = freteGatewayResolver.resolve(FreteProvider.MOCK);
+        List<OpcaoFretePedido> opcoesFrete = gateway.calcularFrete(pedido);
+        List<OpcaoFreteDTO> response = new ArrayList<>();
+        for(OpcaoFretePedido opcaoFrete: opcoesFrete){
+            opcaoFrete.setPedido(pedido);
+            pedido.getOpcoesFrete().add(opcaoFrete);
+            response.add(opcaoFreteMapper.toDTO(opcaoFrete));
+        }
+        return response;
     }
 
 

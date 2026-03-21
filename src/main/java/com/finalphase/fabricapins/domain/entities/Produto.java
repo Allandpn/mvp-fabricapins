@@ -39,13 +39,16 @@ public class Produto {
     private Double peso;
 
     @Setter
-    private Double altura;
+    @Column(nullable = false)
+    private Integer altura;
 
     @Setter
-    private Double largura;
+    @Column(nullable = false)
+    private Integer largura;
 
     @Setter
-    private Double comprimento;
+    @Column(nullable = false)
+    private Integer comprimento;
 
     @Setter
     @NotBlank
