@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.domain.entities;
 
+import com.finalphase.fabricapins.domain.enums.FreteProvider;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,6 +32,9 @@ public class OpcaoFretePedido {
     private Integer prazoDias;
 
     @Setter
+    private String empresa;
+
+    @Setter
     private String provider;
 
     @Setter
@@ -38,11 +42,11 @@ public class OpcaoFretePedido {
     @JoinColumn(name = "pedido_id")
     private Pedido pedido;
 
-    public OpcaoFretePedido(String serviceId, String nome, BigDecimal valor, Integer prazoDias, String provider) {
+    public OpcaoFretePedido(String serviceId, String nome, BigDecimal valor, Integer prazoDias, String empresa) {
         this.serviceId = serviceId;
         this.nome = nome;
         this.valor = valor;
         this.prazoDias = prazoDias;
-        this.provider = provider;
+        this.empresa = empresa;
     }
 }

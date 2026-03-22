@@ -3,17 +3,29 @@ package com.finalphase.fabricapins.integration.frete;
 import com.finalphase.fabricapins.domain.entities.OpcaoFretePedido;
 import com.finalphase.fabricapins.domain.entities.Pedido;
 import com.finalphase.fabricapins.domain.enums.FreteProvider;
+import com.finalphase.fabricapins.domain.enums.ParametroChave;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
+import com.finalphase.fabricapins.dto.parametro.ParametroDTO;
 import com.finalphase.fabricapins.integration.frete.client.MelhorEnvioClient;
-import com.finalphase.fabricapins.integration.frete.dto.MelhorEnvioCalculoRequest;
-import com.finalphase.fabricapins.integration.frete.dto.ProdutoME;
+import com.finalphase.fabricapins.integration.frete.dto.*;
+import com.finalphase.fabricapins.mapper.OpcaoFreteMapper;
+import com.finalphase.fabricapins.service.ParametroService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
 public class MelhorEnvioGateway implements FreteGateway{
+
+    @Autowired
+    private ParametroService parametroService;
+
+    @Autowired
+    private OpcaoFreteMapper mapper;
 
     private final MelhorEnvioClient client;
 
@@ -30,17 +42,20 @@ public class MelhorEnvioGateway implements FreteGateway{
     public List<OpcaoFretePedido> calcularFrete(Pedido pedido) {
         Object request = montarRequest(pedido);
 
-        String response = client.calcularFrete(request, "TOKEN");
+        List<MelhorEnvioResponse> response = client.calcularFrete(request);
 
-        return List.of(
-                new OpcaoFretePedido("1", "PAC", new BigDecimal("20.00"), 5, "MELHOR_ENVIO")
-        );
+        return response.stream()
+                .filter(r -> r.error() == null)
+                .map(mapper::toDTOFromMelhorEnvioResponse)
+                .sorted(Comparator.comparing(OpcaoFretePedido::getValor))
+                .toList();
     }
 
 
     private MelhorEnvioCalculoRequest montarRequest(Pedido pedido){
-        String cepOrigem = "64300000";
-        String cepDestino = pedido.getCep();
+        ParametroDTO cepOrigem = parametroService.getParametro(ParametroChave.CEP_ORIGEM);
+        EnderecoME from = new EnderecoME(cepOrigem.valor());
+        EnderecoME to =  new EnderecoME(pedido.getCep());
 
         List<ProdutoME> produtos = pedido.getItemsPedido().stream()
                 .map(item -> new ProdutoME(
@@ -49,13 +64,19 @@ public class MelhorEnvioGateway implements FreteGateway{
                         item.getProdutoVariacao().getProduto().getAltura(),
                         item.getProdutoVariacao().getProduto().getComprimento(),
                         item.getProdutoVariacao().getProduto().getPeso(),
-                        pedido.getTipoCliente().equals(TipoCliente.VAREJO)?Double.valueOf(String.valueOf(item.getProdutoVariacao().getPrecoVarejo())):Double.valueOf(String.valueOf(item.getProdutoVariacao().getPrecoRevenda())),
-                        item.getQuantidade())).toList();
+                        pedido.getTipoCliente().equals(TipoCliente.VAREJO)
+                                ?item.getProdutoVariacao().getPrecoVarejo().doubleValue()
+                                :item.getProdutoVariacao().getPrecoRevenda().doubleValue(),
+                        item.getQuantidade()
+                ))
+                .toList();
 
         return new MelhorEnvioCalculoRequest(
-                cepOrigem,
-                cepDestino,
-                produtos
+                from,
+                to,
+                produtos,
+                new OptionsME(false, false),
+                "1,2,18"
         );
     }
 

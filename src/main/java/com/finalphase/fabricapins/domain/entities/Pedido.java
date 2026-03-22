@@ -80,7 +80,7 @@ public class Pedido {
     private Integer prazoEntregaDias;
 
     @Setter
-    private String freteProvider;
+    private String freteEmpresa;
 
     @Setter
     private LocalDate dataPrevistaProducao;
@@ -255,7 +255,7 @@ public class Pedido {
         this.valorFrete = opcao.getValor();
         this.nomeServicoFrete = opcao.getNome();
         this.prazoEntregaDias = opcao.getPrazoDias();
-        this.freteProvider = opcao.getProvider();
+        this.freteEmpresa = opcao.getEmpresa();
         this.dataCalculoFrete = Instant.now();
         recalcularTotal();
     }
@@ -265,7 +265,7 @@ public class Pedido {
         this.valorFrete = BigDecimal.ZERO;
         this.nomeServicoFrete = null;
         this.prazoEntregaDias = null;
-        this.freteProvider = null;
+        this.freteEmpresa = null;
         this.dataCalculoFrete = null;
         this.opcoesFrete.clear();
     }

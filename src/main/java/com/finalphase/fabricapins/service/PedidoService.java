@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.service;
 
 import com.finalphase.fabricapins.domain.entities.*;
 import com.finalphase.fabricapins.domain.enums.FreteProvider;
+import com.finalphase.fabricapins.domain.enums.ParametroChave;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
@@ -11,6 +12,7 @@ import com.finalphase.fabricapins.dto.frete.FreteRequest;
 import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
+import com.finalphase.fabricapins.dto.parametro.ParametroDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
@@ -55,6 +57,8 @@ public class PedidoService {
     private ItemPedidoService itemPedidoService;
     @Autowired
     private CupomDescontoService cupomDescontoService;
+    @Autowired
+    private ParametroService parametroService;
 
     @Autowired
     private PedidoMapper mapper;
@@ -215,11 +219,13 @@ public class PedidoService {
         }
 
         pedido.getOpcoesFrete().clear();
-        FreteGateway gateway = freteGatewayResolver.resolve(FreteProvider.MOCK);
+        ParametroDTO provider =  parametroService.getParametro(ParametroChave.FRETE_PROVIDER_PADRAO);
+        FreteGateway gateway = freteGatewayResolver.resolve(FreteProvider.valueOf(provider.valor()));
         List<OpcaoFretePedido> opcoesFrete = gateway.calcularFrete(pedido);
         List<OpcaoFreteDTO> response = new ArrayList<>();
         for(OpcaoFretePedido opcaoFrete: opcoesFrete){
             opcaoFrete.setPedido(pedido);
+            opcaoFrete.setProvider(provider.toString());
             pedido.getOpcoesFrete().add(opcaoFrete);
             response.add(opcaoFreteMapper.toDTO(opcaoFrete));
         }

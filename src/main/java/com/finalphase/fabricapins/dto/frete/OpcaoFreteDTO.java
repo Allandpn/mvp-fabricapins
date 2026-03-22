@@ -9,5 +9,6 @@ public record OpcaoFreteDTO(
         String serviceId,
         String nome,
         BigDecimal valor,
-        Integer prazoDias
+        Integer prazoDias,
+        String empresa
 ) {}

@@ -364,3 +364,8 @@ c.tipo_desconto
 FROM tb_pedido p
 JOIN tb_cupom_desconto c ON c.codigo = 'FIXO15'
 WHERE MOD(p.id,6)=0;
+
+
+INSERT INTO tb_parametro (chave, valor) VALUES
+('CEP_ORIGEM','88600000'),
+('FRETE_PROVIDER_PADRAO','MELHOR_ENVIO');
