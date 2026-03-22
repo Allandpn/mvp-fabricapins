@@ -2,6 +2,8 @@ package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.domain.enums.TipoPessoa;
+import com.finalphase.fabricapins.dto.cliente.ClienteRequest;
+import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -87,6 +89,23 @@ public class Cliente {
         this.tipoPessoa = tipoPessoa;
         this.numeroDocumento = numeroDocumento;
     }
+
+    public Cliente(String nome, String numeroDocumento, String telefone, TipoCliente tipoCliente) {
+        this.nome = nome;
+        this.telefone = telefone;
+        this.tipoCliente = tipoCliente;
+        this.numeroDocumento = numeroDocumento;
+    }
+
+    public Cliente(ClienteRequest request){
+        this.nome = request.nome();
+        this.email = request.email();
+        this.telefone = request.telefone();
+        this.tipoCliente = request.tipoCliente();
+        this.tipoPessoa = request.tipoPessoa();
+        this.numeroDocumento = request.numeroDocumento();
+    }
+
 
 
     // HELPERS

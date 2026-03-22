@@ -257,7 +257,7 @@ VALUES
 INSERT INTO tb_pedido
 (data_criacao, status_pedido, origem_pedido,
  valor_total, valor_subtotal, desconto, valor_frete,
- codigo_pedido, nome_cliente_snapshot, documento_cliente_snapshot,
+ codigo_pedido, nome_cliente, documento_cliente,
  cep, estado, cidade, bairro, logradouro, numero, cliente_id)
 SELECT
 CURRENT_TIMESTAMP,
@@ -324,12 +324,11 @@ UPDATE SET p.pagamento_id = x.pagamento_id;
 -- ITENS PEDIDO (100)
 -- =============================================
 INSERT INTO tb_item_pedido
-(quantidade, preco_unitario, sub_total, nome_produto_snapshot,
+(quantidade, preco_unitario, nome_produto_snapshot,
  custo_unitario_snapshot, pedido_id, produto_variacao_id)
 SELECT
 2,
 39.90,
-39.90 * 2,
 CONCAT('Produto ', ((x-1)%50)+1),
 20.00,
 ((x-1)%50)+1,
@@ -365,3 +364,8 @@ c.tipo_desconto
 FROM tb_pedido p
 JOIN tb_cupom_desconto c ON c.codigo = 'FIXO15'
 WHERE MOD(p.id,6)=0;
+
+
+INSERT INTO tb_parametro (chave, valor) VALUES
+('CEP_ORIGEM','88600000'),
+('FRETE_PROVIDER_PADRAO','MELHOR_ENVIO');

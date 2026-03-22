@@ -5,6 +5,7 @@ import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.dto.PedidoCupom.PedidoCupomDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteMinPedidoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
+import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.pagamento.PagamentoDTO;
 
@@ -23,7 +24,10 @@ public record PedidoDTO(
         BigDecimal valorSubtotal,
         BigDecimal desconto,
         String codigoPedido,
+        String freteServiceId,
         BigDecimal valorFrete,
+        String nomeServicoFrete,
+        Integer prazoEntregaDias,
         LocalDate dataPrevistaProducao,
         LocalDate dataConclusaoPedido,
         LocalDate dataEnvio,
