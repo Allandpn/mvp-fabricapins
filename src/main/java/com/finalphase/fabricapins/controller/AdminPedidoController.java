@@ -130,17 +130,6 @@ public class AdminPedidoController {
         return ResponseEntity.created(uri).body(dto);
     }
 
-    // define frete
-    @Operation(summary = "Define Frete do Pedido")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Frete definido com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro ao definir o frete", content = @Content)
-    })
-    @PostMapping(value = "/{pedidoId}/frete")
-    public ResponseEntity<PedidoMinDTO> definirFrete(@PathVariable Long pedidoId, @Valid @RequestBody FreteRequest request){
-        PedidoMinDTO dto = pedidoService.definirFrete(pedidoId, request);
-        return ResponseEntity.ok(dto);
-    }
 
 
     // calcula frete do pedido
@@ -155,6 +144,18 @@ public class AdminPedidoController {
         return ResponseEntity.ok(dto);
     }
 
+
+    // define frete
+    @Operation(summary = "Define Frete do Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Frete definido com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao definir o frete", content = @Content)
+    })
+    @PatchMapping(value = "/{pedidoId}/frete")
+    public ResponseEntity<PedidoMinDTO> definirFrete(@PathVariable Long pedidoId, @Valid @RequestBody FreteRequest request){
+        PedidoMinDTO dto = pedidoService.definirFrete(pedidoId, request);
+        return ResponseEntity.ok(dto);
+    }
 
 
     // TODO - Implementar

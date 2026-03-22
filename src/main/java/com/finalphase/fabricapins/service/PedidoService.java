@@ -190,7 +190,7 @@ public class PedidoService {
         if(pedido.getItemsPedido().isEmpty()){
             throw new BusinessException("Pedido deve possuir itens para selecionar frete");
         }
-        if (pedido.getOpcoesFrete() == null){
+        if (pedido.getOpcoesFrete().isEmpty()){
             throw new BusinessException("Frete ainda não foi calculado");
         }
         OpcaoFretePedido opcao = pedido.getOpcoesFrete()
