@@ -302,6 +302,57 @@ public class Pedido {
         }
     }
 
+    public void confirmarPagamento(){
+        if(this.statusPedido != StatusPedido.AGUARDANDO_PAGAMENTO){
+            throw new BusinessException("Pedido não possui pagamento pendente");
+        }
+
+        this.statusPedido = StatusPedido.PAGAMENTO_CONFIRMADO;
+    }
+
+    public void iniciarProducao(){
+        if(this.statusPedido != StatusPedido.PAGAMENTO_CONFIRMADO){
+            throw new BusinessException("Pedido não pode entrar em produção");
+        }
+
+        this.statusPedido = StatusPedido.EM_PRODUCAO;
+        this.dataPrevistaProducao = LocalDate.now();
+    }
+
+    public void iniciarSeparacao(){
+        if(this.statusPedido != StatusPedido.EM_PRODUCAO){
+            throw new BusinessException("Pedido não está em produção");
+        }
+
+        this.statusPedido = StatusPedido.EM_SEPARACAO;
+    }
+
+    public void aguardarEnvio(){
+        if(this.statusPedido != StatusPedido.EM_SEPARACAO){
+            throw new BusinessException("Pedido não está em separação");
+        }
+
+        this.statusPedido = StatusPedido.AGUARDANDO_ENVIO;
+    }
+
+    public void enviar(){
+        if(this.statusPedido != StatusPedido.AGUARDANDO_ENVIO){
+            throw new BusinessException("Pedido não está pronto para envio");
+        }
+
+        this.statusPedido = StatusPedido.ENVIADO;
+        this.dataEnvio = LocalDate.now();
+    }
+
+    public void entregar(){
+        if(this.statusPedido != StatusPedido.ENVIADO){
+            throw new BusinessException("Pedido não foi enviado");
+        }
+
+        this.statusPedido = StatusPedido.ENTREGUE;
+        this.dataEntrega = LocalDate.now();
+    }
+
 }
 
 

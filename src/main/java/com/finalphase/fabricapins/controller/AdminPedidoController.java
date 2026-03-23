@@ -216,25 +216,32 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "200", description = "Pedido cancelado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao cancelar pedido", content = @Content)
     })
-    @PostMapping(value = "/{pedidoId}/cancelar")
+    @DeleteMapping(value = "/{pedidoId}/cancelar")
     public ResponseEntity<PedidoMinDTO> cancelarPedido(@PathVariable Long pedidoId){
         PedidoMinDTO dto = pedidoService.cancelarPedido(pedidoId);
         return ResponseEntity.ok(dto);
     }
 
-
-    // TODO - Implementar
-    @Operation(summary = "Alterar Status do Pedido")
+    @Operation(summary = "Confirmar Pagamento do Pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Pedido alterado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro ao alterar o Pedido", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Pagamento confirmado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao confirmar pagamento", content = @Content)
     })
-    @PatchMapping(value = "/{id}/status")
-    public ResponseEntity<PedidoDTO> alterarStatusPedido(@Valid @RequestBody PedidoAdminRequest request){
-        PedidoDTO dto = pedidoService.alterarStatusPedido(request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
-        return ResponseEntity.created(uri).body(dto);
+    @PatchMapping(value = "/{pedidoId}/pagamento/confirmar")
+    public ResponseEntity<PedidoMinDTO> confirmarPagamento(@PathVariable Long pedidoId){
+        PedidoMinDTO dto = pedidoService.confirmarPagamento(pedidoId);
+        return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Enviar Pedido para Produção")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido enviado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao envair pedido", content = @Content)
+    })
+    @PatchMapping(value = "/{pedidoId}/producao/enviar")
+    public ResponseEntity<PedidoMinDTO> enviarProducao(@PathVariable Long pedidoId){
+        PedidoMinDTO dto = pedidoService.enviarProducao(pedidoId);
+        return ResponseEntity.ok(dto);
+    }
 
 }

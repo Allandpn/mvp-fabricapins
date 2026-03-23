@@ -325,6 +325,23 @@ public class PedidoService {
         return mapper.toMinDTO(pedido);
     }
 
+    @Transactional()
+    public PedidoMinDTO confirmarPagamento(Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        pedido.confirmarPagamento();
+        return mapper.toMinDTO(pedido);
+    }
+
+    @Transactional()
+    public PedidoMinDTO enviarProducao(Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        pedido.iniciarProducao();
+        return mapper.toMinDTO(pedido);
+    }
 
 
     //HELPERS
