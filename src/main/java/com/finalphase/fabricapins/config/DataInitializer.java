@@ -8,6 +8,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
 public class DataInitializer {
@@ -17,17 +19,26 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initRoles() {
         return args -> {
-            if(!perfilRepository.existsByNome(Perfil.ADMIN)){
-                perfilRepository.save(new Perfil(Perfil.ADMIN));
-            }
-            if(!perfilRepository.existsByNome(Perfil.GERENTE)){
-                perfilRepository.save(new Perfil(Perfil.GERENTE));
-            }
-            if(!perfilRepository.existsByNome(Perfil.VENDEDOR)){
-                perfilRepository.save(new Perfil(Perfil.VENDEDOR));
-            }
-            if(!perfilRepository.existsByNome(Perfil.CLIENTE)){
-                perfilRepository.save(new Perfil(Perfil.CLIENTE));
+
+            List<String> perfis = List.of(
+                    Perfil.ADMIN,
+                    Perfil.GERENTE,
+                    Perfil.VENDEDOR,
+                    Perfil.CLIENTE
+            );
+
+            List<String> existentes = perfilRepository.findAll()
+                    .stream()
+                    .map(Perfil::getNome)
+                    .toList();
+
+            List<Perfil> novos = perfis.stream()
+                    .filter(p -> !existentes.contains(p))
+                    .map(Perfil::new)
+                    .toList();
+
+            if (!novos.isEmpty()) {
+                perfilRepository.saveAll(novos);
             }
         };
     }
