@@ -62,6 +62,8 @@ public class PedidoService {
     private CupomDescontoService cupomDescontoService;
     @Autowired
     private ParametroService parametroService;
+    @Autowired
+    private EstoqueService estoqueService;
 
     @Autowired
     private PedidoMapper mapper;
@@ -138,7 +140,7 @@ public class PedidoService {
 
     // adicionar item ao pedido
     @Transactional
-    public ItemPedidoDTO insertItemPedido(Long pedidoId, ItemPedidoRequest request) {
+    public PedidoDTO adicionarItemPedido(Long pedidoId, ItemPedidoRequest request) {
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
@@ -153,17 +155,53 @@ public class PedidoService {
         if(itemPedidoExistente.isPresent()){
             ItemPedido item = itemPedidoExistente.get();
             pedido.incrementarItem(item, request.quantidade());
-            return itemPedidoMapper.toDTO(item);
+
         }
-        // cria novo item
-        ItemPedido item = itemPedidoService.createItemPedido(
-                request,
-                produto,
-                pedido.getTipoCliente()
-        );
-        pedido.adicionarItem(item);
+        else {
+            ItemPedido item = itemPedidoService.createItemPedido(
+                    request,
+                    produto,
+                    pedido.getTipoCliente()
+            );
+            pedido.adicionarItem(item);
+        }
         pedidoRepository.save(pedido);
-        return itemPedidoMapper.toDTO(item);
+        return mapper.toDTO(pedido);
+    }
+
+    @Transactional
+    public PedidoDTO alterarItemPedido(Long pedidoId, Long itemId, Integer quantidade) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        validaPedidoRascunho(pedido);
+        // remove item existente
+        ItemPedido item = pedido.getItemsPedido()
+                .stream()
+                .filter(x -> x.getProdutoVariacao().getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido não possui esse item"));
+        pedido.atualizarQuantidade(item, quantidade);
+        pedidoRepository.save(pedido);
+        return mapper.toDTO(pedido);
+    }
+
+
+    @Transactional
+    public PedidoDTO removerItemPedido(Long pedidoId, Long itemId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        validaPedidoRascunho(pedido);
+        // remove item existente
+        ItemPedido item = pedido.getItemsPedido()
+                .stream()
+                .filter(x -> x.getProdutoVariacao().getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido não possui esse item"));
+        pedido.removerItem(item);
+        pedidoRepository.save(pedido);
+        return mapper.toDTO(pedido);
     }
 
 
@@ -267,10 +305,30 @@ public class PedidoService {
         return mapper.toDTO(pedido);
     }
 
+    @Transactional()
+    public PedidoDTO confirmarPedido(Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        estoqueService.reservarEstoque(pedido.getItemsPedido());
+        pedido.confirmar();
+        return mapper.toDTO(pedido);
+    }
+
+    @Transactional()
+    public PedidoMinDTO cancelarPedido(Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        estoqueService.devolverEstoque(pedido.getItemsPedido());
+        pedido.cancelar();
+        return mapper.toMinDTO(pedido);
+    }
 
 
 
     //HELPERS
+
     private EnderecoPedidoDTO resolveEndereco(Pedido pedido, EnderecoPedidoRequest request) {
         if(request.enderecoId() != null){
             return resolveEnderecoExistente(pedido, request);
@@ -407,7 +465,6 @@ public class PedidoService {
     public PedidoDTO alterarStatusPedido(PedidoAdminRequest request) {
         return null;
     }
-
 
 
 }

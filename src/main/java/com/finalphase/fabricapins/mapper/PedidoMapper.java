@@ -42,7 +42,7 @@ public interface PedidoMapper {
     @Mapping(target = "nomeServicoFrete", ignore = true)
     @Mapping(target = "prazoEntregaDias", ignore = true)
     @Mapping(target = "dataCalculoFrete", ignore = true)
-    @Mapping(target = "freteProvider", ignore = true)
+    @Mapping(target = "freteEmpresa", ignore = true)
     @Mapping(target = "dataPrevistaProducao", ignore = true)
     @Mapping(target = "dataConclusaoPedido", ignore = true)
     @Mapping(target = "dataEnvio", ignore = true)
