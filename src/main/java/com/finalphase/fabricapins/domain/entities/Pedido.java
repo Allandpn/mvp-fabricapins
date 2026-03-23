@@ -7,6 +7,7 @@ import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
+import com.finalphase.fabricapins.exception.BusinessException;
 import com.finalphase.fabricapins.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,6 +38,9 @@ public class Pedido {
 
     @UpdateTimestamp
     private Instant dataAtualizacao;
+
+    @Setter
+    private LocalDate dataConclusaoPedido;
 
     @Setter
     @Column(nullable = false)
@@ -84,9 +88,6 @@ public class Pedido {
 
     @Setter
     private LocalDate dataPrevistaProducao;
-
-    @Setter
-    private LocalDate dataConclusaoPedido;
 
     @Setter
     private LocalDate dataEnvio;
@@ -162,12 +163,6 @@ public class Pedido {
 
     // HELPERS
     public void adicionarItem(ItemPedido item){
-        ProdutoVariacao produtoVariacao = item.getProdutoVariacao();
-        if(produtoVariacao.getQuantidadeEstoque().compareTo(item.getQuantidade()) < 0){
-            throw new InsufficientStockException(
-                    "Estoque insuficiente para o produto: " + produtoVariacao.getNome() + "- id: " + produtoVariacao.getId());
-        }
-        produtoVariacao.reduzirEstoque(item.getQuantidade());
         item.setPedido(this);
         this.itemsPedido.add(item);
         invalidarFrete();
@@ -175,21 +170,25 @@ public class Pedido {
     }
 
     public void incrementarItem(ItemPedido item, Integer quantidade){
-        ProdutoVariacao produto = item.getProdutoVariacao();
-        if(produto.getQuantidadeEstoque().compareTo(quantidade) < 0){
-            throw new InsufficientStockException(
-                    "Estoque insuficiente para o produto: " + produto.getNome() + "- id: " + produto.getId());
+        if(quantidade <= 0){
+            throw new BusinessException("Quantidade inválida");
         }
-        produto.reduzirEstoque(quantidade);
         item.setQuantidade(item.getQuantidade() + quantidade);
+        invalidarFrete();
+        recalcularTotal();
+    }
+
+    public void atualizarQuantidade(ItemPedido item, Integer quantidade){
+        if(quantidade <= 0){
+            throw new BusinessException("Quantidade inválida");
+        }
+        item.setQuantidade(quantidade);
         invalidarFrete();
         recalcularTotal();
     }
 
 
     public void removerItem(ItemPedido item){
-        ProdutoVariacao produto = item.getProdutoVariacao();
-        produto.aumentarEstoque(item.getQuantidade());
         itemsPedido.remove(item);
         item.setPedido(null);
         invalidarFrete();
@@ -269,7 +268,90 @@ public class Pedido {
         this.opcoesFrete.clear();
     }
 
+    public void confirmar(){
+        validarConfirmacao();
+        this.statusPedido = StatusPedido.AGUARDANDO_PAGAMENTO;
+        this.dataConclusaoPedido = LocalDate.now();
+    }
+    
+    public void cancelar(){
+        if(this.statusPedido == StatusPedido.CANCELADO){
+            throw new BusinessException("Pedido ja está cancelado");
+        }
+        this.statusPedido = StatusPedido.CANCELADO;
+    }
 
+    private void validarConfirmacao() {
+        if(this.statusPedido != StatusPedido.RASCUNHO){
+            throw new BusinessException("Apenas pedidos em rascunho podem ser confirmados");
+        }
+        if(this.itemsPedido.isEmpty()){
+            throw new BusinessException("Pedido deve possuir itens");
+        }
+        if(this.nomeCliente == null){
+            throw new BusinessException("Cliente não informado");
+        }
+        if(this.cep == null){
+            throw new BusinessException("Endereço não informado");
+        }
+        if(this.freteServiceId == null){
+            throw new BusinessException("Frete não selecionado");
+        }
+        if(this.valorTotal.compareTo(BigDecimal.ZERO) < 0){
+            throw new BusinessException("Valor total inválido");
+        }
+    }
+
+    public void confirmarPagamento(){
+        if(this.statusPedido != StatusPedido.AGUARDANDO_PAGAMENTO){
+            throw new BusinessException("Pedido não possui pagamento pendente");
+        }
+
+        this.statusPedido = StatusPedido.PAGAMENTO_CONFIRMADO;
+    }
+
+    public void iniciarProducao(){
+        if(this.statusPedido != StatusPedido.PAGAMENTO_CONFIRMADO){
+            throw new BusinessException("Pedido não pode entrar em produção");
+        }
+
+        this.statusPedido = StatusPedido.EM_PRODUCAO;
+        this.dataPrevistaProducao = LocalDate.now();
+    }
+
+    public void iniciarSeparacao(){
+        if(this.statusPedido != StatusPedido.EM_PRODUCAO){
+            throw new BusinessException("Pedido não está em produção");
+        }
+
+        this.statusPedido = StatusPedido.EM_SEPARACAO;
+    }
+
+    public void aguardarEnvio(){
+        if(this.statusPedido != StatusPedido.EM_SEPARACAO){
+            throw new BusinessException("Pedido não está em separação");
+        }
+
+        this.statusPedido = StatusPedido.AGUARDANDO_ENVIO;
+    }
+
+    public void enviar(){
+        if(this.statusPedido != StatusPedido.AGUARDANDO_ENVIO){
+            throw new BusinessException("Pedido não está pronto para envio");
+        }
+
+        this.statusPedido = StatusPedido.ENVIADO;
+        this.dataEnvio = LocalDate.now();
+    }
+
+    public void entregar(){
+        if(this.statusPedido != StatusPedido.ENVIADO){
+            throw new BusinessException("Pedido não foi enviado");
+        }
+
+        this.statusPedido = StatusPedido.ENTREGUE;
+        this.dataEntrega = LocalDate.now();
+    }
 
 }
 

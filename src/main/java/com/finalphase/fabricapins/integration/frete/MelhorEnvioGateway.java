@@ -46,7 +46,7 @@ public class MelhorEnvioGateway implements FreteGateway{
 
         return response.stream()
                 .filter(r -> r.error() == null)
-                .map(mapper::toDTOFromMelhorEnvioResponse)
+                .map(mapper::toEntityFromMelhorEnvioResponse)
                 .sorted(Comparator.comparing(OpcaoFretePedido::getValor))
                 .toList();
     }

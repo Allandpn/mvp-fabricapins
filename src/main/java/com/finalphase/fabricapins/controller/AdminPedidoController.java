@@ -7,6 +7,7 @@ import com.finalphase.fabricapins.dto.frete.FreteRequest;
 import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
+import com.finalphase.fabricapins.dto.item_pedido.QuantidadeItemRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
@@ -77,6 +78,7 @@ public class AdminPedidoController {
     // Inserir Novos Pedidos
 
     // Inserir Pedido Completo
+    //TODO - Corrigir rota
     @Operation(summary = "Inserir Pedido Completo")
     @GetMapping(value = "/completo")
     @ApiResponses(value = {
@@ -92,7 +94,6 @@ public class AdminPedidoController {
 
 
     // Inserir Pedidos em Etapas
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Inserir Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
@@ -112,10 +113,33 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao adcionar item", content = @Content)
     })
     @PostMapping(value = "/{pedidoId}/items")
-    public ResponseEntity<ItemPedidoDTO> insertItemPedido(@PathVariable Long pedidoId, @Valid @RequestBody ItemPedidoRequest request){
-        ItemPedidoDTO dto = pedidoService.insertItemPedido(pedidoId, request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
-        return ResponseEntity.created(uri).body(dto);
+    public ResponseEntity<PedidoDTO> adicionarItemPedido(@PathVariable Long pedidoId, @Valid @RequestBody ItemPedidoRequest request){
+        PedidoDTO dto = pedidoService.adicionarItemPedido(pedidoId, request);
+        return ResponseEntity.ok(dto);
+    }
+
+    // inseri itens no pedido criado
+    @Operation(summary = "Altera Items no Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Item alterado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao alterar item", content = @Content)
+    })
+    @PatchMapping(value = "/{pedidoId}/items/{itemId}")
+    public ResponseEntity<PedidoDTO> alterarItemPedido(@PathVariable Long pedidoId, @PathVariable Long itemId, @Valid @RequestBody QuantidadeItemRequest request){
+        PedidoDTO dto = pedidoService.alterarItemPedido(pedidoId, itemId, request.quantidade());
+        return ResponseEntity.ok(dto);
+    }
+
+
+    @Operation(summary = "Remove Items no Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Item removido com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao remover item", content = @Content)
+    })
+    @DeleteMapping(value = "/{pedidoId}/items/{itemId}")
+    public ResponseEntity<PedidoDTO> removerItemPedido(@PathVariable Long pedidoId, @PathVariable Long itemId){
+        PedidoDTO dto = pedidoService.removerItemPedido(pedidoId, itemId);
+        return ResponseEntity.ok(dto);
     }
 
     // adiciona endereco no pedido criado
@@ -132,8 +156,6 @@ public class AdminPedidoController {
     }
 
 
-
-    // calcula frete do pedido
     @Operation(summary = "Calcula Frete do Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Frete calculado com sucesso"),
@@ -145,8 +167,6 @@ public class AdminPedidoController {
         return ResponseEntity.ok(dto);
     }
 
-
-    // define frete
     @Operation(summary = "Define Frete do Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Frete definido com sucesso"),
@@ -180,19 +200,48 @@ public class AdminPedidoController {
         return ResponseEntity.ok(dto);
     }
 
-
-    // TODO - Implementar
-    @Operation(summary = "Alterar Status do Pedido")
+    @Operation(summary = "Confirmar Pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Pedido alterado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Erro ao alterar o Pedido", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Pedido confirmado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao confirmar pedido", content = @Content)
     })
-    @PatchMapping(value = "/{id}/status")
-    public ResponseEntity<PedidoDTO> alterarStatusPedido(@Valid @RequestBody PedidoAdminRequest request){
-        PedidoDTO dto = pedidoService.alterarStatusPedido(request);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
-        return ResponseEntity.created(uri).body(dto);
+    @PostMapping(value = "/{pedidoId}/confirmar")
+    public ResponseEntity<PedidoDTO> confirmarPedido(@PathVariable Long pedidoId){
+        PedidoDTO dto = pedidoService.confirmarPedido(pedidoId);
+        return ResponseEntity.ok(dto);
     }
 
+    @Operation(summary = "Cancelar Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido cancelado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao cancelar pedido", content = @Content)
+    })
+    @DeleteMapping(value = "/{pedidoId}/cancelar")
+    public ResponseEntity<PedidoMinDTO> cancelarPedido(@PathVariable Long pedidoId){
+        PedidoMinDTO dto = pedidoService.cancelarPedido(pedidoId);
+        return ResponseEntity.ok(dto);
+    }
+
+    @Operation(summary = "Confirmar Pagamento do Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pagamento confirmado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao confirmar pagamento", content = @Content)
+    })
+    @PatchMapping(value = "/{pedidoId}/pagamento/confirmar")
+    public ResponseEntity<PedidoMinDTO> confirmarPagamento(@PathVariable Long pedidoId){
+        PedidoMinDTO dto = pedidoService.confirmarPagamento(pedidoId);
+        return ResponseEntity.ok(dto);
+    }
+
+    @Operation(summary = "Enviar Pedido para Produção")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido enviado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao envair pedido", content = @Content)
+    })
+    @PatchMapping(value = "/{pedidoId}/producao/enviar")
+    public ResponseEntity<PedidoMinDTO> enviarProducao(@PathVariable Long pedidoId){
+        PedidoMinDTO dto = pedidoService.enviarProducao(pedidoId);
+        return ResponseEntity.ok(dto);
+    }
 
 }
