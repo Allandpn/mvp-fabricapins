@@ -217,19 +217,18 @@ public class Pedido {
         cupom.validarAplicacaoCupom(this);
         PedidoCupom pedidoCupom = new PedidoCupom(this, cupom);
         this.cupons.add(pedidoCupom);
+        pedidoCupom.setPedido(this);
         recalcularTotal();
     }
 
     public void removerCupom(String codigoCupom){
-        Iterator<PedidoCupom> iterator = cupons.iterator();
-
-        while (iterator.hasNext()){
-            PedidoCupom pedidoCupom = iterator.next();
-            if(pedidoCupom.getCodigoCupom().equals(codigoCupom)){
-                iterator.remove();
-                pedidoCupom.desvincular();
+        cupons.removeIf(c -> {
+            if(Objects.equals(c.getCodigoCupom(), codigoCupom)){
+                c.desvincular();
+                return true;
             }
-        }
+            return false;
+        });
         recalcularTotal();
     }
 

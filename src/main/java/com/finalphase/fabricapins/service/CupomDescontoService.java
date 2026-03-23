@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -34,11 +35,8 @@ public class CupomDescontoService {
             return;
         }
         long usos = pedidoCupomRepository.countByCupomDescontoId(cupom.getId());
-
         if(usos >= cupom.getLimiteUsos()){
             throw new BusinessException("Cupom " + cupom.getCodigo() + " esgotado");
         }
     }
-
-
 }

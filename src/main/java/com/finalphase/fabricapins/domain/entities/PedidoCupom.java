@@ -60,9 +60,6 @@ public class PedidoCupom {
     // HELPERS
 
     public void desvincular(){
-        if(pedido != null){
-            pedido.getCupons().remove(this);
-        }
         if(cupomDesconto != null){
             cupomDesconto.getPedidos().remove(this);
         }
