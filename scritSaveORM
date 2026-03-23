@@ -33,3 +33,10 @@ find . -type f -path "*/mapper/*.java" -print0 | while IFS= read -r -d '' file; 
   sed -n '/@/,$p' "$file"
   echo -e "\n\n"
 done > compiled/mapper.txt
+
+
+find . -type f -path "*/controller/*.java" -print0 | while IFS= read -r -d '' file; do
+  echo "===== ARQUIVO: $file ====="
+  sed -n '/@/,$p' "$file"
+  echo -e "\n\n"
+done > compiled/controller.txt
