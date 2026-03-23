@@ -217,6 +217,7 @@ public class Pedido {
         cupom.validarAplicacaoCupom(this);
         PedidoCupom pedidoCupom = new PedidoCupom(this, cupom);
         this.cupons.add(pedidoCupom);
+        pedidoCupom.setPedido(this);
         recalcularTotal();
     }
 
@@ -226,8 +227,8 @@ public class Pedido {
         while (iterator.hasNext()){
             PedidoCupom pedidoCupom = iterator.next();
             if(pedidoCupom.getCodigoCupom().equals(codigoCupom)){
-                iterator.remove();
                 pedidoCupom.desvincular();
+                iterator.remove();
             }
         }
         recalcularTotal();

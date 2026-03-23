@@ -1,6 +1,7 @@
 package com.finalphase.fabricapins.controller;
 
 
+import com.finalphase.fabricapins.dto.PedidoCupom.CupomRequest;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.frete.FreteRequest;
 import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
@@ -30,7 +31,7 @@ import java.util.List;
 
 @PreAuthorize("hasRole('ADMIN')")
 @RestController
-@RequestMapping(value = "/admin/pedidos")
+@RequestMapping(value = "/admin/pedido")
 @Tag(name = "Pedido", description = "Operações relacionados ao Pedido feito pelo Admin")
 public class AdminPedidoController {
 
@@ -83,8 +84,8 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Pedido", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<PedidoMinDTO> insertPedidoCompleto(@Valid @RequestBody PedidoAdminRequest request){
-        PedidoMinDTO dto = pedidoService.insertPedidoCompleto(request);
+    public ResponseEntity<PedidoDTO> insertPedidoCompleto(@Valid @RequestBody PedidoAdminRequest request){
+        PedidoDTO dto = pedidoService.insertPedidoCompleto(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
@@ -98,8 +99,8 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Pedido", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<PedidoMinDTO> insertPedidoRascunho(@Valid @RequestBody PedidoRascunhoRequest request){
-        PedidoMinDTO dto = pedidoService.insertPedidoRascunho(request);
+    public ResponseEntity<PedidoDTO> insertPedidoRascunho(@Valid @RequestBody PedidoRascunhoRequest request){
+        PedidoDTO dto = pedidoService.insertPedidoRascunho(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
@@ -124,8 +125,8 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao adcionar endereco", content = @Content)
     })
     @PostMapping(value = "/{pedidoId}/endereco")
-    public ResponseEntity<PedidoMinDTO> definirEndereco(@PathVariable Long pedidoId, @Valid @RequestBody EnderecoPedidoRequest request){
-        PedidoMinDTO dto = pedidoService.definirEndereco(pedidoId, request);
+    public ResponseEntity<PedidoDTO> definirEndereco(@PathVariable Long pedidoId, @Valid @RequestBody EnderecoPedidoRequest request){
+        PedidoDTO dto = pedidoService.definirEndereco(pedidoId, request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
@@ -152,8 +153,20 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao definir o frete", content = @Content)
     })
     @PatchMapping(value = "/{pedidoId}/frete")
-    public ResponseEntity<PedidoMinDTO> definirFrete(@PathVariable Long pedidoId, @Valid @RequestBody FreteRequest request){
-        PedidoMinDTO dto = pedidoService.definirFrete(pedidoId, request);
+    public ResponseEntity<PedidoDTO> definirFrete(@PathVariable Long pedidoId, @Valid @RequestBody FreteRequest request){
+        PedidoDTO dto = pedidoService.definirFrete(pedidoId, request);
+        return ResponseEntity.ok(dto);
+    }
+
+    // define frete
+    @Operation(summary = "Adicionar Cupom ao Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cupom adicionado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao adicionar cupom", content = @Content)
+    })
+    @PatchMapping(value = "/{pedidoId}/cupom")
+    public ResponseEntity<PedidoDTO> adicionarCupom(@PathVariable Long pedidoId, @Valid @RequestBody CupomRequest request){
+        PedidoDTO dto = pedidoService.adicionarCupom(pedidoId, request);
         return ResponseEntity.ok(dto);
     }
 
@@ -165,8 +178,8 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao alterar o Pedido", content = @Content)
     })
     @PatchMapping(value = "/{id}/status")
-    public ResponseEntity<PedidoMinDTO> alterarStatusPedido(@Valid @RequestBody PedidoAdminRequest request){
-        PedidoMinDTO dto = pedidoService.alterarStatusPedido(request);
+    public ResponseEntity<PedidoDTO> alterarStatusPedido(@Valid @RequestBody PedidoAdminRequest request){
+        PedidoDTO dto = pedidoService.alterarStatusPedido(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }

@@ -5,6 +5,7 @@ import com.finalphase.fabricapins.domain.enums.FreteProvider;
 import com.finalphase.fabricapins.domain.enums.ParametroChave;
 import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.dto.PedidoCupom.CupomRequest;
 import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
@@ -29,6 +30,7 @@ import com.finalphase.fabricapins.repository.ClienteRepository;
 import com.finalphase.fabricapins.repository.EnderecoRepository;
 import com.finalphase.fabricapins.repository.PedidoRepository;
 import com.finalphase.fabricapins.repository.ProdutoVariacaoRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +52,7 @@ public class PedidoService {
     @Autowired
     private ProdutoVariacaoRepository produtoVariacaoRepository;
     @Autowired
-    EnderecoRepository enderecoRepository;
+    private EnderecoRepository enderecoRepository;
 
     @Autowired
     private ProdutoVariacaoService produtoVariacaoService;
@@ -98,7 +101,7 @@ public class PedidoService {
 
     // Cria Pedido Completo
     @Transactional()
-    public PedidoMinDTO insertPedidoCompleto(PedidoAdminRequest request) {
+    public PedidoDTO insertPedidoCompleto(PedidoAdminRequest request) {
        validaSeListaItensVazia(request);
        Cliente cliente = buscarCliente(request.clienteId());
        TipoCliente tipoCliente = resolverTipoCliente(cliente);
@@ -117,12 +120,12 @@ public class PedidoService {
             pedido.aplicarCupom(cupom);
         }
        pedido = pedidoRepository.save(pedido);
-       return mapper.toMinDTO(pedido);
+       return mapper.toDTO(pedido);
     }
 
     // Cria pedidos em etapas - Criar rascunho do pedido
     @Transactional()
-    public PedidoMinDTO insertPedidoRascunho(PedidoRascunhoRequest request) {
+    public PedidoDTO insertPedidoRascunho(PedidoRascunhoRequest request) {
         ClienteSnapshot cliente = resolveCliente(request);
         Pedido pedido = new Pedido(cliente);
         pedido.setCodigoPedido(pedido.gerarCodigoPedido());
@@ -130,7 +133,7 @@ public class PedidoService {
         pedido.setStatusPedido(StatusPedido.RASCUNHO);
         pedido.setObservacao(request.observacao());
         pedido = pedidoRepository.save(pedido);
-        return mapper.toMinDTO(pedido);
+        return mapper.toDTO(pedido);
     }
 
     // adicionar item ao pedido
@@ -166,7 +169,7 @@ public class PedidoService {
 
     // adicionar endereco ao pedido
     @Transactional
-    public PedidoMinDTO definirEndereco(Long pedidoId, EnderecoPedidoRequest request) {
+    public PedidoDTO definirEndereco(Long pedidoId, EnderecoPedidoRequest request) {
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
@@ -174,12 +177,12 @@ public class PedidoService {
         EnderecoPedidoDTO endereco = resolveEndereco(pedido, request);
         pedido.definirEndereco(endereco);
         pedidoRepository.save(pedido);
-        return mapper.toMinDTO(pedido);
+        return mapper.toDTO(pedido);
     }
 
     // define frete
     @Transactional()
-    public PedidoMinDTO definirFrete(Long pedidoId, FreteRequest request){
+    public PedidoDTO definirFrete(Long pedidoId, FreteRequest request){
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
@@ -200,13 +203,12 @@ public class PedidoService {
                 .orElseThrow(() -> new BusinessException("Opção de frete inválida"));
 
         pedido.definirFrete(opcao);
-        return mapper.toMinDTO(pedido);
+        return mapper.toDTO(pedido);
     }
 
     // calcula frete
     @Transactional()
     public List<OpcaoFreteDTO> calcularFrete(Long pedidoId){
-
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
@@ -217,7 +219,6 @@ public class PedidoService {
         if(pedido.getItemsPedido().isEmpty()){
             throw new BusinessException("Pedido deve possuir itens para calcular frete");
         }
-
         pedido.getOpcoesFrete().clear();
         ParametroDTO provider =  parametroService.getParametro(ParametroChave.FRETE_PROVIDER_PADRAO);
         FreteGateway gateway = freteGatewayResolver.resolve(FreteProvider.valueOf(provider.valor()));
@@ -231,6 +232,25 @@ public class PedidoService {
         }
         return response;
     }
+
+    @Transactional()
+    public PedidoDTO adicionarCupom(Long pedidoId, @Valid CupomRequest request) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        validaPedidoRascunho(pedido);
+        if(pedido.getItemsPedido().isEmpty()){
+            throw new BusinessException("Pedido deve possuir itens para adicionar cupom de desconto");
+        }
+        CupomDesconto cupom = cupomDescontoService.findByCodigo(request.codigo());
+        cupomDescontoService.validarLimiteUso(cupom);
+        pedido.aplicarCupom(cupom);
+        return mapper.toDTO(pedido);
+    }
+
+
+
+
 
 
     //HELPERS
@@ -367,9 +387,10 @@ public class PedidoService {
 
 
 
-    public PedidoMinDTO alterarStatusPedido(PedidoAdminRequest request) {
+    public PedidoDTO alterarStatusPedido(PedidoAdminRequest request) {
         return null;
     }
+
 
 
 }

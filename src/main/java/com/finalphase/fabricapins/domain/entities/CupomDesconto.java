@@ -84,17 +84,12 @@ public class CupomDesconto {
     }
 
 
-    //TODO - AJUSTAR PARA QUERY COUNT NO BANCO
-    public boolean atingiuLimiteUsos(){
-        return limiteUsos != null && pedidos.size() >= limiteUsos;
-    }
-
     public void validarAplicacaoCupom(Pedido pedido){
         validaSeCupomAtivo();
+        validaCupomDuplicado(pedido);
         validaCupomPercentualDuplicado(pedido);
         validaQuantidadeMinimaItens(pedido);
         validaValorMinimoPedido(pedido);
-        validaCupomDuplicado(pedido);
         validaDataLimiteUso();
     }
 
@@ -113,14 +108,14 @@ public class CupomDesconto {
 
     private void validaCupomPercentualDuplicado(Pedido pedido) {
         boolean percentualJaAplicado = pedido.getCupons().stream()
-                .anyMatch(pedidoCupom -> pedidoCupom.getTipoDesconto().equals(TipoDesconto.PERCENTUAL));
+                .anyMatch(pedidoCupom -> TipoDesconto.PERCENTUAL.equals(pedidoCupom.getTipoDesconto()));
         if(this.getTipoDesconto() == TipoDesconto.PERCENTUAL && percentualJaAplicado){
-            throw new BusinessException("Ja existe um this de desconto percentual aplicado");
+            throw new BusinessException("Ja existe um cupom de desconto percentual aplicado");
         }
     }
 
     private void validaQuantidadeMinimaItens(Pedido pedido) {
-        Integer qntItems = pedido.getItemsPedido().stream().map(ItemPedido::getQuantidade).reduce(0, Integer::sum);
+        Integer qntItems = pedido.getItemsPedido().stream().mapToInt(ItemPedido::getQuantidade).sum();
         if(this.getQuantidadeMinimaItens() != null &&
                 qntItems.compareTo(this.getQuantidadeMinimaItens()) < 0){
             throw new BusinessException(
@@ -136,16 +131,15 @@ public class CupomDesconto {
     }
 
     private void validaDataLimiteUso() {
-        if(this.getDataValidade() != null && this.getDataValidade().plusDays(1).atStartOfDay().isBefore(LocalDateTime.now())){;
-            throw new DateOutOfBoundsException("Cupom expirado");
+        if(this.getDataValidade() != null && this.getDataValidade().isBefore(LocalDate.now())){;
+            throw new BusinessException("Cupom expirado");
         }
     }
 
     private void validaSeCupomAtivo() {
         if(!this.isAtivo()){;
-            throw new DateOutOfBoundsException("Cupom não encontrado");
+            throw new BusinessException("Cupom não encontrado");
         }
     }
-
 
 }
