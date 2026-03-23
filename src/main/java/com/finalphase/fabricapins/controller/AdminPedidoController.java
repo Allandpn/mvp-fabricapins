@@ -99,8 +99,8 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Pedido", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<PedidoDTO> insertPedidoRascunho(@Valid @RequestBody PedidoRascunhoRequest request){
-        PedidoDTO dto = pedidoService.insertPedidoRascunho(request);
+    public ResponseEntity<PedidoMinDTO> insertPedidoRascunho(@Valid @RequestBody PedidoRascunhoRequest request){
+        PedidoMinDTO dto = pedidoService.insertPedidoRascunho(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
@@ -158,15 +158,25 @@ public class AdminPedidoController {
         return ResponseEntity.ok(dto);
     }
 
-    // define frete
     @Operation(summary = "Adicionar Cupom ao Pedido")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cupom adicionado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao adicionar cupom", content = @Content)
     })
-    @PatchMapping(value = "/{pedidoId}/cupom")
+    @PostMapping(value = "/{pedidoId}/cupons")
     public ResponseEntity<PedidoDTO> adicionarCupom(@PathVariable Long pedidoId, @Valid @RequestBody CupomRequest request){
         PedidoDTO dto = pedidoService.adicionarCupom(pedidoId, request);
+        return ResponseEntity.ok(dto);
+    }
+
+    @Operation(summary = "Remover Cupom do Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cupom removido com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao remover cupom", content = @Content)
+    })
+    @DeleteMapping(value = "/{pedidoId}/cupons/{codigo}")
+    public ResponseEntity<PedidoDTO> removerCupom(@PathVariable Long pedidoId, @PathVariable String codigo){
+        PedidoDTO dto = pedidoService.removerCupom(pedidoId, codigo);
         return ResponseEntity.ok(dto);
     }
 

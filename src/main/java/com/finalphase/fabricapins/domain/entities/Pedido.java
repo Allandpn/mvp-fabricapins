@@ -222,15 +222,13 @@ public class Pedido {
     }
 
     public void removerCupom(String codigoCupom){
-        Iterator<PedidoCupom> iterator = cupons.iterator();
-
-        while (iterator.hasNext()){
-            PedidoCupom pedidoCupom = iterator.next();
-            if(pedidoCupom.getCodigoCupom().equals(codigoCupom)){
-                pedidoCupom.desvincular();
-                iterator.remove();
+        cupons.removeIf(c -> {
+            if(Objects.equals(c.getCodigoCupom(), codigoCupom)){
+                c.desvincular();
+                return true;
             }
-        }
+            return false;
+        });
         recalcularTotal();
     }
 

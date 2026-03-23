@@ -125,7 +125,7 @@ public class PedidoService {
 
     // Cria pedidos em etapas - Criar rascunho do pedido
     @Transactional()
-    public PedidoDTO insertPedidoRascunho(PedidoRascunhoRequest request) {
+    public PedidoMinDTO insertPedidoRascunho(PedidoRascunhoRequest request) {
         ClienteSnapshot cliente = resolveCliente(request);
         Pedido pedido = new Pedido(cliente);
         pedido.setCodigoPedido(pedido.gerarCodigoPedido());
@@ -133,7 +133,7 @@ public class PedidoService {
         pedido.setStatusPedido(StatusPedido.RASCUNHO);
         pedido.setObservacao(request.observacao());
         pedido = pedidoRepository.save(pedido);
-        return mapper.toDTO(pedido);
+        return mapper.toMinDTO(pedido);
     }
 
     // adicionar item ao pedido
@@ -245,10 +245,27 @@ public class PedidoService {
         CupomDesconto cupom = cupomDescontoService.findByCodigo(request.codigo());
         cupomDescontoService.validarLimiteUso(cupom);
         pedido.aplicarCupom(cupom);
+        pedidoRepository.flush(); // persiste dataAplicacao do cupom
         return mapper.toDTO(pedido);
     }
 
-
+    @Transactional()
+    public PedidoDTO removerCupom(Long pedidoId, String codigo) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        validaPedidoRascunho(pedido);
+        if(pedido.getCupons().isEmpty()){
+            throw new BusinessException("Pedido não possui cupons de desconto");
+        }
+        boolean cupomExiste = pedido.getCupons().stream().anyMatch(x -> x.getCodigoCupom().equals(codigo));
+        if(!cupomExiste){
+            throw new BusinessException("Cupom não encontrado no pedido");
+        }
+        pedido.removerCupom(codigo);
+        pedidoRepository.flush(); // persiste dataAplicacao do cupom
+        return mapper.toDTO(pedido);
+    }
 
 
 
