@@ -80,12 +80,11 @@ public class AdminPedidoController {
     // Inserir Pedido Completo
     //TODO - Corrigir rota
     @Operation(summary = "Inserir Pedido Completo")
-    @GetMapping(value = "/completo")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Pedido", content = @Content)
     })
-    @PostMapping
+    @PostMapping(value = "/completo")
     public ResponseEntity<PedidoDTO> insertPedidoCompleto(@Valid @RequestBody PedidoAdminRequest request){
         PedidoDTO dto = pedidoService.insertPedidoCompleto(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();

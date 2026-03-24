@@ -1,4 +1,4 @@
-package com.finalphase.fabricapins.config;
+package com.finalphase.fabricapins.integration.frete.client;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,5 @@
 package com.finalphase.fabricapins.integration.frete.client;
 
-import com.finalphase.fabricapins.config.MelhorEnvioProperties;
 import com.finalphase.fabricapins.integration.frete.dto.MelhorEnvioResponse;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
