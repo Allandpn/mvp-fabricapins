@@ -36,8 +36,8 @@ public class SecurityConfig {
                         session ->
                                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Heath para deploy Render
-                        .requestMatchers("/").permitAll()
+                        // Heath Check para deploy no Render
+                        .requestMatchers("/actuator/**").permitAll()
                         // Banco de Dados H2
                         .requestMatchers("/h2-console/**").permitAll()
                         // swagger
