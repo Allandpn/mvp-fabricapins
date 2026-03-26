@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:8080
+
+### Listar produtos
+GET {{baseUrl}}/produtos?page=0&size=10
+
+### Criar produto
+POST {{baseUrl}}/produtos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nome": "Produto Teste",
+  "descricao": "Teste produto",
+  "peso": 10,
+  "categoriaId": 1
+}

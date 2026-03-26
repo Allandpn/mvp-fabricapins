@@ -1,0 +1,17 @@
+@baseUrl = http://localhost:8080
+
+### Buscar usuários
+GET {{baseUrl}}/usuarios
+Authorization: Bearer {{token}}
+
+### Criar usuário
+POST {{baseUrl}}/usuarios
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "novoUser",
+  "password": "Senha123",
+  "ativo": true,
+  "perfis": ["ROLE_ADMIN"]
+}

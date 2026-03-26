@@ -1,0 +1,67 @@
+### CRIAR RASCUNHO
+POST {{baseUrl}}/admin/pedido
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "origemPedido": "WHATSAPP",
+  "clienteId": 1
+
+}
+
+> {%
+    client.global.set("pedidoId", response.body.id);
+%}
+
+### ADICIONAR ITEM
+POST {{baseUrl}}/admin/pedido/{{pedidoId}}/items
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1,
+  "quantidade": 2
+}
+
+### ENDERECO
+POST {{baseUrl}}/admin/pedido/{{pedidoId}}/endereco
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "enderecoId": 1
+}
+
+### FRETE
+POST {{baseUrl}}/admin/pedido/{{pedidoId}}/frete/opcoes
+Authorization: Bearer {{token}}
+
+### DEFINIR FRETE
+PATCH {{baseUrl}}/admin/pedido/{{pedidoId}}/frete
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "serviceId": "1"
+}
+
+### CUPOM
+POST {{baseUrl}}/admin/pedido/{{pedidoId}}/cupons
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "DESC10"
+}
+
+### CONFIRMAR
+POST {{baseUrl}}/admin/pedido/{{pedidoId}}/confirmar
+Authorization: Bearer {{token}}
+
+### PAGAMENTO
+PATCH {{baseUrl}}/admin/pedido/{{pedidoId}}/pagamento/confirmar
+Authorization: Bearer {{token}}
+
+### PRODUCAO
+PATCH {{baseUrl}}/admin/pedido/{{pedidoId}}/producao/enviar
+Authorization: Bearer {{token}}
