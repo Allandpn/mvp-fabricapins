@@ -1,5 +1,7 @@
 ### LISTAR
 GET {{baseUrl}}/clientes?page=0&size=10
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### CRIAR
 POST {{baseUrl}}/clientes
