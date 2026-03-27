@@ -4,7 +4,6 @@ import com.finalphase.fabricapins.domain.entities.Cliente;
 import com.finalphase.fabricapins.domain.entities.Pedido;
 import com.finalphase.fabricapins.dto.cliente.ClienteMinPedidoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
-import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
@@ -43,7 +42,6 @@ public interface PedidoMapper {
     @Mapping(target = "prazoEntregaDias", ignore = true)
     @Mapping(target = "dataCalculoFrete", ignore = true)
     @Mapping(target = "freteEmpresa", ignore = true)
-    @Mapping(target = "dataPrevistaProducao", ignore = true)
     @Mapping(target = "dataConclusaoPedido", ignore = true)
     @Mapping(target = "dataEnvio", ignore = true)
     @Mapping(target = "dataEntrega", ignore = true)

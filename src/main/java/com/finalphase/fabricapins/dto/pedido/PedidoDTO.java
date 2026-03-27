@@ -5,13 +5,11 @@ import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.dto.PedidoCupom.PedidoCupomDTO;
 import com.finalphase.fabricapins.dto.cliente.ClienteMinPedidoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
-import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.pagamento.PagamentoDTO;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 
 public record PedidoDTO(
@@ -28,10 +26,10 @@ public record PedidoDTO(
         BigDecimal valorFrete,
         String nomeServicoFrete,
         Integer prazoEntregaDias,
-        LocalDate dataPrevistaProducao,
-        LocalDate dataConclusaoPedido,
-        LocalDate dataEnvio,
-        LocalDate dataEntrega,
+        Instant dataInicioProducao,
+        Instant dataConclusaoPedido,
+        Instant dataEnvio,
+        Instant dataEntrega,
         ClienteMinPedidoDTO cliente,
         EnderecoPedidoDTO enderecoEntrega,
         String observacao,
