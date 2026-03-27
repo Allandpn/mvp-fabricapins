@@ -13,6 +13,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -353,6 +354,17 @@ public class Pedido {
         this.statusPedido = StatusPedido.ENTREGUE;
         this.dataEntrega = Instant.now();
     }
+
+    public Duration tempoProducao(){
+        if(dataInicioProducao == null || dataFimProducao == null) return null;
+        return Duration.between(dataInicioProducao, dataFimProducao);
+    }
+
+    public Duration tempoTotalPedido(){
+        if(dataEntrega == null) return null;
+        return Duration.between(dataCriacao, dataEntrega);
+    }
+
 
 }
 

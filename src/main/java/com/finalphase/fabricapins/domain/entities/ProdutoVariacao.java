@@ -2,8 +2,6 @@ package com.finalphase.fabricapins.domain.entities;
 
 import com.finalphase.fabricapins.domain.enums.TipoEstoqueProduto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
@@ -62,6 +60,9 @@ public class ProdutoVariacao {
 
     @Setter
     private LocalDate dataPrevistaEnvio;
+
+    @Setter
+    private Instant tempoProducaoEstimado;
 
     @Setter
     @Column(nullable = false,unique = true, length = 100)
