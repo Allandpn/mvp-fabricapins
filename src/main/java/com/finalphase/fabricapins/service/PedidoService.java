@@ -11,7 +11,6 @@ import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.frete.FreteRequest;
 import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
-import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.parametro.ParametroDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
@@ -37,8 +36,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -105,25 +102,20 @@ public class PedidoService {
     @Transactional()
     public PedidoDTO insertPedidoCompleto(PedidoAdminRequest request) {
        validaSeListaItensVazia(request);
-       Cliente cliente = buscarCliente(request.clienteId());
-       TipoCliente tipoCliente = resolverTipoCliente(cliente);
-       Pedido pedido = mapper.toEntity(request);
-       pedido.setCliente(cliente);
-       pedido.setStatusPedido(StatusPedido.AGUARDANDO_PAGAMENTO);
+       ClienteSnapshot cliente = resolveClienteAdmin(request);
+       Pedido pedido = new Pedido(cliente);
        pedido.setCodigoPedido(pedido.gerarCodigoPedido());
-       List<ProdutoVariacao> produtos = produtoVariacaoService.buscarProdutos(request.items());
-       List<ItemPedido> itemsPedido =  criarItemPedido(produtos, request.items(), tipoCliente);
-       for(ItemPedido item : itemsPedido){
-           pedido.adicionarItem(item);
-       }
-       List<CupomDesconto> cuponsDesconto = buscarCupons(request.cupons());
-        for(CupomDesconto cupom : cuponsDesconto){
-            cupomDescontoService.validarLimiteUso(cupom);
-            pedido.aplicarCupom(cupom);
-        }
+       pedido.setOrigemPedido(request.origemPedido());
+       pedido.setStatusPedido(StatusPedido.AGUARDANDO_PAGAMENTO);
+       pedido.setObservacao(request.observacao());
+       adicionarItens(pedido, request.items());
+       definirEnderecoPedido(pedido, request.enderecoEntrega());
+       aplicarCupons(pedido, request.cupons());
+       pedido.incluirFreteAdmin(request.valorFrete());
        pedido = pedidoRepository.save(pedido);
        return mapper.toDTO(pedido);
     }
+
 
     // Cria pedidos em etapas - Criar rascunho do pedido
     @Transactional()
@@ -348,6 +340,9 @@ public class PedidoService {
 
     private EnderecoPedidoDTO resolveEndereco(Pedido pedido, EnderecoPedidoRequest request) {
         if(request.enderecoId() != null){
+            if(pedido.getCliente() == null || pedido.getCliente().getId() == null){
+                throw new BusinessException("enderecoId só pode ser informado com clienteId");
+            }
             return resolveEnderecoExistente(pedido, request);
         }
         return resolveEnderecoManual(request);
@@ -394,29 +389,36 @@ public class PedidoService {
         return enderecoMapper.toEnderecoPedidoDTO(endereco);
     }
 
-
-    public ClienteSnapshot resolveCliente(PedidoRascunhoRequest request){
+    private ClienteSnapshot resolveClienteAdmin(PedidoAdminRequest request){
         if(request.clienteId() != null){
-            return resolveClienteCadastrado(request);
+            return resolveClienteCadastrado(request.clienteId(), request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
         }
-        return resolveClienteAvulso(request);
+        return resolveClienteAvulso(request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
     }
 
-    public ClienteSnapshot resolveClienteCadastrado(PedidoRascunhoRequest request){
-        if(request.nomeCliente() != null || request.documentoCliente() != null || request.telefone() != null || request.tipoCliente() != null){
+
+    private ClienteSnapshot resolveCliente(PedidoRascunhoRequest request){
+        if(request.clienteId() != null){
+            return resolveClienteCadastrado(request.clienteId(), request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
+        }
+        return resolveClienteAvulso(request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
+    }
+
+    private ClienteSnapshot resolveClienteCadastrado(Long clienteId, String nomeCliente, String documentoCliente, String telefone, TipoCliente tipoCliente){
+        if(nomeCliente != null || documentoCliente != null || telefone != null || tipoCliente != null){
             throw new BusinessException("Dados do cliente não devem ser enviados ao inserir o Id do Cliente");
         }
-        Cliente cliente = clienteRepository.findByIdAndAtivoTrue(request.clienteId()).orElseThrow(
+        Cliente cliente = clienteRepository.findByIdAndAtivoTrue(clienteId).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
         return new ClienteSnapshot(cliente, cliente.getNome(), cliente.getNumeroDocumento(), cliente.getTelefone(), cliente.getTipoCliente());
     }
 
-    public ClienteSnapshot resolveClienteAvulso(PedidoRascunhoRequest request){
-        if(request.nomeCliente() == null || request.documentoCliente() == null || request.telefone() == null || request.tipoCliente() == null){
+    private ClienteSnapshot resolveClienteAvulso(String nomeCliente, String documentoCliente, String telefone, TipoCliente tipoCliente){
+        if(nomeCliente == null || documentoCliente == null || telefone == null || tipoCliente == null){
             throw new BusinessException("Dados do Cliente são obrigatórios para cliente avulso");
         }
-        return new ClienteSnapshot(null, request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
+        return new ClienteSnapshot(null, nomeCliente, documentoCliente, telefone, tipoCliente);
     }
 
 
@@ -429,6 +431,7 @@ public class PedidoService {
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
     }
+
     private TipoCliente resolverTipoCliente(Cliente cliente) {
         if(cliente == null){
             return TipoCliente.VAREJO;
@@ -463,6 +466,41 @@ public class PedidoService {
         return listaCupons;
     }
 
+    private void adicionarItens(Pedido pedido, List<ItemPedidoRequest> items){
+        List<ProdutoVariacao> produtos = produtoVariacaoService.buscarProdutos(items);
+        List<ItemPedido> itemsPedido = criarItemPedido(produtos, items, pedido.getTipoCliente());
+        for(ItemPedido item : itemsPedido){
+            pedido.adicionarItem(item);
+        }
+    }
+
+
+    private void aplicarFrete(Pedido pedido, PedidoAdminRequest request) {
+        if(request.valorFrete() != null){
+            pedido.setValorFrete(request.valorFrete());
+        }
+    }
+
+    private void aplicarCupons(Pedido pedido, Set<String> cupons) {
+        if (cupons == null || cupons.isEmpty()){
+            return;
+        }
+        List<CupomDesconto> lista = buscarCupons(cupons);
+        for(CupomDesconto cupom : lista){
+            cupomDescontoService.validarLimiteUso(cupom);
+            pedido.aplicarCupom(cupom);
+        }
+    }
+
+
+    private void definirEnderecoPedido(Pedido pedido, EnderecoPedidoRequest request) {
+        if(request == null){
+            throw new BusinessException("Endereço é obrigatório");
+        }
+        EnderecoPedidoDTO endereco = resolveEndereco(pedido, request);
+        pedido.definirEndereco(endereco);
+    }
+
 
     // Validadores
     private void validaSeListaItensVazia(PedidoAdminRequest request){
@@ -479,7 +517,7 @@ public class PedidoService {
 
 
 
-    public PedidoDTO alterarStatusPedido(PedidoAdminRequest request) {
+    private PedidoDTO alterarStatusPedido(PedidoAdminRequest request) {
         return null;
     }
 

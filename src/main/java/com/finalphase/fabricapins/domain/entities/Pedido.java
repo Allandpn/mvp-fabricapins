@@ -365,6 +365,10 @@ public class Pedido {
         return Duration.between(dataCriacao, dataEntrega);
     }
 
+    public void incluirFreteAdmin(BigDecimal valorFrete){
+        this.valorFrete = valorFrete;
+        recalcularTotal();
+    }
 
 }
 
