@@ -30,6 +30,7 @@ import com.finalphase.fabricapins.repository.EnderecoRepository;
 import com.finalphase.fabricapins.repository.PedidoRepository;
 import com.finalphase.fabricapins.repository.ProdutoVariacaoRepository;
 import jakarta.validation.Valid;
+import jdk.jshell.Snippet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -112,6 +113,7 @@ public class PedidoService {
        definirEnderecoPedido(pedido, request.enderecoEntrega());
        aplicarCupons(pedido, request.cupons());
        pedido.incluirFreteAdmin(request.valorFrete());
+       estoqueService.reservarEstoque(pedido.getItemsPedido());
        pedido = pedidoRepository.save(pedido);
        return mapper.toDTO(pedido);
     }
@@ -233,6 +235,7 @@ public class PedidoService {
                 .orElseThrow(() -> new BusinessException("Opção de frete inválida"));
 
         pedido.definirFrete(opcao);
+        pedidoRepository.save(pedido);
         return mapper.toDTO(pedido);
     }
 
@@ -302,8 +305,8 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
-        estoqueService.reservarEstoque(pedido.getItemsPedido());
         pedido.confirmar();
+        estoqueService.reservarEstoque(pedido.getItemsPedido());
         return mapper.toDTO(pedido);
     }
 
@@ -312,8 +315,11 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
-        estoqueService.devolverEstoque(pedido.getItemsPedido());
+        StatusPedido statusPedidoOriginal = pedido.getStatusPedido();
         pedido.cancelar();
+        if(statusPedidoOriginal != StatusPedido.RASCUNHO){
+            estoqueService.devolverEstoque(pedido.getItemsPedido());
+        }
         return mapper.toMinDTO(pedido);
     }
 
@@ -419,24 +425,6 @@ public class PedidoService {
             throw new BusinessException("Dados do Cliente são obrigatórios para cliente avulso");
         }
         return new ClienteSnapshot(null, nomeCliente, documentoCliente, telefone, tipoCliente);
-    }
-
-
-
-    private Cliente buscarCliente(Long id) {
-        if(id == null){
-            return null;
-        }
-        return clienteRepository.findByIdAndAtivoTrue(id).orElseThrow(
-                () -> new ResourceNotFoundException("Cliente não encontrado")
-        );
-    }
-
-    private TipoCliente resolverTipoCliente(Cliente cliente) {
-        if(cliente == null){
-            return TipoCliente.VAREJO;
-        }
-        return cliente.getTipoCliente();
     }
 
     private List<ItemPedido> criarItemPedido(List<ProdutoVariacao> produtos, List<ItemPedidoRequest> items, TipoCliente tipoCliente) {

@@ -15,7 +15,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Entity
 @Table(name = "tb_pedido")
@@ -234,7 +238,10 @@ public class Pedido {
     }
 
     public String gerarCodigoPedido() {
-        return "PED-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        String dataHora = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"))
+                .format(DateTimeFormatter.ofPattern("MMddHHmmssSSS"));
+        int random = ThreadLocalRandom.current().nextInt(100, 1000);
+        return dataHora + "-" + random;
     }
 
 
@@ -279,6 +286,14 @@ public class Pedido {
     public void cancelar(){
         if(this.statusPedido == StatusPedido.CANCELADO){
             throw new BusinessException("Pedido ja está cancelado");
+        }
+        if(this.statusPedido  != StatusPedido.RASCUNHO &&
+                this.statusPedido  != StatusPedido.AGUARDANDO_PAGAMENTO &&
+                this.statusPedido  != StatusPedido.PAGAMENTO_CONFIRMADO &&
+                this.statusPedido  != StatusPedido.EM_PRODUCAO &&
+                this.statusPedido  != StatusPedido.EM_SEPARACAO &&
+                this.statusPedido  != StatusPedido.AGUARDANDO_ENVIO){
+            throw new BusinessException("O pedido não pode ser cancelado.");
         }
         this.statusPedido = StatusPedido.CANCELADO;
         this.dataCancelamento = Instant.now();

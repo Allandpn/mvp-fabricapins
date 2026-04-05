@@ -66,6 +66,10 @@ Authorization: Bearer {{token}}
 PATCH {{baseUrl}}/admin/pedido/{{pedidoId}}/producao/enviar
 Authorization: Bearer {{token}}
 
+### CANCELAR
+DELETE {{baseUrl}}/admin/pedido/{{pedidoId}}/cancelar
+Authorization: Bearer {{token}}
+
 ### PEDIDO_COMPLETO_1
 POST {{baseUrl}}/admin/pedido/completo
 Content-Type: application/json
@@ -115,7 +119,7 @@ Authorization: Bearer {{token}}
     "enderecoId": 1
   },
   "observacao": "Teste pedido",
-  "valorFrete": 100,
+  "valorFrete": 10,
   "items": [
     {
       "id": 12,

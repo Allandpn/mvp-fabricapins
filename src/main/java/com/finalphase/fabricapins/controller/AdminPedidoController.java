@@ -119,7 +119,7 @@ public class AdminPedidoController {
     // inseri itens no pedido criado
     @Operation(summary = "Altera Items no Pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Item alterado com sucesso"),
+            @ApiResponse(responseCode = "200", description = "Item alterado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao alterar item", content = @Content)
     })
     @PatchMapping(value = "/{pedidoId}/items/{itemId}")
@@ -131,7 +131,7 @@ public class AdminPedidoController {
 
     @Operation(summary = "Remove Items no Pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Item removido com sucesso"),
+            @ApiResponse(responseCode = "200", description = "Item removido com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao remover item", content = @Content)
     })
     @DeleteMapping(value = "/{pedidoId}/items/{itemId}")
