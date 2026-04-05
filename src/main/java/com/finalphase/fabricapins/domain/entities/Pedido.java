@@ -5,10 +5,7 @@ import com.finalphase.fabricapins.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoDTO;
-import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
-import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.exception.BusinessException;
-import com.finalphase.fabricapins.exception.InsufficientStockException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -16,9 +13,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Entity
 @Table(name = "tb_pedido")
@@ -40,7 +41,7 @@ public class Pedido {
     private Instant dataAtualizacao;
 
     @Setter
-    private LocalDate dataConclusaoPedido;
+    private Instant dataConclusaoPedido;
 
     @Setter
     @Column(nullable = false)
@@ -87,13 +88,10 @@ public class Pedido {
     private String freteEmpresa;
 
     @Setter
-    private LocalDate dataPrevistaProducao;
+    private Instant dataEnvio;
 
     @Setter
-    private LocalDate dataEnvio;
-
-    @Setter
-    private LocalDate dataEntrega;
+    private Instant dataEntrega;
 
     @Setter
     private String observacao;
@@ -126,6 +124,14 @@ public class Pedido {
     private String complemento;
     @Setter
     private String pontoReferencia;
+
+    // Dados para KPIs
+    private Instant dataPagamentoConfirmado;
+    private Instant dataInicioProducao;
+    private Instant dataFimProducao;
+    private Instant dataSeparacao;
+    private Instant dataAguardandoEnvio;
+    private Instant dataCancelamento;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
@@ -232,7 +238,10 @@ public class Pedido {
     }
 
     public String gerarCodigoPedido() {
-        return "PED-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        String dataHora = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo"))
+                .format(DateTimeFormatter.ofPattern("MMddHHmmssSSS"));
+        int random = ThreadLocalRandom.current().nextInt(100, 1000);
+        return dataHora + "-" + random;
     }
 
 
@@ -271,14 +280,23 @@ public class Pedido {
     public void confirmar(){
         validarConfirmacao();
         this.statusPedido = StatusPedido.AGUARDANDO_PAGAMENTO;
-        this.dataConclusaoPedido = LocalDate.now();
+        this.dataConclusaoPedido = Instant.now();
     }
     
     public void cancelar(){
         if(this.statusPedido == StatusPedido.CANCELADO){
             throw new BusinessException("Pedido ja está cancelado");
         }
+        if(this.statusPedido  != StatusPedido.RASCUNHO &&
+                this.statusPedido  != StatusPedido.AGUARDANDO_PAGAMENTO &&
+                this.statusPedido  != StatusPedido.PAGAMENTO_CONFIRMADO &&
+                this.statusPedido  != StatusPedido.EM_PRODUCAO &&
+                this.statusPedido  != StatusPedido.EM_SEPARACAO &&
+                this.statusPedido  != StatusPedido.AGUARDANDO_ENVIO){
+            throw new BusinessException("O pedido não pode ser cancelado.");
+        }
         this.statusPedido = StatusPedido.CANCELADO;
+        this.dataCancelamento = Instant.now();
     }
 
     private void validarConfirmacao() {
@@ -306,33 +324,33 @@ public class Pedido {
         if(this.statusPedido != StatusPedido.AGUARDANDO_PAGAMENTO){
             throw new BusinessException("Pedido não possui pagamento pendente");
         }
-
         this.statusPedido = StatusPedido.PAGAMENTO_CONFIRMADO;
+        this.dataPagamentoConfirmado = Instant.now();
     }
 
     public void iniciarProducao(){
         if(this.statusPedido != StatusPedido.PAGAMENTO_CONFIRMADO){
             throw new BusinessException("Pedido não pode entrar em produção");
         }
-
         this.statusPedido = StatusPedido.EM_PRODUCAO;
-        this.dataPrevistaProducao = LocalDate.now();
+        this.dataInicioProducao = Instant.now();
     }
 
     public void iniciarSeparacao(){
         if(this.statusPedido != StatusPedido.EM_PRODUCAO){
             throw new BusinessException("Pedido não está em produção");
         }
-
         this.statusPedido = StatusPedido.EM_SEPARACAO;
+        this.dataFimProducao = Instant.now();
+        this.dataSeparacao = Instant.now();
     }
 
     public void aguardarEnvio(){
         if(this.statusPedido != StatusPedido.EM_SEPARACAO){
             throw new BusinessException("Pedido não está em separação");
         }
-
         this.statusPedido = StatusPedido.AGUARDANDO_ENVIO;
+        this.dataAguardandoEnvio = Instant.now();
     }
 
     public void enviar(){
@@ -341,16 +359,30 @@ public class Pedido {
         }
 
         this.statusPedido = StatusPedido.ENVIADO;
-        this.dataEnvio = LocalDate.now();
+        this.dataEnvio = Instant.now();
     }
 
     public void entregar(){
         if(this.statusPedido != StatusPedido.ENVIADO){
             throw new BusinessException("Pedido não foi enviado");
         }
-
         this.statusPedido = StatusPedido.ENTREGUE;
-        this.dataEntrega = LocalDate.now();
+        this.dataEntrega = Instant.now();
+    }
+
+    public Duration tempoProducao(){
+        if(dataInicioProducao == null || dataFimProducao == null) return null;
+        return Duration.between(dataInicioProducao, dataFimProducao);
+    }
+
+    public Duration tempoTotalPedido(){
+        if(dataEntrega == null) return null;
+        return Duration.between(dataCriacao, dataEntrega);
+    }
+
+    public void incluirFreteAdmin(BigDecimal valorFrete){
+        this.valorFrete = valorFrete;
+        recalcularTotal();
     }
 
 }

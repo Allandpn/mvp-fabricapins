@@ -28,6 +28,7 @@ public interface ProdutoVariacaoMapper {
     @Mapping(target = "produto", ignore = true)
     @Mapping(target = "dataCadastro", ignore = true)
     @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "tempoProducaoEstimado", ignore = true)
     @Mapping(target = "ativo", ignore = true)
     ProdutoVariacao toEntity(ProdutoVariacaoRequest dto);
 

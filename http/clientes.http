@@ -1,0 +1,75 @@
+### LISTAR
+GET {{baseUrl}}/clientes?page=0&size=10
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### CRIAR
+POST {{baseUrl}}/clientes
+Content-Type: application/json
+
+{
+  "nome": "Cliente Teste",
+  "email": "teste@email.com",
+  "telefone": "49999999999",
+  "tipoCliente": "VAREJO",
+  "tipoPessoa": "FISICA",
+  "numeroDocumento": "12345678900",
+  "ativo": true
+}
+
+### BUSCAR
+GET {{baseUrl}}/clientes/1
+
+### ATUALIZAR
+PUT {{baseUrl}}/clientes/1
+Content-Type: application/json
+
+{
+  "nome": "Cliente Editado",
+  "email": "edit@email.com",
+  "telefone": "49999999999",
+  "tipoCliente": "VAREJO",
+  "tipoPessoa": "FISICA",
+  "numeroDocumento": "12345678900",
+  "ativo": true
+}
+
+### DELETE
+DELETE {{baseUrl}}/clientes/1
+
+
+### LISTAR ENDERECOS
+GET {{baseUrl}}/clientes/{{clienteId}}/enderecos
+
+### CRIAR ENDERECO
+POST {{baseUrl}}/clientes/{{clienteId}}/enderecos
+Content-Type: application/json
+
+{
+  "cep": "88000000",
+  "estado": "SC",
+  "cidade": "Florianopolis",
+  "bairro": "Centro",
+  "logradouro": "Rua A",
+  "numero": "123",
+  "tipoEndereco": "ENTREGA",
+  "apelido": "Casa"
+}
+
+### ATUALIZAR
+PUT {{baseUrl}}/clientes/{{clienteId}}/enderecos/{{enderecoId}}
+Content-Type: application/json
+
+{
+  "cep": "88000000",
+  "estado": "SC",
+  "cidade": "Florianopolis",
+  "bairro": "Centro",
+  "logradouro": "Rua B",
+  "numero": "456",
+  "tipoEndereco": "ENTREGA",
+  "apelido": "Casa Edit"
+}
+
+### DELETE
+DELETE {{baseUrl}}/clientes/{{clienteId}}/enderecos/{{enderecoId}}

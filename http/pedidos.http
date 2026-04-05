@@ -65,3 +65,70 @@ Authorization: Bearer {{token}}
 ### PRODUCAO
 PATCH {{baseUrl}}/admin/pedido/{{pedidoId}}/producao/enviar
 Authorization: Bearer {{token}}
+
+### CANCELAR
+DELETE {{baseUrl}}/admin/pedido/{{pedidoId}}/cancelar
+Authorization: Bearer {{token}}
+
+### PEDIDO_COMPLETO_1
+POST {{baseUrl}}/admin/pedido/completo
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "origemPedido": "WHATSAPP",
+    "clienteId": null,
+    "nomeCliente": "Eurwe",
+    "documentoCliente": "1234",
+    "telefone": "12432",
+    "tipoCliente": "REVENDA",
+    "enderecoEntrega": {
+        "cep": "12345678",
+        "estado": "SP",
+        "cidade": "Sao Paulo",
+        "bairro": "Centro",
+        "logradouro": "Rua Teste",
+        "numero": "100",
+        "complemento": null,
+        "pontoReferencia": null
+    },
+    "observacao": "teste pedido",
+    "valorFrete": 10,
+    "items": [
+        {
+            "id": 1,
+            "quantidade": 2
+        },
+        {
+            "id": 12,
+            "quantidade": 2
+        }
+    ],
+    "cupons": ["DESC10","FIXO15"]
+}
+
+### PEDIDO_COMPLETO_2
+POST {{baseUrl}}/admin/pedido/completo
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "origemPedido": "WHATSAPP",
+  "clienteId": 1,
+  "enderecoEntrega": {
+    "enderecoId": 1
+  },
+  "observacao": "Teste pedido",
+  "valorFrete": 10,
+  "items": [
+    {
+      "id": 12,
+      "quantidade": 2
+    },
+    {
+      "id": 1,
+      "quantidade": 2
+    }
+  ],
+  "cupons": ["DESC10","FIXO15"]
+}

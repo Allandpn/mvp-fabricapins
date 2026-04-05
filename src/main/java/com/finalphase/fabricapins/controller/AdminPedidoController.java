@@ -5,12 +5,11 @@ import com.finalphase.fabricapins.dto.PedidoCupom.CupomRequest;
 import com.finalphase.fabricapins.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.dto.frete.FreteRequest;
 import com.finalphase.fabricapins.dto.frete.OpcaoFreteDTO;
-import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoDTO;
 import com.finalphase.fabricapins.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.dto.item_pedido.QuantidadeItemRequest;
+import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
 import com.finalphase.fabricapins.dto.pedido.PedidoMinDTO;
-import com.finalphase.fabricapins.dto.pedido.PedidoAdminRequest;
 import com.finalphase.fabricapins.dto.pedido.PedidoRascunhoRequest;
 import com.finalphase.fabricapins.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -120,7 +119,7 @@ public class AdminPedidoController {
     // inseri itens no pedido criado
     @Operation(summary = "Altera Items no Pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Item alterado com sucesso"),
+            @ApiResponse(responseCode = "200", description = "Item alterado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao alterar item", content = @Content)
     })
     @PatchMapping(value = "/{pedidoId}/items/{itemId}")
@@ -132,7 +131,7 @@ public class AdminPedidoController {
 
     @Operation(summary = "Remove Items no Pedido")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Item removido com sucesso"),
+            @ApiResponse(responseCode = "200", description = "Item removido com sucesso"),
             @ApiResponse(responseCode = "400", description = "Erro ao remover item", content = @Content)
     })
     @DeleteMapping(value = "/{pedidoId}/items/{itemId}")

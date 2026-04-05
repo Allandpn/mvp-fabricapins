@@ -1,0 +1,8 @@
+### ALTERAR CEP ORIGEM
+PUT {{baseUrl}}/admin/parametros/cep-origem
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "cep": "88000000"
+}

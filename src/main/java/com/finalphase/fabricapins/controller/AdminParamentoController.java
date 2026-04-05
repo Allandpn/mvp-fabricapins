@@ -1,7 +1,6 @@
 package com.finalphase.fabricapins.controller;
 
-import com.finalphase.fabricapins.dto.parametro.CepOrigemRequest;
-import com.finalphase.fabricapins.dto.pedido.PedidoDTO;
+import com.finalphase.fabricapins.dto.endereco.CepOrigemRequest;
 import com.finalphase.fabricapins.service.ParametroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

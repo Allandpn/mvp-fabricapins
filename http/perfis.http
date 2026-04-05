@@ -1,0 +1,8 @@
+### LISTAR
+GET {{baseUrl}}/perfis
+
+### DETALHADO
+GET {{baseUrl}}/perfis/detalhado
+
+### BUSCAR
+GET {{baseUrl}}/perfis/1

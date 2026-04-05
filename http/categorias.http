@@ -1,0 +1,26 @@
+### LISTAR
+GET {{baseUrl}}/categorias
+
+### CRIAR
+POST {{baseUrl}}/categorias
+Content-Type: application/json
+
+{
+  "nome": "Categoria",
+  "descricao": "Descricao"
+}
+
+### BUSCAR
+GET {{baseUrl}}/categorias/1
+
+### ATUALIZAR
+PUT {{baseUrl}}/categorias/1
+Content-Type: application/json
+
+{
+  "nome": "Categoria Edit",
+  "descricao": "Descricao"
+}
+
+### DELETE
+DELETE {{baseUrl}}/categorias/1
