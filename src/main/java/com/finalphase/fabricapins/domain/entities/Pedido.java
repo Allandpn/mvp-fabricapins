@@ -125,6 +125,16 @@ public class Pedido {
     @Setter
     private String pontoReferencia;
 
+    // Valores snapshot
+    @Setter
+    private BigDecimal valorTotalFinal;
+
+    @Setter
+    private BigDecimal valorFreteFinal;
+
+    @Setter
+    private BigDecimal valorDescontoFinal;
+
     // Dados para KPIs
     private Instant dataPagamentoConfirmado;
     private Instant dataInicioProducao;
@@ -281,6 +291,9 @@ public class Pedido {
         validarConfirmacao();
         this.statusPedido = StatusPedido.AGUARDANDO_PAGAMENTO;
         this.dataConclusaoPedido = Instant.now();
+        this.valorTotalFinal = this.valorTotal;
+        this.valorFreteFinal = this.valorFrete;
+        this.valorDescontoFinal = this.desconto;
     }
     
     public void cancelar(){
@@ -336,12 +349,18 @@ public class Pedido {
         this.dataInicioProducao = Instant.now();
     }
 
-    public void iniciarSeparacao(){
+    public void finalizarProducao(){
         if(this.statusPedido != StatusPedido.EM_PRODUCAO){
             throw new BusinessException("Pedido não está em produção");
         }
-        this.statusPedido = StatusPedido.EM_SEPARACAO;
         this.dataFimProducao = Instant.now();
+    }
+
+    public void iniciarSeparacao(){
+        if(this.statusPedido != StatusPedido.EM_PRODUCAO && this.statusPedido != StatusPedido.PAGAMENTO_CONFIRMADO){
+            throw new BusinessException("Pedido não pode ser separado");
+        }
+        this.statusPedido = StatusPedido.EM_SEPARACAO;
         this.dataSeparacao = Instant.now();
     }
 
