@@ -1,5 +1,7 @@
 package com.finalphase.fabricapins.management.controller;
 
+import com.finalphase.fabricapins.management.dto.ProducaoDTO;
+import com.finalphase.fabricapins.management.dto.ProducaoRequest;
 import com.finalphase.fabricapins.management.dto.ReceitaDTO;
 import com.finalphase.fabricapins.management.dto.ReceitaRequest;
 import com.finalphase.fabricapins.management.service.RelatorioService;
@@ -27,7 +29,7 @@ public class RelatorioController {
     @Autowired
     private RelatorioService service;
 
-    // Busca de Pedidos
+    // Relatorio Analítico de Receitas
     @Operation(summary = "Relatórios de Receita por Período")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
@@ -36,6 +38,18 @@ public class RelatorioController {
     @GetMapping("/receita")
     public ResponseEntity<List<ReceitaDTO>> receita(@Valid ReceitaRequest request) {
         List<ReceitaDTO> dto = service.receita(request);
+        return ResponseEntity.ok(dto);
+    }
+
+    // Relatorio Analítico de Tempo de Producao
+    @Operation(summary = "Relatórios de Receita por Período")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
+    })
+    @GetMapping("/producao")
+    public ResponseEntity<List<ProducaoDTO>> producao(@Valid ProducaoRequest request) {
+        List<ProducaoDTO> dto = service.tempoProducao(request);
         return ResponseEntity.ok(dto);
     }
 }

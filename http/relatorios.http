@@ -1,3 +1,10 @@
-GET {{baseUrl}}/gestao/relatorios/receita?dataInicio=2025-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z&agrupamento=DIA&canal=REDE_SOCIAL
+### RECEITA
+GET {{baseUrl}}/gestao/relatorios/receita?dataInicio=2025-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z&agrupamento=ANO&canal=REDE_SOCIAL
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### PRODUCAO
+GET {{baseUrl}}/gestao/relatorios/producao?dataInicio=2024-01-01T00:00:00Z&dataFim=2027-12-31T23:59:59Z&agrupamento=VARIACAO
 Content-Type: application/json
 Authorization: Bearer {{token}}

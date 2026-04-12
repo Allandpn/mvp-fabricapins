@@ -1,19 +1,18 @@
 package com.finalphase.fabricapins.management.service;
 
+import com.finalphase.fabricapins.management.dto.ProducaoDTO;
+import com.finalphase.fabricapins.management.dto.ProducaoRequest;
 import com.finalphase.fabricapins.management.dto.ReceitaDTO;
 import com.finalphase.fabricapins.management.dto.ReceitaRequest;
 import com.finalphase.fabricapins.management.enums.AgrupamentoPeriodo;
-import com.finalphase.fabricapins.management.projection.ReceitaProjection;
 import com.finalphase.fabricapins.management.repository.RelatorioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
-import java.time.temporal.ChronoField;
 import java.time.temporal.IsoFields;
 import java.util.List;
 import java.util.Locale;
@@ -21,44 +20,66 @@ import java.util.Locale;
 @Service
 public class RelatorioService {
 
+    private static final ZoneId ZONE = ZoneOffset.UTC;
+
     @Autowired
     private RelatorioRepository repository;
 
     @Transactional(readOnly = true)
-    public List<ReceitaDTO> receita(ReceitaRequest filtro){
-        String agrupamento = mapearAgrupamento(filtro.agrupamento());
+    public List<ReceitaDTO> receita(ReceitaRequest request){
+        String agrupamento = mapearAgrupamento(request.agrupamento());
 
-        List<ReceitaProjection> result = repository.receitaAgrupada(
-                filtro.dataInicio(),
-                filtro.dataFim(),
+        List<ReceitaDTO> result = repository.receitaAgrupada(
+                request.dataInicio(),
+                request.dataFim(),
                 agrupamento,
-                filtro.canal() != null ? filtro.canal().name() : null
+                request.canal() != null ? request.canal().name() : null
         );
 
         return result.stream().map(x -> new ReceitaDTO(
-                normalizarPeriodo(x.getPeriodo(), filtro.agrupamento()),
-                formatarLabel(x.getPeriodo(), filtro.agrupamento()),
-                x.getTotal()))
+                normalizarPeriodo(x.periodo(), request.agrupamento()),
+                formatarLabel(x.periodo(), request.agrupamento()),
+                x.total()))
                 .toList();
-
     }
 
+    @Transactional(readOnly = true)
+    public List<ProducaoDTO> tempoProducao(ProducaoRequest request){
+        List<ProducaoDTO> result = repository.producaoAgrupada(
+                request.dataInicio(),
+                request.dataFim(),
+                request.canal() != null ? request.canal().name() : null,
+                request.agrupamento().name(),
+                request.produtoId(),
+                request.produtoVariacaoId(),
+                request.categoriaId()
+        );
+
+        return result.stream().map(x -> new ProducaoDTO(
+                x.grupo(),
+                x.tempoMedioHoras(),
+                x.quantidadePedidos()
+        )).toList();
+    }
+
+
+
     private Instant normalizarPeriodo(Instant instant, AgrupamentoPeriodo agrupamento) {
-        ZonedDateTime z = instant.atZone(ZoneOffset.UTC);
+        ZonedDateTime z = instant.atZone(ZONE);
 
         return switch (agrupamento) {
-            case DIA -> z.toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant();
+            case DIA -> z.toLocalDate().atStartOfDay(ZONE).toInstant();
 
             case SEMANA -> z
                     .with(DayOfWeek.MONDAY)
                     .toLocalDate()
-                    .atStartOfDay(ZoneOffset.UTC)
+                    .atStartOfDay(ZONE)
                     .toInstant();
 
             case MES -> z
                     .withDayOfMonth(1)
                     .toLocalDate()
-                    .atStartOfDay(ZoneOffset.UTC)
+                    .atStartOfDay(ZONE)
                     .toInstant();
 
             case TRIMESTRE -> {
@@ -67,21 +88,21 @@ public class RelatorioService {
                         .withMonth(quarterStartMonth)
                         .withDayOfMonth(1)
                         .toLocalDate()
-                        .atStartOfDay(ZoneOffset.UTC)
+                        .atStartOfDay(ZONE)
                         .toInstant();
             }
 
             case ANO -> z
                     .withDayOfYear(1)
                     .toLocalDate()
-                    .atStartOfDay(ZoneOffset.UTC)
+                    .atStartOfDay(ZONE)
                     .toInstant();
         };
     }
 
     private String formatarLabel(Instant instant, AgrupamentoPeriodo agrupamento) {
         Locale locale = new Locale("pt", "BR");
-        ZonedDateTime z = instant.atZone(ZoneId.systemDefault());
+        ZonedDateTime z = instant.atZone(ZONE);
 
         return switch (agrupamento) {
             case DIA -> z.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));

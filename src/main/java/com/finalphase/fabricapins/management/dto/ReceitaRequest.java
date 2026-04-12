@@ -22,6 +22,6 @@ public record ReceitaRequest(
         @Schema(description = "Agrupamento do Periodo", example = "MES")
         AgrupamentoPeriodo agrupamento,
 
-        @Schema(description = "Origem do Pedido", example = "SITE")
+        @Schema(description = "Origem dos Pedidos", example = "SITE")
         OrigemPedido canal
 ) {}

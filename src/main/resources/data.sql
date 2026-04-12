@@ -27,7 +27,7 @@ SELECT
     CASE WHEN MOD(x,2)=0 THEN 'VAREJO' ELSE 'REVENDA' END,
     CURRENT_TIMESTAMP,
     true
-FROM SYSTEM_RANGE(1,20);
+FROM SYSTEM_RANGE(1,20) AS t(x);
 
 
 -- =============================================
@@ -40,7 +40,7 @@ CONCAT('user', x),
 '$2a$10$dkW/YG2RWe3/uCvi6APfxO0XNfbDFQ3NJS3n8IAp/nmdOQVj7sIZG',
 true,
 CURRENT_TIMESTAMP
-FROM SYSTEM_RANGE(1,20);
+FROM SYSTEM_RANGE(1,20) AS t(x);
 
 INSERT INTO tb_usuario
 (username, password, ativo, data_criacao)
@@ -173,7 +173,7 @@ CASE WHEN MOD(x,7)=0 THEN true ELSE false END,
 true,
 ((x-1)/10)+1
 
-FROM SYSTEM_RANGE(1,50);
+FROM SYSTEM_RANGE(1,50) AS t(x);
 
 
 -- =============================================
@@ -400,7 +400,7 @@ FROM (
 
              DATEADD('HOUR', 3, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_conclusao
 
-         FROM SYSTEM_RANGE(1,200)
+         FROM SYSTEM_RANGE(1,200) AS t(x)
      ) base
          JOIN tb_cliente c ON c.id = ((base.id-1) % 50) + 1;
 
@@ -461,7 +461,7 @@ SELECT
             99.90,
             CASE WHEN MOD(x,2)=0 THEN 'PIX' ELSE 'CARTAO_CREDITO' END,
             CASE WHEN MOD(x,5)=0 THEN 'RECUSADO' ELSE 'APROVADO' END
-FROM SYSTEM_RANGE(1,50);
+FROM SYSTEM_RANGE(1,50) AS t(x);
 
 -- só pedidos pagos recebem pagamento aprovado
 UPDATE tb_pagamento
@@ -505,7 +505,7 @@ SELECT
     20.00,
     ((x-1)%50)+1,
     ((x-1)%50)+1
-FROM SYSTEM_RANGE(1,100);
+FROM SYSTEM_RANGE(1,100) AS t(x);
 
 
 -- =============================================

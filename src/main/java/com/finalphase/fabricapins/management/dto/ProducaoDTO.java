@@ -1,4 +1,8 @@
 package com.finalphase.fabricapins.management.dto;
 
-public class ProducaoDTO {
-}
+public record ProducaoDTO(
+        String grupo,
+        Double tempoMedioHoras,
+        Long quantidadePedidos
+) {}
+
