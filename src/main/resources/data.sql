@@ -254,40 +254,201 @@ VALUES
 -- =============================================
 -- PEDIDOS (50)
 -- =============================================
-INSERT INTO tb_pedido
-(data_criacao, status_pedido, origem_pedido,
- valor_total, valor_subtotal, desconto, valor_frete,
- codigo_pedido, nome_cliente, documento_cliente,
- cep, estado, cidade, bairro, logradouro, numero, cliente_id)
+-- =============================================
+-- PEDIDOS COMPLETOS (ANALYTICS READY)
+-- =============================================
+
+INSERT INTO tb_pedido (
+    data_criacao,
+    data_atualizacao,
+    data_conclusao_pedido,
+
+    status_pedido,
+    origem_pedido,
+
+    valor_subtotal,
+    desconto,
+    valor_frete,
+    valor_total,
+
+    valor_total_final,
+    valor_frete_final,
+    valor_desconto_final,
+
+    codigo_pedido,
+
+    frete_service_id,
+    data_calculo_frete,
+    nome_servico_frete,
+    prazo_entrega_dias,
+    frete_empresa,
+
+    data_pagamento_confirmado,
+    data_inicio_producao,
+    data_fim_producao,
+    data_separacao,
+    data_aguardando_envio,
+    data_envio,
+    data_entrega,
+    data_cancelamento,
+
+    observacao,
+
+    nome_cliente,
+    documento_cliente,
+    telefone,
+    tipo_cliente,
+
+    cep, estado, cidade, bairro, logradouro, numero,
+
+    cliente_id
+)
 SELECT
-CURRENT_TIMESTAMP,
-CASE
-    WHEN MOD(x,5)=0 THEN 'CANCELADO'
-    WHEN MOD(x,4)=0 THEN 'ENTREGUE'
-    WHEN MOD(x,3)=0 THEN 'EM_PRODUCAO'
-    ELSE 'PAGAMENTO_CONFIRMADO'
-END,
-CASE
-    WHEN MOD(x,3)=0 THEN 'WHATSAPP'
-    WHEN MOD(x,2)=0 THEN 'REDE_SOCIAL'
-    ELSE 'SITE'
-END,
-0,
-0,
-0,
-0,
-CONCAT('PED-', x),
-c.nome,
-c.numero_documento,
-'12345678',
-'SP',
-'Sao Paulo',
-'Centro',
-'Rua Teste',
-100,
-c.id
-FROM SYSTEM_RANGE(1,50) r
-JOIN tb_cliente c ON c.id = ((r.x-1) % 20) + 1;
+    base.data_criacao,
+    base.data_criacao,
+    base.data_conclusao,
+
+    base.status,
+    base.origem,
+
+    base.subtotal,
+    base.desconto,
+    base.frete,
+    base.total,
+
+    base.total,
+    base.frete,
+    base.desconto,
+
+    CONCAT('PED-', base.id),
+
+    'CORREIOS',
+    base.data_criacao,
+    'PAC',
+    base.prazo,
+    'Correios',
+
+    base.data_pagamento,
+    base.data_inicio_producao,
+    base.data_fim_producao,
+    base.data_separacao,
+    base.data_aguardando_envio,
+    base.data_envio,
+    base.data_entrega,
+    base.data_cancelamento,
+
+    'Pedido gerado automaticamente',
+
+    c.nome,
+    c.numero_documento,
+    c.telefone,
+    c.tipo_cliente,
+
+    '88100000','SC','São José','Centro','Rua Teste','100',
+
+    c.id
+
+FROM (
+         SELECT
+             x AS id,
+
+             DATEADD('DAY', -x*2, CURRENT_TIMESTAMP) AS data_criacao,
+
+             -- STATUS
+             CASE
+                 WHEN MOD(x,10)=0 THEN 'CANCELADO'
+                 WHEN MOD(x,6)=0 THEN 'ENTREGUE'
+                 WHEN MOD(x,5)=0 THEN 'ENVIADO'
+                 WHEN MOD(x,4)=0 THEN 'AGUARDANDO_ENVIO'
+                 WHEN MOD(x,3)=0 THEN 'EM_SEPARACAO'
+                 WHEN MOD(x,2)=0 THEN 'EM_PRODUCAO'
+                 ELSE 'PAGAMENTO_CONFIRMADO'
+                 END AS status,
+
+             CASE
+                 WHEN MOD(x,3)=0 THEN 'WHATSAPP'
+                 WHEN MOD(x,2)=0 THEN 'REDE_SOCIAL'
+                 ELSE 'SITE'
+                 END AS origem,
+
+             -- FINANCEIRO
+             (50 + MOD(x,200)) AS subtotal,
+             (MOD(x,3) * 5) AS desconto,
+             (10 + MOD(x,15)) AS frete,
+
+             (50 + MOD(x,200)) - (MOD(x,3) * 5) + (10 + MOD(x,15)) AS total,
+
+             -- PRAZO
+             3 + MOD(x,5) AS prazo,
+
+             -- TIMELINE
+             DATEADD('HOUR', 2, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_pagamento,
+
+             DATEADD('HOUR', 10, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_inicio_producao,
+
+             DATEADD('DAY', 1, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_fim_producao,
+
+             DATEADD('DAY', 2, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_separacao,
+
+             DATEADD('DAY', 3, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_aguardando_envio,
+
+             DATEADD('DAY', 4, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_envio,
+
+             DATEADD('DAY', 4 + (3 + MOD(x,5)), DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_entrega,
+
+             DATEADD('HOUR', 5, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_cancelamento,
+
+             DATEADD('HOUR', 3, DATEADD('DAY', -x*2, CURRENT_TIMESTAMP)) AS data_conclusao
+
+         FROM SYSTEM_RANGE(1,200)
+     ) base
+         JOIN tb_cliente c ON c.id = ((base.id-1) % 50) + 1;
+
+UPDATE tb_pedido p
+SET
+    valor_subtotal = (
+        SELECT COALESCE(SUM(i.preco_unitario * i.quantidade),0)
+        FROM tb_item_pedido i
+        WHERE i.pedido_id = p.id
+    ),
+    valor_total = (
+                      SELECT COALESCE(SUM(i.preco_unitario * i.quantidade),0)
+                      FROM tb_item_pedido i
+                      WHERE i.pedido_id = p.id
+                  ) + COALESCE(p.valor_frete,0);
+
+
+
+-- CANCELADOS não têm pipeline completo
+UPDATE tb_pedido
+SET
+    data_pagamento_confirmado = NULL,
+    data_inicio_producao = NULL,
+    data_fim_producao = NULL,
+    data_separacao = NULL,
+    data_aguardando_envio = NULL,
+    data_envio = NULL,
+    data_entrega = NULL
+WHERE status_pedido = 'CANCELADO';
+
+-- PAGAMENTO_CONFIRMADO para frente
+UPDATE tb_pedido
+SET data_inicio_producao = NULL,
+    data_fim_producao = NULL,
+    data_separacao = NULL,
+    data_aguardando_envio = NULL,
+    data_envio = NULL,
+    data_entrega = NULL
+WHERE status_pedido = 'PAGAMENTO_CONFIRMADO';
+
+-- EM_PRODUCAO
+UPDATE tb_pedido
+SET data_fim_producao = NULL,
+    data_separacao = NULL,
+    data_aguardando_envio = NULL,
+    data_envio = NULL,
+    data_entrega = NULL
+WHERE status_pedido = 'EM_PRODUCAO';
 
 
 -- =============================================
@@ -296,11 +457,20 @@ JOIN tb_cliente c ON c.id = ((r.x-1) % 20) + 1;
 INSERT INTO tb_pagamento
 (data_pagamento, valor_pago, forma_pagamento, status_pagamento)
 SELECT
-CURRENT_TIMESTAMP,
-99.90,
-CASE WHEN MOD(x,2)=0 THEN 'PIX' ELSE 'CARTAO_CREDITO' END,
-CASE WHEN MOD(x,5)=0 THEN 'RECUSADO' ELSE 'APROVADO' END
+            CURRENT_TIMESTAMP,
+            99.90,
+            CASE WHEN MOD(x,2)=0 THEN 'PIX' ELSE 'CARTAO_CREDITO' END,
+            CASE WHEN MOD(x,5)=0 THEN 'RECUSADO' ELSE 'APROVADO' END
 FROM SYSTEM_RANGE(1,50);
+
+-- só pedidos pagos recebem pagamento aprovado
+UPDATE tb_pagamento
+SET status_pagamento = 'APROVADO'
+WHERE id IN (
+    SELECT pagamento_id FROM tb_pedido
+    WHERE status_pedido = 'PAGAMENTO_CONFIRMADO'
+);
+
 
 
 -- Vincular pagamento ao pedido
@@ -325,14 +495,16 @@ UPDATE SET p.pagamento_id = x.pagamento_id;
 -- =============================================
 INSERT INTO tb_item_pedido
 (quantidade, preco_unitario, nome_produto_snapshot,
+ img_produto_snapshot,
  custo_unitario_snapshot, pedido_id, produto_variacao_id)
 SELECT
-2,
-39.90,
-CONCAT('Produto ', ((x-1)%50)+1),
-20.00,
-((x-1)%50)+1,
-((x-1)%50)+1
+    2,
+    39.90,
+    CONCAT('Produto ', ((x-1)%50)+1),
+    CONCAT('produto', ((x-1)%50)+1, '.png'),
+    20.00,
+    ((x-1)%50)+1,
+    ((x-1)%50)+1
 FROM SYSTEM_RANGE(1,100);
 
 
