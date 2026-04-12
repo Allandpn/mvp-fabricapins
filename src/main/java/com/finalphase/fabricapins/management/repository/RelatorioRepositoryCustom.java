@@ -10,4 +10,6 @@ public interface RelatorioRepositoryCustom {
     List<ReceitaDTO> receitaAgrupada(Instant inicio, Instant fim, String agrupamento, String canal);
 
     List<ProducaoDTO> producaoAgrupada(Instant inicio, Instant fim, String canal, String agrupamento, Long produtoId, Long variacaoId, Long categoriaId);
+
+    List<Object[]> volumeAgrupado(Instant inicio, Instant fim, String canal, String periodo, String dimensao, Long produtoId, Long variacaoId, Long categoriaId);
 }

@@ -1,9 +1,6 @@
 package com.finalphase.fabricapins.management.controller;
 
-import com.finalphase.fabricapins.management.dto.ProducaoDTO;
-import com.finalphase.fabricapins.management.dto.ProducaoRequest;
-import com.finalphase.fabricapins.management.dto.ReceitaDTO;
-import com.finalphase.fabricapins.management.dto.ReceitaRequest;
+import com.finalphase.fabricapins.management.dto.*;
 import com.finalphase.fabricapins.management.service.RelatorioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -50,6 +47,18 @@ public class RelatorioController {
     @GetMapping("/producao")
     public ResponseEntity<List<ProducaoDTO>> producao(@Valid ProducaoRequest request) {
         List<ProducaoDTO> dto = service.tempoProducao(request);
+        return ResponseEntity.ok(dto);
+    }
+
+
+    @Operation(summary = "Relatórios de Volume de Vendas por Período")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
+    })
+    @GetMapping("/volume")
+    public ResponseEntity<List<VolumeVendasDTO>> volume(@Valid VolumeVendasRequest request) {
+        List<VolumeVendasDTO> dto = service.volume(request);
         return ResponseEntity.ok(dto);
     }
 }

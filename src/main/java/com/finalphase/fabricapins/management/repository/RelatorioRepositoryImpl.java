@@ -21,9 +21,9 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
     private EntityManager em;
 
     @Override
-    public List<ReceitaDTO> receitaAgrupada(Instant inicio, Instant fim, String agrupamentoReceita, String canal) {
-        if (!AGRUPAMENTOS_VALIDOS.contains(agrupamentoReceita)) {
-            throw new IllegalArgumentException("Agrupamento inválido: " + agrupamentoReceita);
+    public List<ReceitaDTO> receitaAgrupada(Instant inicio, Instant fim, String periodo, String canal) {
+        if (!AGRUPAMENTOS_VALIDOS.contains(periodo)) {
+            throw new IllegalArgumentException("Agrupamento inválido: " + periodo);
         }
 
         String sql = """
@@ -36,7 +36,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                     AND (:canal IS NULL OR p.origem_pedido = :canal)
                 GROUP BY periodo
                 ORDER BY periodo
-                """.formatted(agrupamentoReceita);
+                """.formatted(periodo);
 
         @SuppressWarnings("unchecked")
         List<Object[]> rows = em.createNativeQuery(sql)
@@ -46,24 +46,24 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 .getResultList();
 
         return rows.stream().map(r -> {
-            Instant periodo = r[0] instanceof OffsetDateTime odt
+            Instant periodoDTO = r[0] instanceof OffsetDateTime odt
                     ? odt.toInstant()
                     : ((java.sql.Timestamp) r[0]).toInstant();
             BigDecimal total = r[1] instanceof BigDecimal bd ? bd : BigDecimal.valueOf(((Number) r[1]).doubleValue());
-            return new ReceitaDTO(periodo, null, total);
+            return new ReceitaDTO(periodoDTO, null, total);
         }).toList();
     }
 
     @Override
-    public List<ProducaoDTO> producaoAgrupada(Instant inicio, Instant fim, String canal, String agrupamentoProducao, Long produtoId, Long variacaoId, Long categoriaId) {
+    public List<ProducaoDTO> producaoAgrupada(Instant inicio, Instant fim, String canal, String dimensao, Long produtoId, Long variacaoId, Long categoriaId) {
 
 
         String sql = """
                 SELECT
                     CASE
-                        WHEN :agrupamento = 'PRODUTO' THEN COALESCE(pr.nome, 'SEM_PRODUTO')
-                        WHEN :agrupamento = 'VARIACAO' THEN COALESCE(pv.nome, 'SEM_VARIACAO')
-                        WHEN :agrupamento = 'CATEGORIA' THEN COALESCE(c.nome, 'SEM_CATEGORIA')
+                        WHEN :dimensao = 'PRODUTO' THEN COALESCE(pr.nome, 'SEM_PRODUTO')
+                        WHEN :dimensao = 'VARIACAO' THEN COALESCE(pv.nome, 'SEM_VARIACAO')
+                        WHEN :dimensao = 'CATEGORIA' THEN COALESCE(c.nome, 'SEM_CATEGORIA')
                         ELSE 'GERAL'
                     END as grupo,
                     COUNT(DISTINCT p.id) as quantidade,
@@ -92,7 +92,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 .setParameter("produtoId", produtoId)
                 .setParameter("variacaoId", variacaoId)
                 .setParameter("categoriaId", categoriaId)
-                .setParameter("agrupamento", agrupamentoProducao)
+                .setParameter("dimensao", dimensao)
                 .getResultList();
 
         return rows.stream().map(r -> {
@@ -107,6 +107,48 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                     tempoMedio,
                     quantidade            );
         }).toList();
+    }
 
+
+    @Override
+    public List<Object[]> volumeAgrupado(Instant inicio,Instant fim,String canal,String periodo,String dimensao,Long produtoId,Long variacaoId,Long categoriaId) {
+
+        String sql = """
+        SELECT
+            DATE_TRUNC('%s', p.data_pagamento_confirmado) as periodo,
+            CASE
+                WHEN :dimensao = 'PRODUTO' THEN COALESCE(pr.nome, 'SEM_PRODUTO')
+                WHEN :dimensao = 'VARIACAO' THEN COALESCE(pv.nome, 'SEM_VARIACAO')
+                WHEN :dimensao = 'CATEGORIA' THEN COALESCE(c.nome, 'SEM_CATEGORIA')
+                ELSE 'GERAL'
+            END as grupo,
+            COUNT(DISTINCT p.id) as quantidade_pedidos,
+            COALESCE(SUM(ip.quantidade), 0) as quantidade_itens,
+            COALESCE(SUM(p.valor_total_final), 0) as receita
+        FROM tb_pedido p
+        LEFT JOIN tb_item_pedido ip ON ip.pedido_id = p.id
+        LEFT JOIN tb_produto_variacao pv ON pv.id = ip.produto_variacao_id
+        LEFT JOIN tb_produto pr ON pr.id = pv.produto_id
+        LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
+        WHERE p.status_pedido <> 'CANCELADO'
+            AND p.data_pagamento_confirmado BETWEEN :inicio AND :fim
+            AND (:canal IS NULL OR p.origem_pedido = :canal)
+            AND (:produtoId IS NULL OR pr.id = :produtoId)
+            AND (:variacaoId IS NULL OR pv.id = :variacaoId)
+            AND (:categoriaId IS NULL OR c.id = :categoriaId)
+
+        GROUP BY periodo, grupo
+        ORDER BY receita DESC, periodo DESC
+    """.formatted(periodo);
+
+        return em.createNativeQuery(sql)
+                .setParameter("inicio", inicio)
+                .setParameter("fim", fim)
+                .setParameter("canal", canal)
+                .setParameter("dimensao", dimensao)
+                .setParameter("produtoId", produtoId)
+                .setParameter("variacaoId", variacaoId)
+                .setParameter("categoriaId", categoriaId)
+                .getResultList();
     }
 }

@@ -1,15 +1,13 @@
 package com.finalphase.fabricapins.management.service;
 
-import com.finalphase.fabricapins.management.dto.ProducaoDTO;
-import com.finalphase.fabricapins.management.dto.ProducaoRequest;
-import com.finalphase.fabricapins.management.dto.ReceitaDTO;
-import com.finalphase.fabricapins.management.dto.ReceitaRequest;
+import com.finalphase.fabricapins.management.dto.*;
 import com.finalphase.fabricapins.management.enums.AgrupamentoPeriodo;
 import com.finalphase.fabricapins.management.repository.RelatorioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -27,18 +25,18 @@ public class RelatorioService {
 
     @Transactional(readOnly = true)
     public List<ReceitaDTO> receita(ReceitaRequest request){
-        String agrupamento = mapearAgrupamento(request.agrupamento());
+        String periodo = mapearAgrupamento(request.periodo());
 
         List<ReceitaDTO> result = repository.receitaAgrupada(
                 request.dataInicio(),
                 request.dataFim(),
-                agrupamento,
+                periodo,
                 request.canal() != null ? request.canal().name() : null
         );
 
         return result.stream().map(x -> new ReceitaDTO(
-                normalizarPeriodo(x.periodo(), request.agrupamento()),
-                formatarLabel(x.periodo(), request.agrupamento()),
+                normalizarPeriodo(x.periodo(), request.periodo()),
+                formatarLabel(x.periodo(), request.periodo()),
                 x.total()))
                 .toList();
     }
@@ -49,7 +47,7 @@ public class RelatorioService {
                 request.dataInicio(),
                 request.dataFim(),
                 request.canal() != null ? request.canal().name() : null,
-                request.agrupamento().name(),
+                request.dimensao().name(),
                 request.produtoId(),
                 request.produtoVariacaoId(),
                 request.categoriaId()
@@ -63,11 +61,44 @@ public class RelatorioService {
     }
 
 
+    @Transactional(readOnly = true)
+    public List<VolumeVendasDTO> volume(VolumeVendasRequest request){
+        String periodo = mapearAgrupamento(request.periodo());
+        List<Object[]> rows = repository.volumeAgrupado(
+                request.dataInicio(),
+                request.dataFim(),
+                request.canal() != null ? request.canal().name() : null,
+                periodo,
+                request.dimensao().name(),
+                request.produtoId(),
+                request.produtoVariacaoId(),
+                request.categoriaId()
+        );
+        return rows.stream().map(r -> {
+            Instant periodoRaw = r[0] instanceof OffsetDateTime odt
+                    ? odt.toInstant()
+                    : ((java.sql.Timestamp) r[0]).toInstant();
+            String grupo = r[1] != null ? r[1].toString() : "SEM_DADO";
+            Long pedidos = r[2] != null ? ((Number) r[2]).longValue() : 0L;
+            Long itens = r[3] != null ? ((Number) r[3]).longValue() : 0L;
+            Double receita = r[4] != null ? ((Number) r[4]).doubleValue() : 0.0;
+            return new VolumeVendasDTO(
+                    normalizarPeriodo(periodoRaw, request.periodo()),
+                    formatarLabel(periodoRaw, request.periodo()),
+                    grupo,
+                    pedidos,
+                    itens,
+                    receita
+            );
+        }).toList();
+    }
 
-    private Instant normalizarPeriodo(Instant instant, AgrupamentoPeriodo agrupamento) {
+
+
+    private Instant normalizarPeriodo(Instant instant, AgrupamentoPeriodo periodo) {
         ZonedDateTime z = instant.atZone(ZONE);
 
-        return switch (agrupamento) {
+        return switch (periodo) {
             case DIA -> z.toLocalDate().atStartOfDay(ZONE).toInstant();
 
             case SEMANA -> z
@@ -100,11 +131,11 @@ public class RelatorioService {
         };
     }
 
-    private String formatarLabel(Instant instant, AgrupamentoPeriodo agrupamento) {
+    private String formatarLabel(Instant instant, AgrupamentoPeriodo periodo) {
         Locale locale = new Locale("pt", "BR");
         ZonedDateTime z = instant.atZone(ZONE);
 
-        return switch (agrupamento) {
+        return switch (periodo) {
             case DIA -> z.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
             case SEMANA -> {
@@ -129,8 +160,8 @@ public class RelatorioService {
         };
     }
 
-    private String mapearAgrupamento(AgrupamentoPeriodo agrupamento) {
-        return switch (agrupamento) {
+    private String mapearAgrupamento(AgrupamentoPeriodo periodo) {
+        return switch (periodo) {
             case DIA -> "day";
             case SEMANA -> "week";
             case MES -> "month";

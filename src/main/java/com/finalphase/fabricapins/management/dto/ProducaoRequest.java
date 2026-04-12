@@ -15,11 +15,12 @@ public record ProducaoRequest(
         Instant dataInicio,
 
         @NotNull(message = "Campo requerido")
-        @Schema(description = "Inicio do Periodo", example = "2025-01-01T00:00:00Z")
+        @Schema(description = "Fim do Periodo", example = "2025-01-01T00:00:00Z")
         Instant dataFim,
 
-        @Schema(description = "Agrupamento de retorno", example = "CATEGORIA")
-        AgrupamentoDimensao agrupamento,
+        @NotNull(message = "Campo requerido")
+        @Schema(description = "Agrupamento da consulta", example = "CATEGORIA")
+        AgrupamentoDimensao dimensao,
 
         @Schema(description = "Origem dos Pedidos", example = "SITE")
         OrigemPedido canal,

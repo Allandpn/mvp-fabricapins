@@ -1,10 +1,15 @@
 ### RECEITA
-GET {{baseUrl}}/gestao/relatorios/receita?dataInicio=2025-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z&agrupamento=ANO&canal=REDE_SOCIAL
+GET {{baseUrl}}/gestao/relatorios/receita?dataInicio=2025-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z&periodo=ANO&canal=REDE_SOCIAL
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
 ### PRODUCAO
-GET {{baseUrl}}/gestao/relatorios/producao?dataInicio=2024-01-01T00:00:00Z&dataFim=2027-12-31T23:59:59Z&agrupamento=VARIACAO
+GET {{baseUrl}}/gestao/relatorios/producao?dataInicio=2024-01-01T00:00:00Z&dataFim=2027-12-31T23:59:59Z&dimensao=GERAL
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### VOLUME
+GET {{baseUrl}}/gestao/relatorios/volume?dataInicio=2024-01-01T00:00:00Z&dataFim=2027-12-31T23:59:59Z&periodo=ANO&dimensao=CATEGORIA
 Content-Type: application/json
 Authorization: Bearer {{token}}
