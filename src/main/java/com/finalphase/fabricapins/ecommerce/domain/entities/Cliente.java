@@ -1,0 +1,113 @@
+package com.finalphase.fabricapins.ecommerce.domain.entities;
+
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoPessoa;
+import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.*;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "tb_cliente")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class Cliente {
+
+    @Id
+    @EqualsAndHashCode.Include
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Setter
+    @Column(nullable = false, length = 150)
+    private String nome;
+
+    @Setter
+    @Email
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Setter
+    @Column(nullable = false)
+    private String telefone;
+
+    @Setter
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoPessoa tipoPessoa;
+
+    @Setter
+    @Column(nullable = false, unique = true)
+    private String numeroDocumento;
+
+    @Setter
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoCliente tipoCliente;
+
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant dataCadastro;
+
+    @UpdateTimestamp
+    private Instant dataAtualizacao;
+
+    @Setter
+    @Column(nullable = false)
+    private boolean ativo = true;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", unique = true)
+    private Usuario usuario;
+
+    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
+    private List<Pedido> pedidos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 5)
+    private List<Endereco> enderecos = new ArrayList<>();
+
+    public Cliente(String nome, String email, String telefone, TipoCliente tipoCliente, TipoPessoa tipoPessoa, String numeroDocumento) {
+        this.nome = nome;
+        this.email = email;
+        this.telefone = telefone;
+        this.tipoCliente = tipoCliente;
+        this.tipoPessoa = tipoPessoa;
+        this.numeroDocumento = numeroDocumento;
+    }
+
+    public Cliente(String nome, String numeroDocumento, String telefone, TipoCliente tipoCliente) {
+        this.nome = nome;
+        this.telefone = telefone;
+        this.tipoCliente = tipoCliente;
+        this.numeroDocumento = numeroDocumento;
+    }
+
+    public Cliente(ClienteRequest request){
+        this.nome = request.nome();
+        this.email = request.email();
+        this.telefone = request.telefone();
+        this.tipoCliente = request.tipoCliente();
+        this.tipoPessoa = request.tipoPessoa();
+        this.numeroDocumento = request.numeroDocumento();
+    }
+
+
+
+    // HELPERS
+    public void addEndereco(Endereco endereco){
+        endereco.setCliente(this);
+        this.enderecos.add(endereco);
+    }
+
+}

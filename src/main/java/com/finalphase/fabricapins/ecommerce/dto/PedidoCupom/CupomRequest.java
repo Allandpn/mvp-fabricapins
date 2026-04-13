@@ -1,0 +1,11 @@
+package com.finalphase.fabricapins.ecommerce.dto.PedidoCupom;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+
+@Schema(description = "DTO para inserção de cupons de desconto")
+public record CupomRequest(
+        @NotNull(message = "Campo requerido")
+        @Schema(description = "Cupom de Desconto", example = "DESCONTO10")
+        String codigo
+) {}

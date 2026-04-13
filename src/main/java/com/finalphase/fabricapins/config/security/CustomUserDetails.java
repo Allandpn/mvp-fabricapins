@@ -1,12 +1,11 @@
 package com.finalphase.fabricapins.config.security;
 
-import com.finalphase.fabricapins.domain.entities.Usuario;
+import com.finalphase.fabricapins.ecommerce.domain.entities.Usuario;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 

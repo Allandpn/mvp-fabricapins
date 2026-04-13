@@ -1,0 +1,94 @@
+package com.finalphase.fabricapins.ecommerce.controller;
+
+import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinDTO;
+import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;
+import com.finalphase.fabricapins.ecommerce.service.ClienteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
+
+//TODO - implementar rota: GET /clientes/{clienteId}/pedidos
+
+@RestController
+@RequestMapping(value = "/clientes")
+@Tag(name = "Cliente", description = "Operações relacionados ao Cliente")
+public class ClienteController {
+
+    @Autowired
+    private ClienteService service;
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Buscar cliente por Id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cliente localizado"),
+            @ApiResponse(responseCode = "404", description = "Cliente não localizado", content = @Content)
+    })
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<ClienteMinDTO> findById(@PathVariable Long id){
+        ClienteMinDTO dto = service.findById(id);
+        return ResponseEntity.ok(dto);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Buscar todos os Clientes")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Clientes localizados"),
+            @ApiResponse(responseCode = "404", description = "Nenhum Cliente localizado", content = @Content)
+    })
+    @GetMapping()
+    public ResponseEntity<Page<ClienteMinDTO>> findAll(Pageable pageable){
+        Page<ClienteMinDTO> ListDto = service.findAll(pageable);
+        return ResponseEntity.ok(ListDto);
+    }
+
+    @Operation(summary = "Inserir Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cliente criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Erro ao criar o Cliente", content = @Content)
+    })
+    @PostMapping
+    public ResponseEntity<ClienteMinDTO> insertCliente(@Valid @RequestBody ClienteRequest request){
+        ClienteMinDTO dto = service.insertCliente(request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
+        return ResponseEntity.created(uri).body(dto);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    @Operation(summary = "Atualizar Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cliente atualizado com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClienteMinDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Cliente não localizado", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Já existe um Cliente com esse nome", content = @Content)
+    })
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ClienteMinDTO> updateCliente(@PathVariable Long id, @Valid @RequestBody ClienteRequest request){
+        return ResponseEntity.ok(service.updateCliente(id, request));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    @Operation(summary = "Remover Cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Cliente excluido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Cliente não localizado"),
+            @ApiResponse(responseCode = "409", description = "Não é possível excluir pois existe alguma entidade associada")
+    })
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> deleteCliente(@PathVariable Long id){
+        service.deleteCliente(id);
+        return ResponseEntity.noContent().build();
+    }
+}

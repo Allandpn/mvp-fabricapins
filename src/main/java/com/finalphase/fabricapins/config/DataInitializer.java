@@ -1,9 +1,8 @@
 package com.finalphase.fabricapins.config;
 
-import com.finalphase.fabricapins.domain.entities.Perfil;
-import com.finalphase.fabricapins.repository.PerfilRepository;
+import com.finalphase.fabricapins.ecommerce.domain.entities.Perfil;
+import com.finalphase.fabricapins.ecommerce.repository.PerfilRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

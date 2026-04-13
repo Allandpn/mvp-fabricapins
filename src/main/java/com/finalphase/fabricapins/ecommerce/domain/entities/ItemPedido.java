@@ -1,0 +1,70 @@
+package com.finalphase.fabricapins.ecommerce.domain.entities;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import lombok.*;
+
+import java.math.BigDecimal;
+
+@Entity
+@Table(name = "tb_item_pedido")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class ItemPedido {
+
+    @Id
+    @EqualsAndHashCode.Include
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Setter
+    @Min(1)
+    @Column(nullable = false)
+    private Integer quantidade;
+
+    @Setter
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal precoUnitario;
+
+    @Setter
+    @Column(nullable = false, length = 150)
+    private String nomeProdutoSnapshot;
+
+    @Setter
+    private String imgProdutoSnapshot;
+
+    @Setter
+    private BigDecimal custoUnitarioSnapshot;
+
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pedido_id")
+    private Pedido pedido;
+
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "produto_variacao_id")
+    private ProdutoVariacao produtoVariacao;
+
+    public ItemPedido(Integer quantidade, BigDecimal precoUnitario, String nomeProdutoSnapshot, BigDecimal custoUnitarioSnapshot, String imgProdutoSnapshot) {
+        this.quantidade = quantidade;
+        this.precoUnitario = precoUnitario;
+        this.nomeProdutoSnapshot = nomeProdutoSnapshot;
+        this.custoUnitarioSnapshot = custoUnitarioSnapshot;
+        this.imgProdutoSnapshot = imgProdutoSnapshot;
+    }
+
+    // HELPERS
+
+    public BigDecimal getSubTotal(){
+        return precoUnitario.multiply(BigDecimal.valueOf(quantidade));
+    }
+
+    public void alterarQuantidade(Integer quantidade){
+        this.quantidade = quantidade;
+    }
+
+
+
+}

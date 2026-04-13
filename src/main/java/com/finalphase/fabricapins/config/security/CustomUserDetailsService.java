@@ -1,8 +1,7 @@
 package com.finalphase.fabricapins.config.security;
 
-import com.finalphase.fabricapins.domain.entities.Usuario;
-import com.finalphase.fabricapins.repository.UsuarioRepository;
-import com.finalphase.fabricapins.service.UsuarioService;
+import com.finalphase.fabricapins.ecommerce.domain.entities.Usuario;
+import com.finalphase.fabricapins.ecommerce.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
