@@ -12,4 +12,6 @@ public interface RelatorioRepositoryCustom {
     List<ProducaoDTO> producaoAgrupada(Instant inicio, Instant fim, String canal, String agrupamento, Long produtoId, Long variacaoId, Long categoriaId);
 
     List<Object[]> volumeAgrupado(Instant inicio, Instant fim, String canal, String periodo, String dimensao, Long produtoId, Long variacaoId, Long categoriaId);
+
+    List<Object[]> estoqueAnalitico(String dimensao,Long produtoId,Long variacaoId,Long categoriaId,Instant demandaInicio,Instant demandaFim);
 }

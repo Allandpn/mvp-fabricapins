@@ -61,4 +61,16 @@ public class RelatorioController {
         List<VolumeVendasDTO> dto = service.volume(request);
         return ResponseEntity.ok(dto);
     }
+
+
+    @Operation(summary = "Relatórios de Estoque e Demanda por Periodo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
+    })
+    @GetMapping("/estoque")
+    public ResponseEntity<List<EstoqueDTO>> estoque(@Valid EstoqueRequest request) {
+        List<EstoqueDTO> dto = service.estoque(request);
+        return ResponseEntity.ok(dto);
+    }
 }

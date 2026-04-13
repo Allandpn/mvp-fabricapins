@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.management.repository;
 
+import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.management.dto.ProducaoDTO;
 import com.finalphase.fabricapins.management.dto.ReceitaDTO;
 import jakarta.persistence.EntityManager;
@@ -23,7 +24,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
     @Override
     public List<ReceitaDTO> receitaAgrupada(Instant inicio, Instant fim, String periodo, String canal) {
         if (!AGRUPAMENTOS_VALIDOS.contains(periodo)) {
-            throw new IllegalArgumentException("Agrupamento inválido: " + periodo);
+            throw new BusinessException("Agrupamento inválido: " + periodo);
         }
 
         String sql = """
@@ -149,6 +150,48 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 .setParameter("produtoId", produtoId)
                 .setParameter("variacaoId", variacaoId)
                 .setParameter("categoriaId", categoriaId)
+                .getResultList();
+    }
+
+
+    @Override
+    public List<Object[]> estoqueAnalitico(String dimensao,Long produtoId,Long variacaoId,Long categoriaId,Instant demandaInicio,Instant demandaFim) {
+
+        String sql = """
+        SELECT
+            CASE
+                WHEN :dimensao = 'PRODUTO' THEN COALESCE(pr.nome, 'SEM_PRODUTO')
+                WHEN :dimensao = 'VARIACAO' THEN COALESCE(pv.nome, 'SEM_VARIACAO')
+                WHEN :dimensao = 'CATEGORIA' THEN COALESCE(c.nome, 'SEM_CATEGORIA')
+                ELSE 'GERAL'
+            END as grupo,
+            SUM(pv.quantidade_estoque) as quantidade,
+            SUM(pv.estoque_minimo) as estoque_minimo,
+            COALESCE(SUM(ip.quantidade) FILTER (
+                WHERE p.data_pagamento_confirmado IS NOT NULL
+                AND p.status_pedido <> 'CANCELADO'
+                AND p.data_pagamento_confirmado BETWEEN :demandaInicio AND :demandaFim
+            ), 0) as demanda_recente
+        FROM tb_produto_variacao pv
+        LEFT JOIN tb_item_pedido ip ON ip.produto_variacao_id = pv.id
+        LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
+        LEFT JOIN tb_produto pr ON pr.id = pv.produto_id
+        LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
+        WHERE pv.ativo = true
+            AND (:produtoId IS NULL OR pr.id = :produtoId)
+            AND (:variacaoId IS NULL OR pv.id = :variacaoId)
+            AND (:categoriaId IS NULL OR c.id = :categoriaId)
+        GROUP BY grupo
+        ORDER BY quantidade ASC
+    """;
+
+        return em.createNativeQuery(sql)
+                .setParameter("dimensao", dimensao)
+                .setParameter("produtoId", produtoId)
+                .setParameter("variacaoId", variacaoId)
+                .setParameter("categoriaId", categoriaId)
+                .setParameter("demandaInicio", demandaInicio)
+                .setParameter("demandaFim", demandaFim)
                 .getResultList();
     }
 }

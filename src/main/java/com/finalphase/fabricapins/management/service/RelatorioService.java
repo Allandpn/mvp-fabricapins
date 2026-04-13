@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.management.service;
 
+import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.management.dto.*;
 import com.finalphase.fabricapins.management.enums.AgrupamentoPeriodo;
 import com.finalphase.fabricapins.management.repository.RelatorioRepository;
@@ -11,6 +12,7 @@ import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.util.List;
 import java.util.Locale;
@@ -93,7 +95,54 @@ public class RelatorioService {
         }).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<EstoqueDTO> estoque(EstoqueRequest request){
+        Instant[] periodo = resolverPeriodoDemanda(
+                request.demandaInicio(),
+                request.demandaFim()
+        );
+        List<Object[]> rows = repository.estoqueAnalitico(
+                request.dimensao().name(),
+                request.produtoId(),
+                request.produtoVariacaoId(),
+                request.categoriaId(),
+                periodo[0],
+                periodo[1]
+        );
+        return rows.stream().map(r -> {
+            String grupo = r[0] != null ? r[0].toString() : "SEM_DADO";
+            Integer quantidade = r[1] != null ? ((Number) r[1]).intValue() : 0;
+            Integer minimo = r[2] != null ? ((Number) r[2]).intValue() : 0;
+            Long demanda = r[3] != null ? ((Number) r[3]).longValue() : 0L;
+            String status = calcularStatus(quantidade, minimo);
+            return new EstoqueDTO(
+                    grupo,
+                    quantidade,
+                    minimo,
+                    status,
+                    demanda
+            );
+        }).toList();
+    }
 
+
+    private Instant[] resolverPeriodoDemanda(Instant inicio, Instant fim) {
+        if (inicio == null && fim == null) {
+            Instant agora = Instant.now();
+            Instant inicioDefault = agora.minus(30, ChronoUnit.DAYS);
+            return new Instant[]{inicioDefault, agora};
+        }
+        if (inicio == null || fim == null) {
+            throw new BusinessException(
+                    "Para cálculo de demanda, informe dataInicio e dataFim ou nenhum dos dois"
+            );
+        }
+        return new Instant[]{inicio, fim};
+    }
+
+    private String calcularStatus(int quantidade, int minimo) {
+        return quantidade <= minimo ? "CRITICO" : "OK";
+    }
 
     private Instant normalizarPeriodo(Instant instant, AgrupamentoPeriodo periodo) {
         ZonedDateTime z = instant.atZone(ZONE);
