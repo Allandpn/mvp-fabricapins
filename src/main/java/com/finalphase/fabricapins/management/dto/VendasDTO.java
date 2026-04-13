@@ -2,7 +2,7 @@ package com.finalphase.fabricapins.management.dto;
 
 import java.time.Instant;
 
-public record VolumeVendasDTO(
+public record VendasDTO(
         Instant periodo,
         String label,
         String grupo,

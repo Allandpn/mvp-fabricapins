@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Schema(description = "DTO de requisição do relatório de Volume de Vendas")
-public record VolumeVendasRequest(
+public record VendasRequest(
         @NotNull(message = "Campo requerido")
         @Schema(description = "Inicio do Periodo", example = "2025-01-01T00:00:00Z")
         Instant dataInicio,

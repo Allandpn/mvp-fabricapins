@@ -22,4 +22,12 @@ public class OpenApiConfig {
                 .packagesToScan("com.finalphase.fabricapins.management")
                 .build();
     }
+
+    @Bean
+    public GroupedOpenApi authenticationApi() {
+        return GroupedOpenApi.builder()
+                .group("Autenticação")
+                .packagesToScan("com.finalphase.fabricapins.config.security.auth")
+                .build();
+    }
 }

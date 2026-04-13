@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -64,7 +63,7 @@ public class RelatorioService {
 
 
     @Transactional(readOnly = true)
-    public List<VolumeVendasDTO> volume(VolumeVendasRequest request){
+    public List<VendasDTO> vendas(VendasRequest request){
         String periodo = mapearAgrupamento(request.periodo());
         List<Object[]> rows = repository.volumeAgrupado(
                 request.dataInicio(),
@@ -84,7 +83,7 @@ public class RelatorioService {
             Long pedidos = r[2] != null ? ((Number) r[2]).longValue() : 0L;
             Long itens = r[3] != null ? ((Number) r[3]).longValue() : 0L;
             Double receita = r[4] != null ? ((Number) r[4]).doubleValue() : 0.0;
-            return new VolumeVendasDTO(
+            return new VendasDTO(
                     normalizarPeriodo(periodoRaw, request.periodo()),
                     formatarLabel(periodoRaw, request.periodo()),
                     grupo,

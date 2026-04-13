@@ -56,9 +56,9 @@ public class RelatorioController {
             @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
             @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
     })
-    @GetMapping("/volume")
-    public ResponseEntity<List<VolumeVendasDTO>> volume(@Valid VolumeVendasRequest request) {
-        List<VolumeVendasDTO> dto = service.volume(request);
+    @GetMapping("/vendas")
+    public ResponseEntity<List<VendasDTO>> vendas(@Valid VendasRequest request) {
+        List<VendasDTO> dto = service.vendas(request);
         return ResponseEntity.ok(dto);
     }
 
