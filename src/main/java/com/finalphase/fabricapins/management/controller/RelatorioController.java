@@ -19,7 +19,7 @@ import java.util.List;
 
 @PreAuthorize("hasRole('ADMIN')")
 @RestController
-@RequestMapping(value = "/gestao/relatorios")
+@RequestMapping(value = "/gestao/relatorio")
 @Tag(name = "Gestão", description = "Operações relacionadas aos relatorios de Gestão")
 public class RelatorioController {
 
@@ -39,7 +39,7 @@ public class RelatorioController {
     }
 
     // Relatorio Analítico de Tempo de Producao
-    @Operation(summary = "Relatórios de Receita por Período")
+    @Operation(summary = "Relatórios de Producao por Período")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
             @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
