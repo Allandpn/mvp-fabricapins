@@ -8,8 +8,7 @@ import org.mapstruct.*;
 
 @Mapper(
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.ERROR,
-        uses = ProdutoVariacaoMapper.class
+        unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface ProdutoMapper {
 
@@ -20,12 +19,11 @@ public interface ProdutoMapper {
     ProdutoMinDTO toMinDTO(Produto entity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "produtosVariacao", ignore = true)
     @Mapping(target = "dataCadastro", ignore = true)
     @Mapping(target = "dataAtualizacao", ignore = true)
     @Mapping(target = "categoria", ignore = true)
-    @Mapping(target = "slug", ignore = true)
     @Mapping(target = "ativo", ignore = true)
+    @Mapping(target = "itemsPedido", ignore = true)
     Produto toEntity(ProdutoRequest dto);
 
     @InheritConfiguration(name = "toEntity")

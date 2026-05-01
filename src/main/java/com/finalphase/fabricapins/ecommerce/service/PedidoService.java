@@ -28,7 +28,7 @@ import com.finalphase.fabricapins.ecommerce.mapper.PedidoMapper;
 import com.finalphase.fabricapins.ecommerce.repository.ClienteRepository;
 import com.finalphase.fabricapins.ecommerce.repository.EnderecoRepository;
 import com.finalphase.fabricapins.ecommerce.repository.PedidoRepository;
-import com.finalphase.fabricapins.ecommerce.repository.ProdutoVariacaoRepository;
+import com.finalphase.fabricapins.ecommerce.repository.ProdutoRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -47,12 +47,12 @@ public class PedidoService {
     @Autowired
     private ClienteRepository clienteRepository;
     @Autowired
-    private ProdutoVariacaoRepository produtoVariacaoRepository;
+    private ProdutoRepository produtoRepository;
     @Autowired
     private EnderecoRepository enderecoRepository;
 
     @Autowired
-    private ProdutoVariacaoService produtoVariacaoService;
+    private ProdutoService produtoService;
     @Autowired
     private ItemPedidoService itemPedidoService;
     @Autowired
@@ -138,13 +138,13 @@ public class PedidoService {
                 () -> new ResourceNotFoundException("Pedido não encontrado")
         );
         validaPedidoRascunho(pedido);
-        ProdutoVariacao produto = produtoVariacaoRepository.findByIdAndAtivoTrue(request.id()).orElseThrow(
+        Produto produto = produtoRepository.findByIdAndAtivoTrue(request.id()).orElseThrow(
                 () -> new ResourceNotFoundException("Produto não encontrado")
         );
         // adiciona a item existente
         Optional<ItemPedido> itemPedidoExistente = pedido.getItemsPedido()
                 .stream()
-                .filter(x -> x.getProdutoVariacao().getId().equals(produto.getId())).findFirst();
+                .filter(x -> x.getProduto().getId().equals(produto.getId())).findFirst();
         if(itemPedidoExistente.isPresent()){
             ItemPedido item = itemPedidoExistente.get();
             pedido.incrementarItem(item, request.quantidade());
@@ -171,7 +171,7 @@ public class PedidoService {
         // remove item existente
         ItemPedido item = pedido.getItemsPedido()
                 .stream()
-                .filter(x -> x.getProdutoVariacao().getId().equals(itemId))
+                .filter(x -> x.getProduto().getId().equals(itemId))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não possui esse item"));
         pedido.atualizarQuantidade(item, quantidade);
@@ -189,7 +189,7 @@ public class PedidoService {
         // remove item existente
         ItemPedido item = pedido.getItemsPedido()
                 .stream()
-                .filter(x -> x.getProdutoVariacao().getId().equals(itemId))
+                .filter(x -> x.getProduto().getId().equals(itemId))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não possui esse item"));
         pedido.removerItem(item);
@@ -426,14 +426,14 @@ public class PedidoService {
         return new ClienteSnapshot(null, nomeCliente, documentoCliente, telefone, tipoCliente);
     }
 
-    private List<ItemPedido> criarItemPedido(List<ProdutoVariacao> produtos, List<ItemPedidoRequest> items, TipoCliente tipoCliente) {
+    private List<ItemPedido> criarItemPedido(List<Produto> produtos, List<ItemPedidoRequest> items, TipoCliente tipoCliente) {
         //diminui complexidade para 0n
-        Map<Long, ProdutoVariacao> produtosMap = produtos.stream().collect(
-                Collectors.toMap(ProdutoVariacao::getId, p -> p));
+        Map<Long, Produto> produtosMap = produtos.stream().collect(
+                Collectors.toMap(Produto::getId, p -> p));
 
         List<ItemPedido> listaPedidos = new ArrayList<>();
         for(ItemPedidoRequest item : items) {
-          ProdutoVariacao produto = produtosMap.get(item.id());
+          Produto produto = produtosMap.get(item.id());
           ItemPedido itemPedido = itemPedidoService.createItemPedido(item, produto, tipoCliente);
             listaPedidos.add(itemPedido);
         }
@@ -454,7 +454,7 @@ public class PedidoService {
     }
 
     private void adicionarItens(Pedido pedido, List<ItemPedidoRequest> items){
-        List<ProdutoVariacao> produtos = produtoVariacaoService.buscarProdutos(items);
+        List<Produto> produtos = produtoService.buscarProdutos(items);
         List<ItemPedido> itemsPedido = criarItemPedido(produtos, items, pedido.getTipoCliente());
         for(ItemPedido item : itemsPedido){
             pedido.adicionarItem(item);

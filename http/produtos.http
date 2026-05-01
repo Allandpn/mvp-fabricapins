@@ -1,20 +1,40 @@
 ### LISTAR
 GET {{baseUrl}}/produtos?page=0&size=10
 
+
 ### CRIAR
 POST {{baseUrl}}/produtos
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "nome": "Produto Teste",
-  "descricao": "Desc",
-  "peso": 10,
-  "categoriaId": 1
+  "nome": "Pin Girassol",
+  "descricao": "Pin dourado metálico 30x13x2mm com acabamento esmaltado",
+  "tipoEstoque": "ESTOQUE",
+  "quantidadeEstoque": 100,
+  "estoqueMinimo": 10,
+  "precoVarejo": 19.90,
+  "precoRevenda": 12.50,
+  "custoProducao": 5.1234,
+  "dataPrevistaLancamento": "2026-06-01",
+  "sku": "PIN-GIRASSOL-001",
+  "imgUrl": "images/produto-123.jpg",
+  "peso": 13.0,
+  "altura": 10,
+  "largura": 20,
+  "comprimento": 30,
+  "ativo": true,
+  "categoriaId": 2
 }
+
+> {%
+    client.global.set("produtoId", response.body.id);
+%}
 
 ### BUSCAR
 GET {{baseUrl}}/produtos/{{produtoId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### ATUALIZAR
 PUT {{baseUrl}}/produtos/{{produtoId}}

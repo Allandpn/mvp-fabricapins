@@ -44,8 +44,8 @@ public class ItemPedido {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "produto_variacao_id")
-    private ProdutoVariacao produtoVariacao;
+    @JoinColumn(name = "produto_id")
+    private Produto produto;
 
     public ItemPedido(Integer quantidade, BigDecimal precoUnitario, String nomeProdutoSnapshot, BigDecimal custoUnitarioSnapshot, String imgProdutoSnapshot) {
         this.quantidade = quantidade;
