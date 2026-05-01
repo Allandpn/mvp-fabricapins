@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +42,16 @@ public class ProdutoService {
 
     @Transactional(readOnly = true)
     public Page<ProdutoMinDTO> findAll(Pageable pageable) {
-        Page<Produto> entity = produtoRepository.findAllByAtivoTrue(pageable);
+        Sort sort = Sort.by(Sort.Order.desc("ativo"));
+        if (pageable.getSort().isSorted()) {
+            sort = sort.and(pageable.getSort());
+        }
+        Pageable pageableComAtivoPrimeiro = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                sort
+        );
+        Page<Produto> entity = produtoRepository.findAll(pageableComAtivoPrimeiro);
         return entity.map(mapper::toMinDTO);
     }
 
