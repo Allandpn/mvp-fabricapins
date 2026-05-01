@@ -242,13 +242,13 @@ FROM tb_produto p;
 -- CUPONS (5)
 -- =============================================
 INSERT INTO tb_cupom_desconto
-(codigo, ativo, valor_desconto, tipo_desconto, data_validade, limite_usos)
+(codigo, ativo, valor_desconto, data_cadastro, tipo_desconto, data_validade, limite_usos)
 VALUES
-('DESC10',true,10,'PERCENTUAL','2026-12-31',100),
-('DESC20',true,20,'PERCENTUAL','2026-12-31',100),
-('FIXO15',true,15,'FIXO','2026-12-31',50),
-('FIXO30',true,30,'FIXO','2026-12-31',50),
-('PROMO5',true,5,'PERCENTUAL','2026-12-31',200);
+('DESC10',true,10,CURRENT_TIMESTAMP, 'PERCENTUAL','2026-12-31',100),
+('DESC20',true,20,CURRENT_TIMESTAMP,'PERCENTUAL','2026-12-31',100),
+('FIXO15',true,15,CURRENT_TIMESTAMP,'FIXO','2026-12-31',50),
+('FIXO30',true,30,CURRENT_TIMESTAMP,'FIXO','2026-12-31',50),
+('PROMO5',true,5,CURRENT_TIMESTAMP,'PERCENTUAL','2026-12-31',200);
 
 
 -- =============================================

@@ -7,9 +7,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,12 +29,16 @@ public class CupomDesconto {
     private Long id;
 
     @Setter
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 30)
     private String codigo;
 
     @Setter
     @Column(nullable = false)
     private boolean ativo = true;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant dataCadastro;
 
     @Setter
     @Column(nullable = false, precision = 15, scale = 2)

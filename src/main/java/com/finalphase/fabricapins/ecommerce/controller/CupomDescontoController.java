@@ -18,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+@PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping(value = "/cupons")
 @Tag(name = "Cupom de desconto", description = "Operações relacionadas a cupons de desconto")
@@ -64,7 +65,6 @@ public class CupomDescontoController {
         return ResponseEntity.created(uri).body(dto);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Atualizar cupom de desconto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cupom atualizado com sucesso",
@@ -80,7 +80,6 @@ public class CupomDescontoController {
         return ResponseEntity.ok(service.updateCupom(id, request));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Remover cupom de desconto (inativação)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Cupom inativado com sucesso"),

@@ -1,0 +1,46 @@
+### LISTAR
+GET {{baseUrl}}/cupons
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### CRIAR
+POST {{baseUrl}}/cupons
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "GANHOU10",
+  "ativo": true,
+  "valorDesconto": 10,
+  "tipoDesconto": "PERCENTUAL",
+  "dataValidade": "2026-05-30",
+  "quantidadeMinimaItens": 10,
+  "valorMinimoPedido": 100,
+  "limiteUsos": 10
+}
+
+### BUSCAR
+GET {{baseUrl}}/cupons/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### ATUALIZAR
+PUT {{baseUrl}}/cupons/6
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "codigo": "GANHOU10",
+  "ativo": true,
+  "valorDesconto": 120,
+  "tipoDesconto": "PERCENTUAL",
+  "dataValidade": "2026-05-30",
+  "quantidadeMinimaItens": 10,
+  "valorMinimoPedido": 100,
+  "limiteUsos": 10
+}
+
+### DELETE
+DELETE {{baseUrl}}/cupons/1
+Content-Type: application/json
+Authorization: Bearer {{token}}

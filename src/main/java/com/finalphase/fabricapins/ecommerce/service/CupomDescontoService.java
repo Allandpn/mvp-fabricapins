@@ -43,7 +43,7 @@ public class CupomDescontoService {
     }
 
     @Transactional
-    public CupomDescontoDTO insertCupom(@Valid CupomDescontoRequest request) {
+    public CupomDescontoDTO insertCupom( CupomDescontoRequest request) {
         String codigo = request.codigo();
         if (codigo != null && repository.existsByCodigo(codigo)) {
             throw new DatabaseException("Já existe um cupom com esse código");
@@ -59,7 +59,7 @@ public class CupomDescontoService {
     }
 
     @Transactional
-    public CupomDescontoDTO updateCupom(Long id, @Valid CupomDescontoRequest request) {
+    public CupomDescontoDTO updateCupom(Long id, CupomDescontoRequest request) {
         CupomDesconto entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cupom não encontrado")
         );
