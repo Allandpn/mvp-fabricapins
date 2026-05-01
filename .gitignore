@@ -1,23 +1,61 @@
-HELP.md
+### Sistema operacional ###
+.DS_Store
+Thumbs.db
+
+### Build Java / Maven / Gradle ###
 target/
-.mvn/wrapper/maven-wrapper.jar
+build/
+out/
+
+# manter targets dentro de src (caso você realmente use)
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-### STS ###
+### Maven wrapper ###
+# recomendação: COMMITAR o wrapper inteiro para facilitar setup do time
+# Se quiser ignorar só o jar, descomente a linha abaixo:
+.mvn/wrapper/maven-wrapper.jar
+
+### Logs ###
+*.log
+logs/
+
+### Arquivos de ambiente e segredos ###
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+
+### Spring Boot / config local ###
+application-local.properties
+application-local.yml
+application-dev-local.properties
+application-dev-local.yml
+
+### IDEs ###
+# STS / Eclipse
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
+# IntelliJ
+.idea/
 *.iws
 *.iml
 *.ipr
+
+# VS Code / Cursor
+.vscode/
 
 ### NetBeans ###
 /nbproject/private/
@@ -25,13 +63,11 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-
-### Arquivos Temporatios ###
-ConsultasRepository.java
-/compiled
+### Temporários ###
+tmp/
+temp/
+compiled/
+*.tmp
+*.swp
+*~
