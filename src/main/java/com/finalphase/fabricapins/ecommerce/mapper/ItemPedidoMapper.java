@@ -10,8 +10,8 @@ import org.mapstruct.*;
 )
 public interface ItemPedidoMapper {
 
-    @Mapping(source = "produtoVariacao.id", target ="id")
-    @Mapping(source = "produtoVariacao.nome", target ="nome")
+    @Mapping(source = "produto.id", target ="id")
+    @Mapping(source = "produto.nome", target ="nome")
     ItemPedidoDTO toDTO(ItemPedido entity);
 
 //    ItemPedido toEntity(ItemPedidoDTO dto);

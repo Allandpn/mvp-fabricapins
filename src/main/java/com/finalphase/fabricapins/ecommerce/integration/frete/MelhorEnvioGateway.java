@@ -57,14 +57,14 @@ public class MelhorEnvioGateway implements FreteGateway{
 
         List<ProdutoME> produtos = pedido.getItemsPedido().stream()
                 .map(item -> new ProdutoME(
-                        item.getProdutoVariacao().getId().toString(),
-                        item.getProdutoVariacao().getProduto().getLargura(),
-                        item.getProdutoVariacao().getProduto().getAltura(),
-                        item.getProdutoVariacao().getProduto().getComprimento(),
-                        item.getProdutoVariacao().getProduto().getPeso(),
+                        item.getProduto().getId().toString(),
+                        item.getProduto().getLargura(),
+                        item.getProduto().getAltura(),
+                        item.getProduto().getComprimento(),
+                        item.getProduto().getPeso(),
                         pedido.getTipoCliente().equals(TipoCliente.VAREJO)
-                                ?item.getProdutoVariacao().getPrecoVarejo().doubleValue()
-                                :item.getProdutoVariacao().getPrecoRevenda().doubleValue(),
+                                ?item.getProduto().getPrecoVarejo().doubleValue()
+                                :item.getProduto().getPrecoRevenda().doubleValue(),
                         item.getQuantidade()
                 ))
                 .toList();

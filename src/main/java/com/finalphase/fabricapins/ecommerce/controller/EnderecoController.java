@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.ecommerce.controller;
 
 
 import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoDTO;
+import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.exception.model.CustomError;
 import com.finalphase.fabricapins.ecommerce.service.EnderecoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,7 +63,7 @@ public class EnderecoController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class)))
     })
     @PostMapping
-    public ResponseEntity<EnderecoDTO> insertEndereco(@PathVariable Long clienteId, @Valid @RequestBody EnderecoDTO request){
+    public ResponseEntity<EnderecoDTO> insertEndereco(@PathVariable Long clienteId, @Valid @RequestBody EnderecoPedidoRequest request){
         EnderecoDTO dto = service.insertEndereco(clienteId, request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
@@ -79,7 +80,7 @@ public class EnderecoController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class)))
     })
     @PutMapping(value = "/{enderecoId}")
-    public ResponseEntity<EnderecoDTO> updateEndereco(@PathVariable Long clienteId, @PathVariable Long enderecoId, @Valid @RequestBody EnderecoDTO request){
+    public ResponseEntity<EnderecoDTO> updateEndereco(@PathVariable Long clienteId, @PathVariable Long enderecoId, @Valid @RequestBody EnderecoPedidoRequest request){
         return ResponseEntity.ok(service.updateEndereco(clienteId, enderecoId, request));
     }
 

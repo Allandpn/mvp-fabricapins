@@ -2,12 +2,16 @@ package com.finalphase.fabricapins.ecommerce.service;
 
 import com.finalphase.fabricapins.config.security.SecurityService;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Cliente;
+import com.finalphase.fabricapins.ecommerce.domain.entities.Endereco;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;
 import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoDTO;
+import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoPedidoRequest;
+import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.ecommerce.exception.DatabaseException;
 import com.finalphase.fabricapins.ecommerce.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.ecommerce.mapper.ClienteMapper;
+import com.finalphase.fabricapins.ecommerce.mapper.EnderecoMapper;
 import com.finalphase.fabricapins.ecommerce.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,6 +32,10 @@ public class ClienteService {
     private ClienteMapper mapper;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private EnderecoService enderecoService;
+    @Autowired
+    private EnderecoMapper enderecoMapper;
 
 
     // TODO - REVISAR
@@ -55,9 +63,15 @@ public class ClienteService {
         if(repository.existsByEmail(request.email())){
             throw new DatabaseException("Já existe um cliente com esse email");
         }
-        Cliente entity = new Cliente(request);
+        validaEnderecoPrincipalUnico(request.enderecos());
+        Cliente entity = mapper.toEntity(request);
+        for(EnderecoPedidoRequest enderecoRequest : request.enderecos()){
+            Endereco endereco = enderecoMapper.toEntity(enderecoRequest);
+            endereco.setCliente(entity);
+            entity.addEndereco(endereco);
+        }
+        entity.setAtivo(true);
         try {
-            entity.setAtivo(true);
             repository.save(entity);
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Não foi possível cadastrar o Cliente");
@@ -100,9 +114,11 @@ public class ClienteService {
 
 
     // VALIDADORES
-    private boolean validaEnderecoPrincipalUnico(List<EnderecoDTO> enderecos){
-        long quantidade = enderecos.stream().filter(EnderecoDTO::enderecoPrincipal).count();
-        return quantidade == 1;
-
+    private void validaEnderecoPrincipalUnico(List<EnderecoPedidoRequest> enderecos){
+        long quantidade = enderecos.stream().filter(EnderecoPedidoRequest::enderecoPrincipal).count();
+        if(quantidade != 1){
+            throw new BusinessException("Deve existir exatamente um endereço principal");
+        }
     }
+
 }

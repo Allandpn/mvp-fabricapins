@@ -7,10 +7,7 @@ import com.finalphase.fabricapins.ecommerce.dto.frete.FreteRequest;
 import com.finalphase.fabricapins.ecommerce.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.QuantidadeItemRequest;
-import com.finalphase.fabricapins.ecommerce.dto.pedido.PedidoAdminRequest;
-import com.finalphase.fabricapins.ecommerce.dto.pedido.PedidoDTO;
-import com.finalphase.fabricapins.ecommerce.dto.pedido.PedidoMinDTO;
-import com.finalphase.fabricapins.ecommerce.dto.pedido.PedidoRascunhoRequest;
+import com.finalphase.fabricapins.ecommerce.dto.pedido.*;
 import com.finalphase.fabricapins.ecommerce.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -68,8 +65,8 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "404", description = "Nenhum Pedido localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<Page<PedidoMinDTO>> findAll(Pageable pageable){
-        Page<PedidoMinDTO> ListDto = pedidoService.findAll(pageable);
+    public ResponseEntity<Page<PedidoAdminDTO>> findAll(Pageable pageable){
+        Page<PedidoAdminDTO> ListDto = pedidoService.findAll(pageable);
         return ResponseEntity.ok(ListDto);
     }
 

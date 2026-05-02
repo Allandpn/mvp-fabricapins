@@ -2,9 +2,11 @@ package com.finalphase.fabricapins.ecommerce.service;
 
 import com.finalphase.fabricapins.ecommerce.domain.entities.Categoria;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Produto;
+import com.finalphase.fabricapins.ecommerce.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoRequest;
+import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.ecommerce.exception.DatabaseException;
 import com.finalphase.fabricapins.ecommerce.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.ecommerce.mapper.ProdutoMapper;
@@ -19,6 +21,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class ProdutoService {
@@ -58,8 +64,7 @@ public class ProdutoService {
     @Transactional
     public ProdutoMinDTO insertProduto(@Valid ProdutoRequest request) {
         Produto entity = mapper.toEntity(request);
-        String slug = entity.gerarSlug(request.nome());
-        if(produtoRepository.existsBySlug(slug)){
+        if(produtoRepository.existsBySku(request.sku())){
             throw new DatabaseException("Já existe um produto com esse nome");
         }
 
@@ -68,7 +73,6 @@ public class ProdutoService {
         );
         try {
             entity.setCategoria(categoria);
-            entity.setSlug(slug);
             entity.setAtivo(true);
             produtoRepository.save(entity);
         } catch (DataIntegrityViolationException e) {
@@ -82,15 +86,13 @@ public class ProdutoService {
         Produto entity = produtoRepository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Produto não encontrado")
         );
-        String slug = entity.gerarSlug(request.nome());
-        if(produtoRepository.existsBySlugAndIdNot(slug, id)){
+        if(produtoRepository.existsBySkuAndIdNot(request.sku(), id)){
             throw new DatabaseException("Já existe um produto com esse nome");
         }
         Categoria categoria = categoriaRepository.findByIdAndAtivaTrue(request.categoriaId()).orElseThrow(
                 () -> new ResourceNotFoundException("Categoria não encontrada")
         );
         entity.setCategoria(categoria);
-        entity.setSlug(slug);
         // TODO - REVISAR UPDATE
         mapper.partialUpdateFromDto(request, entity);
         return mapper.toMinDTO(entity);
@@ -106,5 +108,20 @@ public class ProdutoService {
 
 
     // HELPERS
+    @Transactional(readOnly = true)
+    public List<Produto> buscarProdutos(List<ItemPedidoRequest> items){
+        Set<Long> idsPedido = new HashSet<>();
+        for(ItemPedidoRequest item : items) {
+            if (!idsPedido.add(item.id())) {
+                throw new BusinessException("Produto duplicado");
+            }
+        }
+        List<Long> ids = items.stream().map(ItemPedidoRequest::id).toList();
+        List<Produto> listaProdutos = produtoRepository.findAllByIdInAndAtivoTrue(ids);
+        if(listaProdutos.size() != ids.size()){
+            throw new ResourceNotFoundException("Um ou mais produtos não foram encontrados");
+        }
+        return listaProdutos;
+    }
 
 }

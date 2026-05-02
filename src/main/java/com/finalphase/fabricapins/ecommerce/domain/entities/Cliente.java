@@ -16,8 +16,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "tb_cliente")
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter // O Builder precisa disso
+@NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Cliente {
 

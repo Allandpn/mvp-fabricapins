@@ -154,88 +154,66 @@ INSERT INTO tb_categoria (nome, descricao, ativa) VALUES
 -- PRODUTOS (50)
 -- =============================================
 INSERT INTO tb_produto
-(nome, descricao, img_url,
- peso, altura, largura, comprimento,
- slug, data_cadastro, destaque, ativo, categoria_id)
+(
+    nome,
+    descricao,
+    tipo_estoque,
+    quantidade_estoque,
+    estoque_minimo,
+    preco_varejo,
+    preco_revenda,
+    custo_producao,
+    data_prevista_lancamento,
+    sku,
+    img_url,
+    peso,
+    altura,
+    largura,
+    comprimento,
+    data_cadastro,
+    ativo,
+    categoria_id
+)
 SELECT
-CONCAT('Produto ', x),
-CONCAT('Descricao Produto ', x),
-CONCAT('produto',x,'.png'),
+    CONCAT('Produto ', x),
+    CONCAT('Descricao Produto ', x),
 
-0.2 + (x*0.01),
-2.0,
-2.0,
-2.0,
+    CASE
+        WHEN MOD(x,3)=0 THEN 'SOB_DEMANDA'
+        WHEN MOD(x,5)=0 THEN 'PRE_VENDA'
+        ELSE 'ESTOQUE'
+        END,
 
-CONCAT('produto-',x),
-CURRENT_TIMESTAMP,
-CASE WHEN MOD(x,7)=0 THEN true ELSE false END,
-true,
-((x-1)/10)+1
+    CASE
+        WHEN MOD(x,3)=0 THEN 0
+        ELSE 100 + x
+        END,
+
+    10,
+
+    29.90 + x,
+    19.90 + x,
+    10.0000 + x,
+
+    CASE
+        WHEN MOD(x,5)=0 THEN CURRENT_DATE + 7
+        ELSE NULL
+        END,
+
+    CONCAT('SKU-', x),
+
+    CONCAT('produto',x,'.png'),
+
+    0.2 + (x*0.01),
+    2,
+    2,
+    2,
+    CURRENT_TIMESTAMP,
+    true,
+
+    ((x-1)/10)+1
 
 FROM SYSTEM_RANGE(1,50) AS t(x);
-
-
--- =============================================
--- VARIACOES (100)
--- =============================================
-
--- Variação padrão (ESTOQUE)
-INSERT INTO tb_produto_variacao
-(nome, descricao, tipo_estoque,
- quantidade_estoque, estoque_minimo,
- preco_varejo, preco_revenda, custo_producao,
- sku, img_url, ativo, data_cadastro, produto_id)
-SELECT
-'Padrao',
-'Versao padrao',
-'ESTOQUE',
-
-100,
-10,
-
-29.90 + p.id,
-19.90 + p.id,
-10.00 + p.id,
-
-CONCAT('SKU-', p.id, '-V1'),
-CONCAT('produto',p.id,'-v1.png'),
-true,
-CURRENT_TIMESTAMP,
-p.id
-
-FROM tb_produto p;
-
-
-
--- Variação premium (PRODUCAO)
-INSERT INTO tb_produto_variacao
-(nome, descricao, tipo_estoque,
- quantidade_estoque, estoque_minimo,
- preco_varejo, preco_revenda, custo_producao,
- data_prevista_envio,
- sku, img_url, ativo, data_cadastro, produto_id)
-SELECT
-'Premium',
-'Versao premium',
-'PRODUCAO',
-
-0,
-0,
-
-39.90 + p.id,
-29.90 + p.id,
-15.00 + p.id,
-
-CURRENT_DATE + 7,
-
-CONCAT('SKU-', p.id, '-V2'),
-CONCAT('produto',p.id,'-v2.png'),
-true,
-CURRENT_TIMESTAMP,
-p.id
-
-FROM tb_produto p;
 
 
 -- =============================================
@@ -494,9 +472,15 @@ UPDATE SET p.pagamento_id = x.pagamento_id;
 -- ITENS PEDIDO (100)
 -- =============================================
 INSERT INTO tb_item_pedido
-(quantidade, preco_unitario, nome_produto_snapshot,
- img_produto_snapshot,
- custo_unitario_snapshot, pedido_id, produto_variacao_id)
+(
+    quantidade,
+    preco_unitario,
+    nome_produto_snapshot,
+    img_produto_snapshot,
+    custo_unitario_snapshot,
+    pedido_id,
+    produto_id
+)
 SELECT
     2,
     39.90,

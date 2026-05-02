@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.ecommerce.exception.handler;
 
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.ecommerce.exception.DatabaseException;
+import com.finalphase.fabricapins.ecommerce.exception.InsufficientStockException;
 import com.finalphase.fabricapins.ecommerce.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.ecommerce.exception.model.CustomError;
 import com.finalphase.fabricapins.ecommerce.exception.model.ValidationError;
@@ -77,6 +78,13 @@ public class ControllerExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String message = "Erro ao ler JSON da requisição";
         CustomError err = new CustomError(Instant.now(), status.value(), status.getReasonPhrase(), message, request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<CustomError> businessException(InsufficientStockException e , HttpServletRequest request){
+        HttpStatus status = HttpStatus.CONFLICT;
+        CustomError err = new CustomError(Instant.now(), status.value(), status.getReasonPhrase(), e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 

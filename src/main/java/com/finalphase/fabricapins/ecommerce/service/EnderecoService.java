@@ -3,6 +3,7 @@ package com.finalphase.fabricapins.ecommerce.service;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Cliente;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Endereco;
 import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoDTO;
+import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.exception.DatabaseException;
 import com.finalphase.fabricapins.ecommerce.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.ecommerce.mapper.EnderecoMapper;
@@ -43,7 +44,7 @@ public class EnderecoService {
     }
 
     @Transactional()
-    public EnderecoDTO insertEndereco(Long clienteId, EnderecoDTO request) {
+    public EnderecoDTO insertEndereco(Long clienteId, EnderecoPedidoRequest request) {
         Cliente cliente = clienteRepository.findById(clienteId).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
@@ -59,7 +60,7 @@ public class EnderecoService {
     }
 
     @Transactional()
-    public EnderecoDTO updateEndereco(Long clienteId, Long enderecoId, EnderecoDTO request) {
+    public EnderecoDTO updateEndereco(Long clienteId, Long enderecoId, EnderecoPedidoRequest request) {
         Endereco entity = repository
                 .findByIdAndClienteId(enderecoId, clienteId)
                 .orElseThrow(() ->
