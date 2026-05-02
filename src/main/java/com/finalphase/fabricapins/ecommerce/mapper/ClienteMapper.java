@@ -18,14 +18,14 @@ public interface ClienteMapper {
     ClienteMinPedidoDTO toClienteMinPedidoDTO(Cliente entity);
 
 //    ClienteWtihPedidoDTO toDTOWithPedido(Cliente entity);
-//
-//    @Mapping(target = "id", ignore = true)
-//    @Mapping(target = "dataCadastro", ignore = true)
-//    @Mapping(target = "dataAtualizacao", ignore = true)
-//    @Mapping(target = "pedidos", ignore = true)
-//    @Mapping(target = "usuario", ignore = true)
-//    @Mapping(target = "enderecos", ignore = true)
-//    Cliente toEntity(ClienteRequest dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dataCadastro", ignore = true)
+    @Mapping(target = "dataAtualizacao", ignore = true)
+    @Mapping(target = "pedidos", ignore = true)
+    @Mapping(target = "usuario", ignore = true)
+    @Mapping(target = "enderecos", ignore = true)
+    Cliente toEntity(ClienteRequest dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "dataCadastro", ignore = true)

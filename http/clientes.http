@@ -1,20 +1,51 @@
 ### LISTAR
-GET {{baseUrl}}/clientes?page=0&size=10
+GET {{baseUrl}}/clientes?page=0&size=100
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### CRIAR
 POST {{baseUrl}}/clientes
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-  "nome": "Cliente Teste",
-  "email": "teste@email.com",
+  "nome": "Maria da Silva",
+  "email": "maria_silva2@email.com",
   "telefone": "49999999999",
   "tipoCliente": "VAREJO",
   "tipoPessoa": "FISICA",
-  "numeroDocumento": "12345678900",
-  "ativo": true
+  "numeroDocumento": "00055522267",
+  "ativo": false,
+  "enderecos": [
+    {
+      "cep": "89000000",
+      "estado": "SP",
+      "cidade": "Campinas",
+      "bairro": "Monte Alegre",
+      "logradouro": "Rua XV de Novembro",
+      "numero": "S/N",
+      "complemento": "casa 03",
+      "pontoReferencia": "Próximo Praça da Luz",
+      "observacoes": "Entregar preferencialmente pela manhã",
+      "enderecoPrincipal": true,
+      "tipoEndereco": "ENTREGA",
+      "apelido": "Minha casa"
+    },
+    {
+      "cep": "89000000",
+      "estado": "SP",
+      "cidade": "Campinas",
+      "bairro": "Monte Alegre",
+      "logradouro": "Rua XV de Novembro",
+      "numero": "S/N",
+      "complemento": "casa 03",
+      "pontoReferencia": "Próximo Praça da Luz",
+      "observacoes": "Entregar preferencialmente pela manhã",
+      "enderecoPrincipal": false,
+      "tipoEndereco": "ENTREGA",
+      "apelido": "Minha casa"
+    }
+  ]
 }
 
 ### BUSCAR
@@ -25,13 +56,29 @@ PUT {{baseUrl}}/clientes/1
 Content-Type: application/json
 
 {
-  "nome": "Cliente Editado",
-  "email": "edit@email.com",
+  "nome": "Maria da Silva",
+  "email": "maria_silva@email.com",
   "telefone": "49999999999",
   "tipoCliente": "VAREJO",
   "tipoPessoa": "FISICA",
-  "numeroDocumento": "12345678900",
-  "ativo": true
+  "numeroDocumento": "00055522266",
+  "ativo": true,
+  "enderecos": [
+    {
+      "cep": "89000000",
+      "estado": "SP",
+      "cidade": "Campinas",
+      "bairro": "Monte Alegre",
+      "logradouro": "Rua XV de Novembro",
+      "numero": "S/N",
+      "complemento": "casa 03",
+      "pontoReferencia": "Próximo Praça da Luz",
+      "observacoes": "Entregar preferencialmente pela manhã",
+      "enderecoPrincipal": true,
+      "tipoEndereco": "ENTREGA",
+      "apelido": "Minha casa"
+    }
+  ]
 }
 
 ### DELETE

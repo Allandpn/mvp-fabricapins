@@ -1,11 +1,10 @@
-package com.finalphase.fabricapins.ecommerce.dto.produto_variacao;
+package com.finalphase.fabricapins.ecommerce.dto.produto;
 
 import java.math.BigDecimal;
 
-public record CatalogoProdutoVariacaoDTO (
+public record CatalogoProdutoDTO(
         Long id,
         String nomeProduto,
-        String nomeVariacao,
         String imgUrl,
         BigDecimal precoVarejo,
         String sku

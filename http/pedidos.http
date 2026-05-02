@@ -1,3 +1,22 @@
+### BUSCAR TODOS PEDIDOS
+GET {{baseUrl}}/admin/pedido
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### BUSCAR PEDIDO POR ID
+GET {{baseUrl}}/admin/pedido/{{pedidoId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+### BUSCAR PEDIDO POR ID
+GET {{baseUrl}}/admin/pedido/codigo/0502101552515-496
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+
+
+
 ### CRIAR RASCUNHO
 POST {{baseUrl}}/admin/pedido
 Content-Type: application/json
@@ -70,43 +89,6 @@ Authorization: Bearer {{token}}
 DELETE {{baseUrl}}/admin/pedido/{{pedidoId}}/cancelar
 Authorization: Bearer {{token}}
 
-### PEDIDO_COMPLETO_1
-POST {{baseUrl}}/admin/pedido/completo
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-    "origemPedido": "WHATSAPP",
-    "clienteId": null,
-    "nomeCliente": "Eurwe",
-    "documentoCliente": "1234",
-    "telefone": "12432",
-    "tipoCliente": "REVENDA",
-    "enderecoEntrega": {
-        "cep": "12345678",
-        "estado": "SP",
-        "cidade": "Sao Paulo",
-        "bairro": "Centro",
-        "logradouro": "Rua Teste",
-        "numero": "100",
-        "complemento": null,
-        "pontoReferencia": null
-    },
-    "observacao": "teste pedido",
-    "valorFrete": 10,
-    "items": [
-        {
-            "id": 1,
-            "quantidade": 2
-        },
-        {
-            "id": 12,
-            "quantidade": 2
-        }
-    ],
-    "cupons": ["DESC10","FIXO15"]
-}
-
 ### PEDIDO_COMPLETO_2
 POST {{baseUrl}}/admin/pedido/completo
 Content-Type: application/json
@@ -115,14 +97,12 @@ Authorization: Bearer {{token}}
 {
   "origemPedido": "WHATSAPP",
   "clienteId": 1,
-  "enderecoEntrega": {
-    "enderecoId": 1
-  },
   "observacao": "Teste pedido",
+  "status": "RASCUNHO",
   "valorFrete": 10,
   "items": [
     {
-      "id": 12,
+      "id": 2,
       "quantidade": 2
     },
     {
@@ -132,3 +112,7 @@ Authorization: Bearer {{token}}
   ],
   "cupons": ["DESC10","FIXO15"]
 }
+
+> {%
+    client.global.set("pedidoId", response.body.id);
+%}
