@@ -1,0 +1,14 @@
+### LOGIN
+# @name loginRequest
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+### LISTAR
+GET {{baseUrl}}/clientes?page=0&size=10
+Content-Type: application/json
+Authorization: Bearer {{authToken}}

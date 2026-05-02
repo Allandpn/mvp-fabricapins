@@ -1,0 +1,5 @@
+# Regras do Projeto - Gestão de Produção
+- Sempre gere Javadoc em português para métodos de Service.
+- No React, prefira componentes funcionais e Hooks customizados.
+- Use nomes de variáveis em inglês, mas mensagens de erro para o usuário em português.
+- Ao sugerir mudanças no Spring Security, mantenha a compatibilidade com JWT.

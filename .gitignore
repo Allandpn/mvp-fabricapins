@@ -71,3 +71,4 @@ compiled/
 *.tmp
 *.swp
 *~
+.fake

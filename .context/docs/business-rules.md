@@ -1,0 +1,1 @@
+"Um 'Pedido' só pode entrar em 'Produção' após confirmação de pagamento. O estoque de metal deve ser baixado assim que a ordem de produção for gerada."

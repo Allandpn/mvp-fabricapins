@@ -1,0 +1,1 @@
+"Projeto Java 21, Spring Boot 3.x, JPA, PostgreSQL. Frontend React com Tailwind. Padronização de retornos de erro via Problem Details (RFC 7807)."

@@ -1,0 +1,74 @@
+### LISTAR
+GET {{baseUrl}}/produtos?page=0&size=10
+
+### CRIAR
+POST {{baseUrl}}/produtos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nome": "Produto Teste",
+  "descricao": "Desc",
+  "peso": 10,
+  "categoriaId": 1
+}
+
+### BUSCAR
+GET {{baseUrl}}/produtos/{{produtoId}}
+
+### ATUALIZAR
+PUT {{baseUrl}}/produtos/{{produtoId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nome": "Produto Editado",
+  "descricao": "Desc edit",
+  "peso": 12,
+  "categoriaId": 1
+}
+
+### DELETE
+DELETE {{baseUrl}}/produtos/{{produtoId}}
+Authorization: Bearer {{token}}
+
+
+### LISTAR
+GET {{baseUrl}}/produtos/{{produtoId}}/variacoes
+
+### CRIAR
+POST {{baseUrl}}/produtos/{{produtoId}}/variacoes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nome": "Variacao",
+  "descricao": "Desc",
+  "tipoEstoque": "ESTOQUE",
+  "precoVarejo": 10,
+  "precoRevenda": 8,
+  "custoProducao": 5,
+  "sku": "sku123"
+}
+
+### BUSCAR
+GET {{baseUrl}}/produtos/{{produtoId}}/variacoes/{{variacaoId}}
+
+### ATUALIZAR
+PUT {{baseUrl}}/produtos/{{produtoId}}/variacoes/{{variacaoId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nome": "Variacao Edit",
+  "descricao": "Desc",
+  "tipoEstoque": "ESTOQUE",
+  "precoVarejo": 10,
+  "precoRevenda": 8,
+  "custoProducao": 5,
+  "sku": "sku123"
+}
+
+### DELETE
+DELETE {{baseUrl}}/produtos/{{produtoId}}/variacoes/{{variacaoId}}
+Authorization: Bearer {{token}}

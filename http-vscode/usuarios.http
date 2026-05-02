@@ -1,0 +1,35 @@
+### LISTAR
+GET {{baseUrl}}/usuarios
+Authorization: Bearer {{token}}
+
+### BUSCAR POR ID
+GET {{baseUrl}}/usuarios/1
+Authorization: Bearer {{token}}
+
+### CRIAR
+POST {{baseUrl}}/usuarios
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "user1",
+  "password": "Senha123",
+  "ativo": true,
+  "perfis": ["ROLE_ADMIN"]
+}
+
+### ATUALIZAR
+PUT {{baseUrl}}/usuarios/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "username": "user1_edit",
+  "password": "Senha123",
+  "ativo": true,
+  "perfis": ["ROLE_ADMIN"]
+}
+
+### DELETE
+DELETE {{baseUrl}}/usuarios/1
+Authorization: Bearer {{token}}
