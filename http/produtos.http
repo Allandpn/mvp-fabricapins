@@ -1,5 +1,5 @@
 ### LISTAR
-GET {{baseUrl}}/produtos?page=0&size=10
+GET {{baseUrl}}/produtos?page=0&size=100
 
 
 ### CRIAR
@@ -17,7 +17,7 @@ Authorization: Bearer {{token}}
   "precoRevenda": 12.50,
   "custoProducao": 5.1234,
   "dataPrevistaLancamento": "2026-06-01",
-  "sku": "PIN-GIRASSOL-001",
+  "sku": "PIN-GIRASSOL-002",
   "imgUrl": "images/produto-123.jpg",
   "peso": 13.0,
   "altura": 10,
@@ -49,46 +49,6 @@ Authorization: Bearer {{token}}
 }
 
 ### DELETE
-DELETE {{baseUrl}}/produtos/{{produtoId}}
+DELETE {{baseUrl}}/produtos/1
 Authorization: Bearer {{token}}
 
-
-### LISTAR
-GET {{baseUrl}}/produtos/{{produtoId}}/variacoes
-
-### CRIAR
-POST {{baseUrl}}/produtos/{{produtoId}}/variacoes
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "nome": "Variacao",
-  "descricao": "Desc",
-  "tipoEstoque": "ESTOQUE",
-  "precoVarejo": 10,
-  "precoRevenda": 8,
-  "custoProducao": 5,
-  "sku": "sku123"
-}
-
-### BUSCAR
-GET {{baseUrl}}/produtos/{{produtoId}}/variacoes/{{variacaoId}}
-
-### ATUALIZAR
-PUT {{baseUrl}}/produtos/{{produtoId}}/variacoes/{{variacaoId}}
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "nome": "Variacao Edit",
-  "descricao": "Desc",
-  "tipoEstoque": "ESTOQUE",
-  "precoVarejo": 10,
-  "precoRevenda": 8,
-  "custoProducao": 5,
-  "sku": "sku123"
-}
-
-### DELETE
-DELETE {{baseUrl}}/produtos/{{produtoId}}/variacoes/{{variacaoId}}
-Authorization: Bearer {{token}}

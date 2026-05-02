@@ -13,10 +13,7 @@ import com.finalphase.fabricapins.ecommerce.dto.frete.FreteRequest;
 import com.finalphase.fabricapins.ecommerce.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.parametro.ParametroDTO;
-import com.finalphase.fabricapins.ecommerce.dto.pedido.PedidoAdminRequest;
-import com.finalphase.fabricapins.ecommerce.dto.pedido.PedidoDTO;
-import com.finalphase.fabricapins.ecommerce.dto.pedido.PedidoMinDTO;
-import com.finalphase.fabricapins.ecommerce.dto.pedido.PedidoRascunhoRequest;
+import com.finalphase.fabricapins.ecommerce.dto.pedido.*;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.ecommerce.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.ecommerce.integration.frete.FreteGateway;
@@ -30,6 +27,7 @@ import com.finalphase.fabricapins.ecommerce.repository.EnderecoRepository;
 import com.finalphase.fabricapins.ecommerce.repository.PedidoRepository;
 import com.finalphase.fabricapins.ecommerce.repository.ProdutoRepository;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -93,9 +91,9 @@ public class PedidoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PedidoMinDTO> findAll(Pageable pageable) {
+    public Page<PedidoAdminDTO> findAll(Pageable pageable) {
         Page<Pedido> result = pedidoRepository.findAll(pageable);
-        return result.map(mapper::toMinDTO);
+        return result.map(mapper::toAdminDTO);
     }
 
     // Cria Pedido Completo
@@ -106,10 +104,10 @@ public class PedidoService {
        Pedido pedido = new Pedido(cliente);
        pedido.setCodigoPedido(pedido.gerarCodigoPedido());
        pedido.setOrigemPedido(request.origemPedido());
-       pedido.setStatusPedido(StatusPedido.AGUARDANDO_PAGAMENTO);
+       pedido.setStatusPedido(request.status());
        pedido.setObservacao(request.observacao());
        adicionarItens(pedido, request.items());
-       definirEnderecoPedido(pedido, request.enderecoEntrega());
+       definirEnderecoPorCliente(pedido, request.clienteId());
        aplicarCupons(pedido, request.cupons());
        pedido.incluirFreteAdmin(request.valorFrete());
        estoqueService.reservarEstoque(pedido.getItemsPedido());
@@ -210,6 +208,7 @@ public class PedidoService {
         pedidoRepository.save(pedido);
         return mapper.toDTO(pedido);
     }
+
 
     // define frete
     @Transactional()
@@ -395,24 +394,16 @@ public class PedidoService {
     }
 
     private ClienteSnapshot resolveClienteAdmin(PedidoAdminRequest request){
-        if(request.clienteId() != null){
-            return resolveClienteCadastrado(request.clienteId(), request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
-        }
-        return resolveClienteAvulso(request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
+        return resolveClienteCadastrado(request.clienteId());
     }
-
 
     private ClienteSnapshot resolveCliente(PedidoRascunhoRequest request){
-        if(request.clienteId() != null){
-            return resolveClienteCadastrado(request.clienteId(), request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
-        }
-        return resolveClienteAvulso(request.nomeCliente(), request.documentoCliente(), request.telefone(), request.tipoCliente());
+        return resolveClienteCadastrado(request.clienteId());
     }
 
-    private ClienteSnapshot resolveClienteCadastrado(Long clienteId, String nomeCliente, String documentoCliente, String telefone, TipoCliente tipoCliente){
-        if(nomeCliente != null || documentoCliente != null || telefone != null || tipoCliente != null){
-            throw new BusinessException("Dados do cliente não devem ser enviados ao inserir o Id do Cliente");
-        }
+
+    private ClienteSnapshot resolveClienteCadastrado(Long clienteId){
+
         Cliente cliente = clienteRepository.findByIdAndAtivoTrue(clienteId).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
@@ -486,6 +477,15 @@ public class PedidoService {
         }
         EnderecoPedidoDTO endereco = resolveEndereco(pedido, request);
         pedido.definirEndereco(endereco);
+    }
+
+    // adicionar endereco ao pedido com base no cliente
+    private void definirEnderecoPorCliente(Pedido pedido, Long id) {
+        Endereco endereco = enderecoRepository.findByClienteIdAndEnderecoPrincipalIsTrue(id).orElseThrow(
+                () -> new ResourceNotFoundException("Endereço não localizado")
+        );
+        EnderecoPedidoDTO dto = enderecoMapper.toEnderecoPedidoDTO(endereco);
+        pedido.definirEndereco(dto);
     }
 
 
