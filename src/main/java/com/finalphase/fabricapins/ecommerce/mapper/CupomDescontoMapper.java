@@ -12,7 +12,6 @@ import org.mapstruct.*;
 public interface CupomDescontoMapper {
 
 
-    @Mapping(target = "pedidoCupomSet", ignore = true)
     CupomDescontoDTO toDTO(CupomDesconto entity);
 
     @Mapping(target = "id", ignore = true)

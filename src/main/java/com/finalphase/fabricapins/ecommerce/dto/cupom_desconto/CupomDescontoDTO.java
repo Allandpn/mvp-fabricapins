@@ -15,8 +15,7 @@ public record CupomDescontoDTO(
         LocalDate dataValidade,
         Integer quantidadeMinimaItens,
         BigDecimal valorMinimoPedido,
-        Integer limiteUsos,
-        Set<PedidoCupomDTO> pedidoCupomSet
+        Integer limiteUsos
 ) {}
 
 

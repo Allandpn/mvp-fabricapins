@@ -2,11 +2,11 @@ package com.finalphase.fabricapins.ecommerce.dto.cliente;
 
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoPessoa;
+import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoPedidoRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+
+import java.util.List;
 
 @Schema(description = "DTO de requisição do Cliente")
 public record ClienteRequest(
@@ -36,7 +36,9 @@ public record ClienteRequest(
         @Schema(description = "Numero do Documento", example = "00055522266")
         String numeroDocumento,
 
-        @NotNull
         @Schema(description = "Cliente ativo", example = "true")
-        boolean ativo
+        boolean ativo,
+
+        @NotEmpty(message = "Cliente deve possuir ao menos um endereço")
+        List<EnderecoPedidoRequest>enderecos
 ) {}

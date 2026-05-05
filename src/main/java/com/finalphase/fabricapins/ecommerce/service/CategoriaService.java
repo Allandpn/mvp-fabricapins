@@ -39,7 +39,7 @@ public class CategoriaService {
     }
 
     @Transactional()
-    public CategoriaDTO insertCategoria(@Valid CategoriaRequest request) {
+    public CategoriaDTO insertCategoria(CategoriaRequest request) {
         if(repository.existsByNome(request.nome())){
             throw new DatabaseException("Já existe uma categoria com esse nome");
         }
@@ -55,7 +55,7 @@ public class CategoriaService {
     }
 
     @Transactional()
-    public CategoriaDTO updateCategoria(Long id, @Valid CategoriaRequest request) {
+    public CategoriaDTO updateCategoria(Long id, CategoriaRequest request) {
         Categoria entity = repository.findByIdAndAtivaTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Categoria não encontrada")
         );

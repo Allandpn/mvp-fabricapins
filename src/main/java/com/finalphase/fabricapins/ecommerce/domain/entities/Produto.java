@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.ecommerce.domain.entities;
 
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoEstoqueProduto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -7,7 +8,9 @@ import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,28 +35,51 @@ public class Produto {
     private String descricao;
 
     @Setter
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TipoEstoqueProduto tipoEstoque;
+
+    @Setter
+    @Column(nullable = false)
+    private Integer quantidadeEstoque;
+
+    @Setter
+    @Column(nullable = false)
+    private Integer estoqueMinimo;
+
+    @Setter
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal precoVarejo;
+
+    @Setter
+    @Column(precision = 15, scale = 2, nullable = false)
+    private BigDecimal precoRevenda;
+
+    @Setter
+    @Column(precision = 15, scale = 4, nullable = false)
+    private BigDecimal custoProducao;
+
+    @Setter
+    private LocalDate dataPrevistaLancamento;
+
+    @Setter
+    @Column(nullable = false,unique = true, length = 100)
+    private String sku;
+
+    @Setter
     private String imgUrl;
 
     @Setter
-    @Column(nullable = false)
     private Double peso;
 
     @Setter
-    @Column(nullable = false)
     private Integer altura;
 
     @Setter
-    @Column(nullable = false)
     private Integer largura;
 
     @Setter
-    @Column(nullable = false)
     private Integer comprimento;
-
-    @Setter
-    @NotBlank
-    @Column(nullable = false,unique = true, length = 150)
-    private String slug;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -63,47 +89,38 @@ public class Produto {
     private Instant dataAtualizacao;
 
     @Setter
-    private boolean destaque = false;
-
-    @Setter
     @Column(nullable = false)
     private boolean ativo = true;
-
-    @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @BatchSize(size = 20)
-    private List<ProdutoVariacao> produtosVariacao = new ArrayList<>();
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
-    public Produto(String nome, String descricao, String imgUrl, String slug, boolean destaque) {
+    @OneToMany(mappedBy = "produto", fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
+    private List<ItemPedido> itemsPedido = new ArrayList<>();
+
+    public Produto(
+            String nome,
+            TipoEstoqueProduto tipoEstoque,
+            Integer quantidadeEstoque
+    ) {
         this.nome = nome;
-        this.descricao = descricao;
-        this.imgUrl = imgUrl;
-        this.slug = slug;
-        this.destaque = destaque;
+        this.tipoEstoque = tipoEstoque;
+        this.quantidadeEstoque = quantidadeEstoque;
     }
 
-    //HELPERS
-    public void adicionarProdutoVariacao(ProdutoVariacao prodV){
-        produtosVariacao.add(prodV);
-        prodV.setProduto(this);
+    // HELPERS
+    public void reduzirEstoque(int quantidade){
+        if(quantidade > this.getQuantidadeEstoque()){
+            throw new IllegalStateException("Estoque insuficiente");
+        }
+        this.quantidadeEstoque -= quantidade;
     }
 
-    public void removerProdutoVariacao(ProdutoVariacao prodV){
-        produtosVariacao.remove(prodV);
-        prodV.setProduto(null);
-    }
-
-    // GERAR SLUG
-    public String gerarSlug(String nome) {
-        String slug = nome
-                .toLowerCase()
-                .replaceAll("[^a-z0-9\\s]", "")
-                .replaceAll("\\s+", "-");
-        return slug;
+    public void aumentarEstoque(int quantidade) {
+        this.quantidadeEstoque += quantidade;
     }
 
 }
