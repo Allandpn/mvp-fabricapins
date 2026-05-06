@@ -1,4 +1,4 @@
-package com.finalphase.fabricapins.config.security;
+package com.finalphase.fabricapins.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

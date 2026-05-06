@@ -1,4 +1,4 @@
-package com.finalphase.fabricapins.config.security;
+package com.finalphase.fabricapins.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

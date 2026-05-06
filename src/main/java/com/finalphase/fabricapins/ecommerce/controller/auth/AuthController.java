@@ -1,8 +1,8 @@
 package com.finalphase.fabricapins.ecommerce.controller.auth;
 
 import com.finalphase.fabricapins.config.ApiPaths;
-import com.finalphase.fabricapins.config.security.CustomUserDetailsService;
-import com.finalphase.fabricapins.config.security.JwtService;
+import com.finalphase.fabricapins.security.CustomUserDetailsService;
+import com.finalphase.fabricapins.security.JwtService;
 import com.finalphase.fabricapins.ecommerce.dto.auth.LoginRequestDTO;
 import com.finalphase.fabricapins.ecommerce.dto.auth.LoginResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;

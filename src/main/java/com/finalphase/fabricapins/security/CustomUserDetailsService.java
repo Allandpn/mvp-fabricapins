@@ -1,4 +1,4 @@
-package com.finalphase.fabricapins.config.security;
+package com.finalphase.fabricapins.security;
 
 import com.finalphase.fabricapins.ecommerce.domain.entities.Usuario;
 import com.finalphase.fabricapins.ecommerce.repository.UsuarioRepository;

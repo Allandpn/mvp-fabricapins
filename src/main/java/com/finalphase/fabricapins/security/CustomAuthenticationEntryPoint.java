@@ -1,4 +1,4 @@
-package com.finalphase.fabricapins.config.security;
+package com.finalphase.fabricapins.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finalphase.fabricapins.ecommerce.exception.model.CustomError;

@@ -1,4 +1,4 @@
-package com.finalphase.fabricapins.config.security;
+package com.finalphase.fabricapins.security;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -1,4 +1,4 @@
-package com.finalphase.fabricapins.config.security;
+package com.finalphase.fabricapins.security;
 
 import com.finalphase.fabricapins.config.ApiPaths;
 import org.springframework.beans.factory.annotation.Autowired;

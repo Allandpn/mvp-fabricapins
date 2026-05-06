@@ -1,6 +1,6 @@
 package com.finalphase.fabricapins.ecommerce.service;
 
-import com.finalphase.fabricapins.config.security.SecurityService;
+import com.finalphase.fabricapins.security.SecurityService;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Cliente;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;

@@ -1,4 +1,4 @@
-package com.finalphase.fabricapins.config.security;
+package com.finalphase.fabricapins.security;
 
 import com.finalphase.fabricapins.ecommerce.domain.entities.Usuario;
 import org.springframework.security.core.GrantedAuthority;
