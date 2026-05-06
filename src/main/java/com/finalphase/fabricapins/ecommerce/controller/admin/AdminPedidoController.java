@@ -1,7 +1,6 @@
 package com.finalphase.fabricapins.ecommerce.controller.admin;
 
 
-import com.finalphase.fabricapins.config.ApiPaths;
 import com.finalphase.fabricapins.ecommerce.dto.PedidoCupom.CupomRequest;
 import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.frete.FreteRequest;
@@ -32,7 +31,7 @@ import java.util.List;
 
 @PreAuthorize("hasRole('ADMIN')")
 @RestController
-@RequestMapping(value = ApiPaths.ADMIN + "/pedido")
+@RequestMapping(value =  "api/v1/pedido")
 @Tag(name = "Pedido", description = "Operações relacionados ao Pedido feito pelo Admin")
 public class AdminPedidoController {
 

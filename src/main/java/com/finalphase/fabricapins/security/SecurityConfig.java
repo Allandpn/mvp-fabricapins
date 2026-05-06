@@ -1,6 +1,5 @@
 package com.finalphase.fabricapins.security;
 
-import com.finalphase.fabricapins.config.ApiPaths;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,9 +48,10 @@ public class SecurityConfig {
                         .requestMatchers("/api-fabricapins/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         // aplicação
-                        .requestMatchers(ApiPaths.API + "/**").permitAll()
-                        .requestMatchers(ApiPaths.ADMIN + "/**").hasAnyRole("ADMIN", "GERENTE", "VENDEDOR")
-                        .requestMatchers(ApiPaths.ME + "/**").hasRole("CLIENTE")
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "GERENTE", "VENDEDOR")
+                        .requestMatchers("/api/v1/me/**").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
@@ -69,10 +69,10 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         // aplicação
-                        // aplicação
-                        .requestMatchers(ApiPaths.API + "/**").permitAll()
-                        .requestMatchers(ApiPaths.ADMIN + "/**").hasAnyRole("ADMIN", "GERENTE", "VENDEDOR")
-                        .requestMatchers(ApiPaths.ME + "/**").hasRole("CLIENTE")
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasAnyRole("ADMIN", "GERENTE", "VENDEDOR")
+                        .requestMatchers("/api/v1/me/**").hasRole("CLIENTE")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers

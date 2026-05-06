@@ -1,6 +1,5 @@
 package com.finalphase.fabricapins.ecommerce.controller.admin;
 
-import com.finalphase.fabricapins.config.ApiPaths;
 import com.finalphase.fabricapins.ecommerce.dto.endereco.CepOrigemRequest;
 import com.finalphase.fabricapins.ecommerce.service.ParametroService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @PreAuthorize("hasRole('ADMIN')")
 @RestController
-@RequestMapping(value = ApiPaths.ADMIN + "/parametros")
+@RequestMapping(value = "api/v1/parametros")
 @Tag(name = "Parametros", description = "Operações de definição de Parametros")
 public class AdminParamentoController {
 

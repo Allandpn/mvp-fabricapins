@@ -1,10 +1,10 @@
 package com.finalphase.fabricapins.ecommerce.controller.auth;
 
-import com.finalphase.fabricapins.config.ApiPaths;
 import com.finalphase.fabricapins.security.CustomUserDetailsService;
 import com.finalphase.fabricapins.security.JwtService;
 import com.finalphase.fabricapins.ecommerce.dto.auth.LoginRequestDTO;
 import com.finalphase.fabricapins.ecommerce.dto.auth.LoginResponseDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(ApiPaths.API + "/auth")
+@RequestMapping("api/v1/auth")
+@Tag(name = "Autenticação", description = "Operação de autenticação")
 public class AuthController {
 
     @Autowired
