@@ -50,6 +50,8 @@ Authorization: Bearer {{token}}
 
 ### BUSCAR
 GET {{baseUrl}}/clientes/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### ATUALIZAR
 PUT {{baseUrl}}/clientes/1

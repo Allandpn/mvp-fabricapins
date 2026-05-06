@@ -3,9 +3,9 @@ package com.finalphase.fabricapins.ecommerce.service;
 import com.finalphase.fabricapins.config.security.SecurityService;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Cliente;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Endereco;
+import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;
-import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoDTO;
 import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.ecommerce.exception.DatabaseException;
@@ -40,7 +40,7 @@ public class ClienteService {
 
     // TODO - REVISAR
     @Transactional(readOnly = true)
-    public ClienteMinDTO findById(Long id) {
+    public ClienteDTO findById(Long id) {
         Cliente entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
@@ -51,7 +51,7 @@ public class ClienteService {
     @Transactional(readOnly = true)
     public Page<ClienteMinDTO> findAll(Pageable pageable) {
         Page<Cliente> result = repository.findAllByAtivoTrue(pageable);
-        return result.map(x -> mapper.toDTO(x));
+        return result.map(x -> mapper.toMinDTO(x));
     }
 
     // TODO - REVISAR
@@ -76,7 +76,7 @@ public class ClienteService {
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Não foi possível cadastrar o Cliente");
         }
-        return mapper.toDTO(entity);
+        return mapper.toMinDTO(entity);
     }
 
     // TODO - REVISAR
@@ -96,7 +96,7 @@ public class ClienteService {
             throw new DatabaseException("Já existe um cliente com esse numero de email");
         }
         mapper.updateFromDto(request, entity);
-        return mapper.toDTO(entity);
+        return mapper.toMinDTO(entity);
     }
 
     // TODO - REVISAR

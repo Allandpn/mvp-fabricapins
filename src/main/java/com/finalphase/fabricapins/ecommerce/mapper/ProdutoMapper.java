@@ -1,6 +1,7 @@
 package com.finalphase.fabricapins.ecommerce.mapper;
 
 import com.finalphase.fabricapins.ecommerce.domain.entities.Produto;
+import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoAdminDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoRequest;
@@ -17,6 +18,9 @@ public interface ProdutoMapper {
     ProdutoDTO toDTO(Produto entity);
 
     ProdutoMinDTO toMinDTO(Produto entity);
+
+    @Mapping(source = "categoria.nome", target = "categoriaNome")
+    ProdutoAdminDTO toAdminDTO(Produto entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "dataCadastro", ignore = true)

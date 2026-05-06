@@ -3,6 +3,7 @@ package com.finalphase.fabricapins.ecommerce.service;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Categoria;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Produto;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.ItemPedidoRequest;
+import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoAdminDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoRequest;
@@ -47,7 +48,7 @@ public class ProdutoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProdutoMinDTO> findAll(Pageable pageable) {
+    public Page<ProdutoAdminDTO> findAll(Pageable pageable) {
         Sort sort = Sort.by(Sort.Order.desc("ativo"));
         if (pageable.getSort().isSorted()) {
             sort = sort.and(pageable.getSort());
@@ -58,7 +59,7 @@ public class ProdutoService {
                 sort
         );
         Page<Produto> entity = produtoRepository.findAll(pageableComAtivoPrimeiro);
-        return entity.map(mapper::toMinDTO);
+        return entity.map(mapper::toAdminDTO);
     }
 
     @Transactional
