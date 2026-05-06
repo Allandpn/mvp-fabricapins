@@ -1,0 +1,47 @@
+# Dados configuracao JPA
+spring:
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  # Configuracao do cliente web do banco h2
+  h2:
+    console:
+      enabled: false
+
+# Configuracao do servidor
+server:
+  error:
+    include-message: always
+  port: ${PORT:8080}
+
+# Configuracao do Render
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when-authorized
+      roles: ADMIN
+
+# Configuracao do Swagger
+springdoc:
+  api-docs:
+    path: /api-fabricapins
+    enabled: true
+  swagger-ui:
+    path: /swagger
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    enabled: true
+
+# Configuração de CORS
+app:
+  cors:
+    allowed-origins:
+      - https://afabricadepins.com.br

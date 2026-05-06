@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.ecommerce.controller.admin;
 
+import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;
 import com.finalphase.fabricapins.ecommerce.service.ClienteService;
@@ -37,8 +38,8 @@ public class ClienteController {
             @ApiResponse(responseCode = "404", description = "Cliente não localizado", content = @Content)
     })
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ClienteMinDTO> findById(@PathVariable Long id){
-        ClienteMinDTO dto = service.findById(id);
+    public ResponseEntity<ClienteDTO> findById(@PathVariable Long id){
+        ClienteDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 

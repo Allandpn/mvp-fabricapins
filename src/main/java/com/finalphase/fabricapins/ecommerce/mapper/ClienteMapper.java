@@ -1,6 +1,7 @@
 package com.finalphase.fabricapins.ecommerce.mapper;
 
 import com.finalphase.fabricapins.ecommerce.domain.entities.Cliente;
+import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinPedidoDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;
@@ -14,6 +15,8 @@ import org.mapstruct.*;
 public interface ClienteMapper {
 
     ClienteMinDTO toDTO(Cliente entity);
+
+    ClienteMinDTO toMinDTO(Cliente entity);
 
     ClienteMinPedidoDTO toClienteMinPedidoDTO(Cliente entity);
 

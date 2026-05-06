@@ -1,0 +1,70 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:fabricapins;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  sql:
+    init:
+      mode: always
+
+  # Dados configuracao JPA
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+
+    hibernate:
+      ddl-auto: create
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+      #script para criacao do banco de dados
+#        hdm2ddl:
+#          delimiter: ;
+#      jakarta:
+#        persistence:
+#          schema-generation:
+#            create-source: metadata
+#            scripts:
+#              action: create
+#              create-target: create.sql
+
+  # Configuracao do cliente web do banco h2
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+# Configuracao do servidor
+server:
+  error:
+    include-message: always
+  port: ${PORT:8080}
+
+# Configuracao do Swagger
+springdoc:
+  api-docs:
+    path: /api-fabricapins
+    enabled: true
+  swagger-ui:
+    path: /swagger
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+    enabled: true
+
+# Configuração de CORS
+app:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://localhost:5173
+
+# logging:
+#   level:
+#     org.hibernate: DEBUG
+#     org.springframework.orm.jpa: DEBUG

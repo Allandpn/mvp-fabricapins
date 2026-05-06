@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: fabricapins
+
+  jpa:
+    open-in-view: false
+
+security:
+  jwt:
+    secret-key: ${FABRICAPINS_JWT_SECRET}
+    expiration: 86400000
+
+melhorenvio:
+  token: ${MELHOR_ENVIO_TOKEN}
+  url: https://sandbox.melhorenvio.com.br/api/v2/me
+  application: FabricaPins
+  email: allandpn@hotmail.com
