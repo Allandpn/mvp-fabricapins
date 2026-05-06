@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.config.security;
 
+import com.finalphase.fabricapins.config.ApiPaths;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +39,7 @@ public class SecurityConfig {
     public SecurityFilterChain devSecurityFilterChain(HttpSecurity http) throws Exception{
         configureCommonSettings(http)
                 .authorizeHttpRequests(auth -> auth
-                        // Heath Check para deploy no Render
+                        // Health check para deploy no Render
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         // Banco de Dados H2
@@ -48,11 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/api-fabricapins/**").permitAll()
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         // aplicação
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/usuarios/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/categorias/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/cupons/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/produtos/**").permitAll()
+                        .requestMatchers(ApiPaths.API + "/**").permitAll()
+                        .requestMatchers(ApiPaths.ADMIN + "/**").hasAnyRole("ADMIN", "GERENTE", "VENDEDOR")
+                        .requestMatchers(ApiPaths.ME + "/**").hasRole("CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
@@ -66,15 +65,14 @@ public class SecurityConfig {
     public SecurityFilterChain prodSecurityFilterChain(HttpSecurity http) throws Exception{
         configureCommonSettings(http)
                 .authorizeHttpRequests(auth -> auth
-                        // Heath Check para deploy no Render
+                        // Health check para deploy no Render
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
                         // aplicação
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/usuarios/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/categorias/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/cupons/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/produtos/**").permitAll()
+                        // aplicação
+                        .requestMatchers(ApiPaths.API + "/**").permitAll()
+                        .requestMatchers(ApiPaths.ADMIN + "/**").hasAnyRole("ADMIN", "GERENTE", "VENDEDOR")
+                        .requestMatchers(ApiPaths.ME + "/**").hasRole("CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers

@@ -19,15 +19,7 @@ public class OpenApiConfig {
     public GroupedOpenApi gestaoApi() {
         return GroupedOpenApi.builder()
                 .group("Gestao")
-                .packagesToScan("com.finalphase.fabricapins.management")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi authenticationApi() {
-        return GroupedOpenApi.builder()
-                .group("Autenticação")
-                .packagesToScan("com.finalphase.fabricapins.config.security.auth")
+                .packagesToScan("com.finalphase.fabricapins.analytics")
                 .build();
     }
 }
