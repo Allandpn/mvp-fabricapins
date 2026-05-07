@@ -31,7 +31,7 @@ import java.util.List;
 
 @PreAuthorize("hasRole('ADMIN')")
 @RestController
-@RequestMapping(value =  "api/v1/pedido")
+@RequestMapping(value =  "api/v1/admin/pedido")
 @Tag(name = "Pedido", description = "Operações relacionados ao Pedido feito pelo Admin")
 public class AdminPedidoController {
 

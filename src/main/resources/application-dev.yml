@@ -65,6 +65,6 @@ app:
      - http://localhost:5173
 
 # logging:
-#   level:
-#     org.hibernate: DEBUG
-#     org.springframework.orm.jpa: DEBUG
+level:
+ org.hibernate: DEBUG
+ org.springframework.orm.jpa: DEBUG

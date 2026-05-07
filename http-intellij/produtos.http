@@ -1,8 +1,10 @@
 ### LISTAR
-GET {{baseUrl}}/produtos?page=0&size=10
+GET {{baseUrl}}/admin/produtos?page=0&size=10
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### CRIAR
-POST {{baseUrl}}/produtos
+POST {{baseUrl}}/admin/produtos
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -14,7 +16,9 @@ Authorization: Bearer {{token}}
 }
 
 ### BUSCAR
-GET {{baseUrl}}/produtos/{{produtoId}}
+GET {{baseUrl}}/admin/produtos/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### ATUALIZAR
 PUT {{baseUrl}}/produtos/{{produtoId}}
