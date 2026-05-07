@@ -44,4 +44,4 @@ springdoc:
 app:
   cors:
     allowed-origins:
-      - https://afabricadepins.com.br
+     - https://afabricadepins.com.br

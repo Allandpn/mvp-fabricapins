@@ -38,8 +38,8 @@ public class ClienteController {
             @ApiResponse(responseCode = "404", description = "Cliente não localizado", content = @Content)
     })
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ClienteDTO> findById(@PathVariable Long id){
-        ClienteDTO dto = service.findById(id);
+    public ResponseEntity<ClienteMinDTO> findById(@PathVariable Long id){
+        ClienteMinDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 

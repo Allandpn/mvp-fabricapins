@@ -5,6 +5,12 @@ spring:
   jpa:
     open-in-view: false
 
+  cache:
+    cache-names:
+    - rate-limit-buckets
+    caffeine:
+      spec: maximumSize=50000,expireAfterAccess=3600s
+
 security:
   jwt:
     secret-key: ${FABRICAPINS_JWT_SECRET}
@@ -15,3 +21,52 @@ melhorenvio:
   url: https://sandbox.melhorenvio.com.br/api/v2/me
   application: FabricaPins
   email: allandpn@hotmail.com
+
+
+bucket4j:
+  enabled: true
+  filters:
+  - cache-name: rate-limit-buckets
+    url: ^/api/v1/auth.*
+    strategy: first
+    http-status-code: too_many_requests
+    http-response-body: "{\"status\": 429, \"error\": \"Too Many Requests\", \"message\": \"Too many authentication attempts. Try again later.\"}"
+    rate-limits:
+    - cache-key: "getHeader('X-Forwarded-For') != null ? getHeader('X-Forwarded-For') : getRemoteAddr()"
+      bandwidths:
+        - capacity: 5
+          time: 1
+          unit: minutes
+  - cache-name: rate-limit-buckets
+    url: ^/api/v1/public.*
+    strategy: first
+    http-status-code: too_many_requests
+    http-response-body: "{\"status\": 429, \"error\": \"Too Many Requests\", \"message\": \"Too many requests. Try again later.\"}"
+    rate-limits:
+    - cache-key: "getHeader('X-Forwarded-For') != null ? getHeader('X-Forwarded-For') : getRemoteAddr()"
+      bandwidths:
+        - capacity: 100
+          time: 1
+          unit: minutes
+  - cache-name: rate-limit-buckets
+    url: ^/api/v1/admin.*
+    strategy: first
+    http-status-code: too_many_requests
+    http-response-body: "{\"status\": 429, \"error\": \"Too Many Requests\", \"message\": \"Admin API rate limit exceeded. Try again later.\"}"
+    rate-limits:
+    - cache-key: "getHeader('X-Forwarded-For') != null ? getHeader('X-Forwarded-For') : getRemoteAddr()"
+      bandwidths:
+        - capacity: 100
+          time: 1
+          unit: minutes
+  - cache-name: rate-limit-buckets
+    url: ^/api/v1/me.*
+    strategy: first
+    http-status-code: too_many_requests
+    http-response-body: "{\"status\": 429, \"error\": \"Too Many Requests\", \"message\": \"Too many requests. Try again later.\"}"
+    rate-limits:
+    - cache-key: "getHeader('X-Forwarded-For') != null ? getHeader('X-Forwarded-For') : getRemoteAddr()"
+      bandwidths:
+        - capacity: 30
+          time: 1
+          unit: minutes
