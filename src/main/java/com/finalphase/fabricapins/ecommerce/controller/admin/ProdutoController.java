@@ -1,6 +1,7 @@
 package com.finalphase.fabricapins.ecommerce.controller.admin;
 
 
+import com.finalphase.fabricapins.ecommerce.dto.common.PageResponseDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoRequest;
@@ -48,9 +49,9 @@ public class ProdutoController {
             @ApiResponse(responseCode = "404", description = "Nenhum Produto localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<Page<ProdutoMinDTO>> findAll(Pageable pageable){
+    public ResponseEntity<PageResponseDTO<ProdutoMinDTO>> findAll(Pageable pageable){
         Page<ProdutoMinDTO> ListDto = service.findAll(pageable);
-        return ResponseEntity.ok(ListDto);
+        return ResponseEntity.ok(PageResponseDTO.fromPage(ListDto));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
