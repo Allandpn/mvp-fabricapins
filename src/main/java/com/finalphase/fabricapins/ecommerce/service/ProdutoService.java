@@ -40,11 +40,11 @@ public class ProdutoService {
     private ProdutoMapper mapper;
 
     @Transactional(readOnly = true)
-    public ProdutoDTO findById(Long id) {
+    public ProdutoAdminDTO findById(Long id) {
         Produto entity = produtoRepository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Produto não encontrado")
         );
-        return mapper.toDTO(entity);
+        return mapper.toAdminDTO(entity);
     }
 
     @Transactional(readOnly = true)

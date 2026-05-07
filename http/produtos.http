@@ -1,5 +1,5 @@
 ### LISTAR
-GET {{baseUrl}}/produtos?page=0&size=100
+GET {{baseUrl}}/produtos?page=0&size=1
 
 
 ### CRIAR

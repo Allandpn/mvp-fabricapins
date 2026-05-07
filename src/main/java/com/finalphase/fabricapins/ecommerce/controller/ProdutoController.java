@@ -38,8 +38,8 @@ public class ProdutoController {
             @ApiResponse(responseCode = "404", description = "Produto não localizado", content = @Content)
     })
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ProdutoDTO> findById(@PathVariable Long id){
-        ProdutoDTO dto = service.findById(id);
+    public ResponseEntity<ProdutoAdminDTO> findById(@PathVariable Long id){
+        ProdutoAdminDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
