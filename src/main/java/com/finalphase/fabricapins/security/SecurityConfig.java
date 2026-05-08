@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 
@@ -55,7 +56,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin()));
+                        .frameOptions(frame -> frame.sameOrigin())); //impede que aplicação seja aberta dentro de um <iframe> em outro site.
         return http.build();
     }
 
@@ -76,7 +77,20 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers
-                        .frameOptions(frame -> frame.deny()));
+                        .httpStrictTransportSecurity(hsts -> hsts   // obriga o uso de https
+                                .includeSubDomains(true)
+                                .maxAgeInSeconds(31536000)
+                        )
+                        .frameOptions(frame -> frame.deny())
+                        .contentSecurityPolicy(contentSecurityPolicyConfig -> contentSecurityPolicyConfig   //define origens que podem executar scripts.
+                                .policyDirectives(
+                                        "default-src 'self'; frame-ancestors 'none'; object-src 'none'"
+                                ))
+                        .referrerPolicy(referrerPolicyConfig -> referrerPolicyConfig    // controla quais informações da URL de origem podem ser enviadas para outros sites
+                                .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .permissionsPolicy(permissionsPolicyConfig -> permissionsPolicyConfig   // restringe permissoes do navegador
+                                .policy("camera=(), microphone=(), geolocation=(self)"))
+                );
         return http.build();
     }
 
@@ -104,12 +118,6 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .headers(headers -> headers
-                        .httpStrictTransportSecurity(hsts -> hsts
-                                .includeSubDomains(true)
-                                .maxAgeInSeconds(31536000)
-                        )
-                );
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         }
 }
