@@ -9,6 +9,25 @@ Content-Type: application/json
 
 > {%
     if (response.status >= 200 && response.status < 300) {
-        client.global.set("token", response.body.token);
+        client.global.set("token", response.body.accessToken);
+        client.global.set("refreshToken", response.body.refreshToken);
     }
 %}
+
+### REFRESH
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+
+
+### LOGIN
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}

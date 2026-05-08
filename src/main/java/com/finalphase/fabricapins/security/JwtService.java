@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,6 +24,10 @@ public class JwtService {
 
     @Value("${security.jwt.expiration}")
     private long jwtExpiration;
+
+    @Value("${security.jwt.refresh-expiration}")
+    private long jwtRefreshExpiration;
+
 
     public String generateToken(UserDetails userDetails){
         Map<String, Object> claims = new HashMap<>();
@@ -40,7 +45,16 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSignKey())
                 .compact();
+    }
 
+    public String generateRefreshToken(UserDetails userDetails){
+        return Jwts.builder()
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtRefreshExpiration))
+                .claim("type", "refresh")
+                .signWith(getSignKey())
+                .compact();
     }
 
     private SecretKey getSignKey(){
@@ -61,6 +75,20 @@ public class JwtService {
         return extractAllClaims(token)
                 .getExpiration()
                 .before(new Date());
+    }
+
+    public boolean isRefreshToken(String token){
+        return "refresh".equals(
+                extractAllClaims(token).get("type")
+        );
+    }
+    public boolean isAccessToken(String token){
+        Claims claims = extractAllClaims(token);
+        return claims.get("type") == null;
+    }
+
+    public Instant getRefreshExpirationInstant(){
+        return Instant.now().plusMillis(jwtRefreshExpiration);
     }
 
     private Claims extractAllClaims(String token){
