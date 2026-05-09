@@ -1,8 +1,14 @@
 package com.finalphase.fabricapins.management.dto;
 
+import java.util.List;
+
 public record ProducaoDTO(
-        String grupo,
-        Double tempoMedioHoras,
-        Long quantidadePedidos
+        Double tempoMedioProducaoHoras,
+        Integer quantidadeProntaEntrega,
+        Integer quantidadePreVenda,
+        Integer quantidadeSobDemanda,
+        List<PedidoStatusDTO> pedidosPorStatus,
+        List<DuracaoProducaoDTO> produtosMaisDemorados
+
 ) {}
 

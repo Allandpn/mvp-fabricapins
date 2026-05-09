@@ -71,20 +71,18 @@ public class RelatorioService {
         return new EstoqueDTO(estoqueProdutos, (Integer) estoqueCritico, estoqueExcesso);
     }
 
-    public void resolveStatus(ProdutoAnalitcsDTO produto){
-        if (produto.getQuantidadeEstoque() == 0){
-            produto.setSituacao(SituacaoEstoque.SEM_ESTOQUE);
+    @Transactional(readOnly = true)
+    public ProducaoDTO producao(Instant dataInicio, Instant dataFim) {
+        if(dataInicio.isAfter(dataFim)){
+            throw new BusinessException("dataInicio não pode ser maior que dataFim");
         }
-        else if (produto.getQuantidadeEstoque() <= produto.estoqueMinimo){
-            produto.setSituacao(SituacaoEstoque.ABAIXO_DO_MINIMO);
-        }
-        else if(produto.getQuantidadeEstoque() >= ( 1.5 * produto.estoqueMinimo)){
-            produto.setSituacao(SituacaoEstoque.ACIMA_DO_MAXIMO);
-        }
-        else {
-            produto.setSituacao(SituacaoEstoque.NORMAL);
-        }
+        List<PedidoStatusDTO> pedidosPorStatus = repository.pedidoStatus(dataInicio, dataFim);
+        List<DuracaoProducaoDTO> produtosMaisDemorados = repository.duracaoProducao(dataInicio, dataFim);
+        return new ProducaoDTO(null,null,null,null,pedidosPorStatus, produtosMaisDemorados);
     }
+
+
+
 //
 //    @Transactional(readOnly = true)
 //    public List<ReceitaDTO> receita(ReceitaRequest request){

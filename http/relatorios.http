@@ -8,6 +8,11 @@ GET {{baseUrl}}/gestao/relatorios/estoque?dataInicio=2024-01-01T00:00:00Z&dataFi
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
+### RESUMO #3
+GET {{baseUrl}}/gestao/relatorios/producao?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
 
 ### PRODUCAO
 GET {{baseUrl}}/gestao/relatorios/producao?dataInicio=2024-01-01T00:00:00Z&dataFim=2027-12-31T23:59:59Z&dimensao=GERAL

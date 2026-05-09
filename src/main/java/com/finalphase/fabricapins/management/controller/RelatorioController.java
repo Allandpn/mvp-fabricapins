@@ -53,7 +53,7 @@ public class RelatorioController {
 
 
     // Estoque
-    @Operation(summary = "Resumo dos principais indicadores")
+    @Operation(summary = "Dashboard de Estoque")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
             @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
@@ -65,6 +65,20 @@ public class RelatorioController {
             @RequestParam(required = false) Long categoriaId,
             @RequestParam(required = false) SituacaoEstoque situacaoEstoque) {
         EstoqueDTO dto = service.estoque(dataInicio, dataFim, categoriaId, situacaoEstoque);
+        return ResponseEntity.ok(dto);
+    }
+
+    // Producao
+    @Operation(summary = "Dashboard de Estoque")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
+    })
+    @GetMapping("/producao")
+    public ResponseEntity<ProducaoDTO> producao(
+            @RequestParam Instant dataInicio,
+            @RequestParam Instant dataFim) {
+        ProducaoDTO dto = service.producao(dataInicio, dataFim);
         return ResponseEntity.ok(dto);
     }
 

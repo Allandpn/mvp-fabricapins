@@ -20,4 +20,7 @@ public interface RelatorioRepositoryCustom {
 
     List<ProdutoAnalitcsDTO> estoqueProdutos(Instant dataInicio, Instant dataFim, Long categoriaId);
 
+    List<PedidoStatusDTO> pedidoStatus(Instant dataInicio, Instant dataFim);
+
+    List<DuracaoProducaoDTO> duracaoProducao(Instant dataInicio, Instant dataFim);
 }
