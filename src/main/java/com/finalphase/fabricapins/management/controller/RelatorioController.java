@@ -2,6 +2,7 @@ package com.finalphase.fabricapins.management.controller;
 
 import com.finalphase.fabricapins.ecommerce.domain.entities.Categoria;
 import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.ecommerce.domain.enums.SituacaoEstoque;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.management.dto.*;
 import com.finalphase.fabricapins.management.service.RelatorioService;
@@ -47,6 +48,23 @@ public class RelatorioController {
             @RequestParam(required = false) TipoCliente tipoCliente,
             @RequestParam(required = false) Long categoriaId) {
         ResumoDTO dto = service.resumo(dataInicio, dataFim, canal, tipoCliente, categoriaId);
+        return ResponseEntity.ok(dto);
+    }
+
+
+    // Estoque
+    @Operation(summary = "Resumo dos principais indicadores")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
+    })
+    @GetMapping("/estoque")
+    public ResponseEntity<EstoqueDTO> resumo(
+            @RequestParam Instant dataInicio,
+            @RequestParam Instant dataFim,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) SituacaoEstoque situacaoEstoque) {
+        EstoqueDTO dto = service.estoque(dataInicio, dataFim, categoriaId, situacaoEstoque);
         return ResponseEntity.ok(dto);
     }
 

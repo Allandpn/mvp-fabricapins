@@ -1,6 +1,7 @@
 package com.finalphase.fabricapins.management.service;
 
 import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.ecommerce.domain.enums.SituacaoEstoque;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.ecommerce.repository.CategoriaRepository;
@@ -16,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -38,6 +40,50 @@ public class RelatorioService {
             throw new BusinessException("Categoria não encontrada");
         }
         return repository.resumo(dataInicio, dataFim, canal, tipoCliente, categoriaId);
+    }
+
+
+    @Transactional(readOnly = true)
+    public EstoqueDTO estoque(Instant dataInicio, Instant dataFim, Long categoriaId, SituacaoEstoque situacaoEstoque) {
+        if(dataInicio.isAfter(dataFim)){
+            throw new BusinessException("dataInicio não pode ser maior que dataFim");
+        }
+        if(categoriaId != null && !categoriaRepository.existsById(categoriaId)){
+            throw new BusinessException("Categoria não encontrada");
+        }
+        List<ProdutoAnalitcsDTO> result = repository.estoqueProdutos(dataInicio, dataFim, categoriaId);
+
+        List<ProdutoAnalitcsDTO> estoqueProdutos = new ArrayList<>();
+
+        for(ProdutoAnalitcsDTO produto : result){
+            if(situacaoEstoque == null || situacaoEstoque.equals(produto.situacao)) {
+                estoqueProdutos.add(produto);
+            }
+        }
+        Integer estoqueCritico = Math.toIntExact(result.stream().filter(
+                x -> x.getSituacao() == SituacaoEstoque.SEM_ESTOQUE
+                        || x.getSituacao() == SituacaoEstoque.ABAIXO_DO_MINIMO
+        ).count());
+
+        Integer estoqueExcesso = Math.toIntExact(result.stream().filter(
+                x -> x.getSituacao() == SituacaoEstoque.ACIMA_DO_MAXIMO
+        ).count());
+        return new EstoqueDTO(estoqueProdutos, (Integer) estoqueCritico, estoqueExcesso);
+    }
+
+    public void resolveStatus(ProdutoAnalitcsDTO produto){
+        if (produto.getQuantidadeEstoque() == 0){
+            produto.setSituacao(SituacaoEstoque.SEM_ESTOQUE);
+        }
+        else if (produto.getQuantidadeEstoque() <= produto.estoqueMinimo){
+            produto.setSituacao(SituacaoEstoque.ABAIXO_DO_MINIMO);
+        }
+        else if(produto.getQuantidadeEstoque() >= ( 1.5 * produto.estoqueMinimo)){
+            produto.setSituacao(SituacaoEstoque.ACIMA_DO_MAXIMO);
+        }
+        else {
+            produto.setSituacao(SituacaoEstoque.NORMAL);
+        }
     }
 //
 //    @Transactional(readOnly = true)

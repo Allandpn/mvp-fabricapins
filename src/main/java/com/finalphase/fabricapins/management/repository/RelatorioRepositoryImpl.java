@@ -1,11 +1,10 @@
 package com.finalphase.fabricapins.management.repository;
 
 import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.ecommerce.domain.enums.SituacaoEstoque;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
-import com.finalphase.fabricapins.management.dto.ProducaoDTO;
-import com.finalphase.fabricapins.management.dto.ReceitaDTO;
-import com.finalphase.fabricapins.management.dto.ResumoDTO;
+import com.finalphase.fabricapins.management.dto.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -133,6 +132,56 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 tempoMedioProducao
         );
     }
+
+    @Override
+    public List<ProdutoAnalitcsDTO> estoqueProdutos(Instant dataInicio, Instant dataFim, Long categoriaId){
+
+        String sql = """
+                SELECT 
+                    pr.nome,
+                    c.nome as categoriaNome,
+                    pr.quantidade_estoque,
+                    pr. estoque_minimo,
+                    SUM(COALESCE(ip.quantidade, 0)) as vendidoPeriodo,
+                    CASE
+                        WHEN pr.quantidade_estoque = 0 THEN 'SEM_ESTOQUE'
+                        WHEN pr.quantidade_estoque <= pr.estoque_minimo THEN 'ABAIXO_DO_MINIMO'
+                        WHEN pr.quantidade_estoque >= pr.estoque_minimo * 1.5 THEN 'ACIMA_DO_MAXIMO'
+                        ELSE 'NORMAL'
+                    END as situacao
+                FROM tb_produto pr
+                JOIN tb_categoria c ON c.id = pr.categoria_id
+                LEFT JOIN tb_item_pedido ip ON ip.produto_id = pr.id
+                LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
+                    AND p.status_pedido <> 'CANCELADO'
+                    AND p.data_criacao BETWEEN :dataInicio AND :dataFim
+                WHERE (:categoriaId IS NULL OR c.id = :categoriaId)
+                GROUP BY
+                    pr.id, pr.nome, c.nome, pr.quantidade_estoque, pr.estoque_minimo
+                ORDER BY pr.nome
+                """;
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = em.createNativeQuery(sql)
+                .setParameter("dataInicio", dataInicio)
+                .setParameter("dataFim", dataFim)
+                .setParameter("categoriaId", categoriaId)
+                .getResultList();
+
+        return rows.stream().map(r -> {
+            return new ProdutoAnalitcsDTO(
+                    (String) r[0],
+                    (String) r[1],
+                    ((Number) r[2]).intValue(),
+                    ((Number) r[3]).intValue(),
+                    ((Number) r[4]).intValue(),
+                    SituacaoEstoque.valueOf((String) r[5])
+            );
+        }).toList();
+    }
+
+
+
 
     @Override
     public List<ReceitaDTO> receitaAgrupada(Instant inicio, Instant fim, String periodo, String canal) {

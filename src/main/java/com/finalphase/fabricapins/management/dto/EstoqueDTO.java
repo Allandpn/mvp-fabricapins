@@ -1,9 +1,9 @@
 package com.finalphase.fabricapins.management.dto;
 
+import java.util.List;
+
 public record EstoqueDTO(
-        String grupo,
-        Integer quantidade,
-        Integer estoqueMinimo,
-        String status,
-        Long demandaRecente
+        List<ProdutoAnalitcsDTO> produtos,
+        Integer estoqueCritico,
+        Integer estoqueExcesso
 ) {}

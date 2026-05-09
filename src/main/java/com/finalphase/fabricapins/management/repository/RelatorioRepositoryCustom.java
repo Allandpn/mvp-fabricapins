@@ -2,9 +2,7 @@ package com.finalphase.fabricapins.management.repository;
 
 import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
-import com.finalphase.fabricapins.management.dto.ProducaoDTO;
-import com.finalphase.fabricapins.management.dto.ReceitaDTO;
-import com.finalphase.fabricapins.management.dto.ResumoDTO;
+import com.finalphase.fabricapins.management.dto.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,4 +17,7 @@ public interface RelatorioRepositoryCustom {
     List<Object[]> estoqueAnalitico(String dimensao,Long produtoId,Long variacaoId,Long categoriaId,Instant demandaInicio,Instant demandaFim);
 
     ResumoDTO resumo(Instant dataInicio, Instant dataFim, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId);
+
+    List<ProdutoAnalitcsDTO> estoqueProdutos(Instant dataInicio, Instant dataFim, Long categoriaId);
+
 }
