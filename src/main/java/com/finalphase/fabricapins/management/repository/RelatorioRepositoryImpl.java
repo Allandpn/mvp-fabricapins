@@ -1,8 +1,11 @@
 package com.finalphase.fabricapins.management.repository;
 
+import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.management.dto.ProducaoDTO;
 import com.finalphase.fabricapins.management.dto.ReceitaDTO;
+import com.finalphase.fabricapins.management.dto.ResumoDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -20,6 +23,116 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
 
     @PersistenceContext
     private EntityManager em;
+
+    @Override
+    public ResumoDTO resumo(Instant dataInicio, Instant dataFim, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId){
+        String sql = """
+                SELECT
+                    (
+                        SELECT count(*)
+                        FROM tb_produto pr                
+                        LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
+                        WHERE pr.quantidade_estoque <= pr.estoque_minimo
+                            AND (:categoriaId IS NULL OR c.id = :categoriaId)                        
+                    )  as estoqueCritico,
+                    (
+                        SELECT COALESCE(SUM(p.valor_total_final), 0)
+                        FROM tb_pedido p
+                        WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as receitaBruta,
+                    (
+                        SELECT COALESCE(SUM(p.valor_total_final - p.valor_frete), 0)
+                        FROM tb_pedido p
+                        WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as receitaLiquida,
+                    (
+                        SELECT COALESCE(SUM(ip.custo_unitario_snapshot * ip.quantidade), 0)
+                        FROM tb_item_pedido ip
+                        LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
+                        WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)                        
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_produto pr
+                                    WHERE pr.id = ip.produto_id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as custoProducao,
+                    (
+                        SELECT AVG(EXTRACT(EPOCH FROM (p.data_fim_producao - p.data_inicio_producao)) /3600)
+                        FROM tb_pedido p
+                        WHERE p.data_inicio_producao IS NOT NULL
+                            AND p.data_fim_producao IS NOT NULL
+                            AND p.data_inicio_producao BETWEEN :dataInicio AND :dataFim
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as tempoMedioProducao
+                """;
+        @SuppressWarnings("unchecked")
+        Object[] row = (Object[]) em.createNativeQuery(sql)
+                .setParameter("dataInicio", dataInicio)
+                .setParameter("dataFim", dataFim)
+                .setParameter("canal", canal)
+                .setParameter("tipoCliente", tipoCliente)
+                .setParameter("categoriaId", categoriaId)
+                .getSingleResult();
+
+        Integer estoqueCritico = row[0] != null ? ((Number) row[0]).intValue() : 0;
+        BigDecimal receitaBruta = row[1] != null ? ((BigDecimal) row[1]) : BigDecimal.ZERO;
+        BigDecimal receitaLiquida = row[2] != null ? ((BigDecimal) row[2]) : BigDecimal.ZERO;
+        BigDecimal custoProducao = row[3] != null ? ((BigDecimal) row[3]) : BigDecimal.ZERO;
+        BigDecimal lucroEstimado = receitaLiquida.subtract(custoProducao);
+        Double tempoMedioProducao = row[4] != null ? ((Number) row[4]).doubleValue() : 0.0;
+
+        return new ResumoDTO(
+                estoqueCritico,
+                receitaBruta,
+                receitaLiquida,
+                lucroEstimado,
+                tempoMedioProducao
+        );
+    }
 
     @Override
     public List<ReceitaDTO> receitaAgrupada(Instant inicio, Instant fim, String periodo, String canal) {

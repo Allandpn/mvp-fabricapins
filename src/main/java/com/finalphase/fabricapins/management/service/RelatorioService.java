@@ -1,6 +1,9 @@
 package com.finalphase.fabricapins.management.service;
 
+import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
+import com.finalphase.fabricapins.ecommerce.repository.CategoriaRepository;
 import com.finalphase.fabricapins.management.dto.*;
 import com.finalphase.fabricapins.management.enums.AgrupamentoPeriodo;
 import com.finalphase.fabricapins.management.repository.RelatorioRepository;
@@ -23,106 +26,119 @@ public class RelatorioService {
 
     @Autowired
     private RelatorioRepository repository;
+    @Autowired
+    private CategoriaRepository categoriaRepository;
 
     @Transactional(readOnly = true)
-    public List<ReceitaDTO> receita(ReceitaRequest request){
-        String periodo = mapearAgrupamento(request.periodo());
-
-        List<ReceitaDTO> result = repository.receitaAgrupada(
-                request.dataInicio(),
-                request.dataFim(),
-                periodo,
-                request.canal() != null ? request.canal().name() : null
-        );
-
-        return result.stream().map(x -> new ReceitaDTO(
-                normalizarPeriodo(x.periodo(), request.periodo()),
-                formatarLabel(x.periodo(), request.periodo()),
-                x.total()))
-                .toList();
+    public ResumoDTO resumo(Instant dataInicio, Instant dataFim, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId) {
+        if(dataInicio.isAfter(dataFim)){
+            throw new BusinessException("dataInicio não pode ser maior que dataFim");
+        }
+        if(categoriaId != null && !categoriaRepository.existsById(categoriaId)){
+            throw new BusinessException("Categoria não encontrada");
+        }
+        return repository.resumo(dataInicio, dataFim, canal, tipoCliente, categoriaId);
     }
-
-    @Transactional(readOnly = true)
-    public List<ProducaoDTO> tempoProducao(ProducaoRequest request){
-        List<ProducaoDTO> result = repository.producaoAgrupada(
-                request.dataInicio(),
-                request.dataFim(),
-                request.canal() != null ? request.canal().name() : null,
-                request.dimensao().name(),
-                request.produtoId(),
-                request.produtoVariacaoId(),
-                request.categoriaId()
-        );
-
-        return result.stream().map(x -> new ProducaoDTO(
-                x.grupo(),
-                x.tempoMedioHoras(),
-                x.quantidadePedidos()
-        )).toList();
-    }
-
-
-    @Transactional(readOnly = true)
-    public List<VendasDTO> vendas(VendasRequest request){
-        String periodo = mapearAgrupamento(request.periodo());
-        List<Object[]> rows = repository.volumeAgrupado(
-                request.dataInicio(),
-                request.dataFim(),
-                request.canal() != null ? request.canal().name() : null,
-                periodo,
-                request.dimensao().name(),
-                request.produtoId(),
-                request.produtoVariacaoId(),
-                request.categoriaId()
-        );
-        return rows.stream().map(r -> {
-            Instant periodoRaw = r[0] instanceof OffsetDateTime odt
-                    ? odt.toInstant()
-                    : ((java.sql.Timestamp) r[0]).toInstant();
-            String grupo = r[1] != null ? r[1].toString() : "SEM_DADO";
-            Long pedidos = r[2] != null ? ((Number) r[2]).longValue() : 0L;
-            Long itens = r[3] != null ? ((Number) r[3]).longValue() : 0L;
-            Double receita = r[4] != null ? ((Number) r[4]).doubleValue() : 0.0;
-            return new VendasDTO(
-                    normalizarPeriodo(periodoRaw, request.periodo()),
-                    formatarLabel(periodoRaw, request.periodo()),
-                    grupo,
-                    pedidos,
-                    itens,
-                    receita
-            );
-        }).toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<EstoqueDTO> estoque(EstoqueRequest request){
-        Instant[] periodo = resolverPeriodoDemanda(
-                request.demandaInicio(),
-                request.demandaFim()
-        );
-        List<Object[]> rows = repository.estoqueAnalitico(
-                request.dimensao().name(),
-                request.produtoId(),
-                request.produtoVariacaoId(),
-                request.categoriaId(),
-                periodo[0],
-                periodo[1]
-        );
-        return rows.stream().map(r -> {
-            String grupo = r[0] != null ? r[0].toString() : "SEM_DADO";
-            Integer quantidade = r[1] != null ? ((Number) r[1]).intValue() : 0;
-            Integer minimo = r[2] != null ? ((Number) r[2]).intValue() : 0;
-            Long demanda = r[3] != null ? ((Number) r[3]).longValue() : 0L;
-            String status = calcularStatus(quantidade, minimo);
-            return new EstoqueDTO(
-                    grupo,
-                    quantidade,
-                    minimo,
-                    status,
-                    demanda
-            );
-        }).toList();
-    }
+//
+//    @Transactional(readOnly = true)
+//    public List<ReceitaDTO> receita(ReceitaRequest request){
+//        String periodo = mapearAgrupamento(request.periodo());
+//
+//        List<ReceitaDTO> result = repository.receitaAgrupada(
+//                request.dataInicio(),
+//                request.dataFim(),
+//                periodo,
+//                request.canal() != null ? request.canal().name() : null
+//        );
+//
+//        return result.stream().map(x -> new ReceitaDTO(
+//                normalizarPeriodo(x.periodo(), request.periodo()),
+//                formatarLabel(x.periodo(), request.periodo()),
+//                x.total()))
+//                .toList();
+//    }
+//
+//    @Transactional(readOnly = true)
+//    public List<ProducaoDTO> tempoProducao(ProducaoRequest request){
+//        List<ProducaoDTO> result = repository.producaoAgrupada(
+//                request.dataInicio(),
+//                request.dataFim(),
+//                request.canal() != null ? request.canal().name() : null,
+//                request.dimensao().name(),
+//                request.produtoId(),
+//                request.produtoVariacaoId(),
+//                request.categoriaId()
+//        );
+//
+//        return result.stream().map(x -> new ProducaoDTO(
+//                x.grupo(),
+//                x.tempoMedioHoras(),
+//                x.quantidadePedidos()
+//        )).toList();
+//    }
+//
+//
+//    @Transactional(readOnly = true)
+//    public List<VendasDTO> vendas(VendasRequest request){
+//        String periodo = mapearAgrupamento(request.periodo());
+//        List<Object[]> rows = repository.volumeAgrupado(
+//                request.dataInicio(),
+//                request.dataFim(),
+//                request.canal() != null ? request.canal().name() : null,
+//                periodo,
+//                request.dimensao().name(),
+//                request.produtoId(),
+//                request.produtoVariacaoId(),
+//                request.categoriaId()
+//        );
+//        return rows.stream().map(r -> {
+//            Instant periodoRaw = r[0] instanceof OffsetDateTime odt
+//                    ? odt.toInstant()
+//                    : ((java.sql.Timestamp) r[0]).toInstant();
+//            String grupo = r[1] != null ? r[1].toString() : "SEM_DADO";
+//            Long pedidos = r[2] != null ? ((Number) r[2]).longValue() : 0L;
+//            Long itens = r[3] != null ? ((Number) r[3]).longValue() : 0L;
+//            Double receita = r[4] != null ? ((Number) r[4]).doubleValue() : 0.0;
+//            return new VendasDTO(
+//                    normalizarPeriodo(periodoRaw, request.periodo()),
+//                    formatarLabel(periodoRaw, request.periodo()),
+//                    grupo,
+//                    pedidos,
+//                    itens,
+//                    receita
+//            );
+//        }).toList();
+//    }
+//
+//    @Transactional(readOnly = true)
+//    public List<EstoqueDTO> estoque(EstoqueRequest request){
+//        Instant[] periodo = resolverPeriodoDemanda(
+//                request.demandaInicio(),
+//                request.demandaFim()
+//        );
+//        List<Object[]> rows = repository.estoqueAnalitico(
+//                request.dimensao().name(),
+//                request.produtoId(),
+//                request.produtoVariacaoId(),
+//                request.categoriaId(),
+//                periodo[0],
+//                periodo[1]
+//        );
+//        return rows.stream().map(r -> {
+//            String grupo = r[0] != null ? r[0].toString() : "SEM_DADO";
+//            Integer quantidade = r[1] != null ? ((Number) r[1]).intValue() : 0;
+//            Integer minimo = r[2] != null ? ((Number) r[2]).intValue() : 0;
+//            Long demanda = r[3] != null ? ((Number) r[3]).longValue() : 0L;
+//            String status = calcularStatus(quantidade, minimo);
+//            return new EstoqueDTO(
+//                    grupo,
+//                    quantidade,
+//                    minimo,
+//                    status,
+//                    demanda
+//            );
+//        }).toList();
+//    }
 
 
     private Instant[] resolverPeriodoDemanda(Instant inicio, Instant fim) {
@@ -217,5 +233,6 @@ public class RelatorioService {
             case ANO -> "year";
         };
     }
+
 
 }

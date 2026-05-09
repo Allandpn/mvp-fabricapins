@@ -1,5 +1,10 @@
-### RECEITA
-GET {{baseUrl}}/gestao/relatorios/receita?dataInicio=2025-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z&periodo=ANO&canal=REDE_SOCIAL
+### RESUMO #1
+GET {{baseUrl}}/gestao/relatorios/resumo?dataInicio=2026-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### RESUMO #2
+GET {{baseUrl}}/gestao/relatorios/resumo?dataInicio=2024-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

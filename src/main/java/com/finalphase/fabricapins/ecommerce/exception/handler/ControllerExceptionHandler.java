@@ -7,6 +7,8 @@ import com.finalphase.fabricapins.ecommerce.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.ecommerce.exception.model.CustomError;
 import com.finalphase.fabricapins.ecommerce.exception.model.ValidationError;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -87,5 +89,25 @@ public class ControllerExceptionHandler {
         CustomError err = new CustomError(Instant.now(), status.value(), status.getReasonPhrase(), e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<CustomError> genericException(Exception e,HttpServletRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        // Log completo interno
+        //implementar log
+//        private static final Logger log =
+//                LoggerFactory.getLogger(ControllerExceptionHandler.class);
+//        log.error("Erro interno não tratado", e);
+        e.printStackTrace();
+        CustomError err = new CustomError(
+                Instant.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                "Erro interno do servidor",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(status).body(err);
+    }
+
 
 }
