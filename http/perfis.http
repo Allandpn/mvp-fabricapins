@@ -1,5 +1,7 @@
 ### LISTAR
 GET {{baseUrl}}/perfis
+Content-Type: application/json
+Authorization: Bearer {{token}}
 
 ### DETALHADO
 GET {{baseUrl}}/perfis/detalhado

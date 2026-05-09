@@ -10,11 +10,11 @@ Authorization: Bearer {{token}}
 
 {
   "nome": "Maria da Silva",
-  "email": "maria_silva2@email.com",
+  "email": "maria_silva3@email.com",
   "telefone": "49999999999",
   "tipoCliente": "VAREJO",
   "tipoPessoa": "FISICA",
-  "numeroDocumento": "00055522267",
+  "numeroDocumento": "00055522297",
   "ativo": false,
   "enderecos": [
     {
@@ -56,6 +56,7 @@ Authorization: Bearer {{token}}
 ### ATUALIZAR
 PUT {{baseUrl}}/clientes/1
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "nome": "Maria da Silva",

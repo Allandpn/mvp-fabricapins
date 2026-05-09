@@ -404,6 +404,14 @@ public class Pedido {
         recalcularTotal();
     }
 
+    public void atualizarCliente(ClienteSnapshot cliente){
+        this.cliente = cliente.cliente();
+        this.nomeCliente = cliente.nome();
+        this.documentoCliente = cliente.numeroDocumento();
+        this.telefone = cliente.telefone();
+        this.tipoCliente = cliente.tipoCliente();
+    }
+
 }
 
 

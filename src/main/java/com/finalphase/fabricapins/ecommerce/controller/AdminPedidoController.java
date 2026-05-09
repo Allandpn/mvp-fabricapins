@@ -8,9 +8,13 @@ import com.finalphase.fabricapins.ecommerce.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.QuantidadeItemRequest;
 import com.finalphase.fabricapins.ecommerce.dto.pedido.*;
+import com.finalphase.fabricapins.ecommerce.dto.usuario.UsuarioDTO;
+import com.finalphase.fabricapins.ecommerce.dto.usuario.UsuarioRequest;
+import com.finalphase.fabricapins.ecommerce.exception.model.CustomError;
 import com.finalphase.fabricapins.ecommerce.service.PedidoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -74,7 +78,6 @@ public class AdminPedidoController {
     // Inserir Novos Pedidos
 
     // Inserir Pedido Completo
-    //TODO - Corrigir rota
     @Operation(summary = "Inserir Pedido Completo")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pedido criado com sucesso"),
@@ -86,6 +89,21 @@ public class AdminPedidoController {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
+
+    @Operation(summary = "Atualizar Pedido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pedido atualizado com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = PedidoDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Pedido não localizado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class))),
+            @ApiResponse(responseCode = "409", description = "Já existe um Pedido com esse nome",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomError.class)))
+    })
+    @PutMapping(value = "/completo/{id}")
+    public ResponseEntity<PedidoDTO> updatePedido(@PathVariable Long id, @Valid @RequestBody PedidoAdminUpdateRequest request){
+        return ResponseEntity.ok(pedidoService.updatePedido(id, request));
+    }
+
 
 
     // Inserir Pedidos em Etapas

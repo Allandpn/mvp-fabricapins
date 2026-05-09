@@ -66,7 +66,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioDTO updateUsuario(@Valid Long id, UsuarioRequest request) {
+    public UsuarioDTO updateUsuario(Long id, UsuarioRequest request) {
         Usuario entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Usuario não encontrado")
         );

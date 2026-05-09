@@ -1,5 +1,5 @@
 ### LISTAR
-GET {{baseUrl}}/produtos?page=0&size=1
+GET {{baseUrl}}/produtos?page=0&size=10
 
 
 ### CRIAR
@@ -42,9 +42,22 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "nome": "Produto Editado",
-  "descricao": "Desc edit",
-  "peso": 12,
+  "nome": "Pin Girassol",
+  "descricao": "Pin dourado metálico 30x13x2mm com acabamento esmaltado",
+  "tipoEstoque": "SOB_DEMANDA",
+  "quantidadeEstoque": 100,
+  "estoqueMinimo": 10,
+  "precoVarejo": 19.90,
+  "precoRevenda": 12.50,
+  "custoProducao": 5.1234,
+  "dataPrevistaLancamento": "2026-06-01",
+  "sku": "PIN-GIRASSOL-003",
+  "imgUrl": "images/produto-123.jpg",
+  "peso": 13.0,
+  "altura": 10,
+  "largura": 20,
+  "comprimento": 30,
+  "ativo": true,
   "categoriaId": 1
 }
 

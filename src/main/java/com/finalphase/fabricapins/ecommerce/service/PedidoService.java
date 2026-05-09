@@ -14,6 +14,7 @@ import com.finalphase.fabricapins.ecommerce.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.parametro.ParametroDTO;
 import com.finalphase.fabricapins.ecommerce.dto.pedido.*;
+import com.finalphase.fabricapins.ecommerce.dto.usuario.UsuarioRequest;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.ecommerce.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.ecommerce.integration.frete.FreteGateway;
@@ -100,7 +101,7 @@ public class PedidoService {
     @Transactional()
     public PedidoDTO insertPedidoCompleto(PedidoAdminRequest request) {
        validaSeListaItensVazia(request);
-       ClienteSnapshot cliente = resolveClienteAdmin(request);
+       ClienteSnapshot cliente = resolveClienteAdmin(request.clienteId());
        Pedido pedido = new Pedido(cliente);
        pedido.setCodigoPedido(pedido.gerarCodigoPedido());
        pedido.setOrigemPedido(request.origemPedido());
@@ -113,6 +114,31 @@ public class PedidoService {
        estoqueService.reservarEstoque(pedido.getItemsPedido());
        pedido = pedidoRepository.save(pedido);
        return mapper.toDTO(pedido);
+    }
+
+    @Transactional
+    public PedidoDTO updatePedido(Long id, PedidoAdminUpdateRequest request){
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Pedido não encontrado")
+        );
+        if(!pedido.getOrigemPedido().equals(request.origemPedido())){
+            pedido.setOrigemPedido(request.origemPedido());
+        }
+        if(!pedido.getCliente().getId().equals(request.clienteId())){
+            ClienteSnapshot cliente = resolveClienteAdmin(request.clienteId());
+            pedido.atualizarCliente(cliente);
+        }
+        if(!Objects.equals(pedido.getObservacao(), request.observacao())){
+            pedido.setObservacao(request.observacao());
+        }
+        if(pedido.getValorFrete().compareTo(request.valorFrete()) != 0){
+            pedido.setValorFrete(request.valorFrete());
+            pedido.recalcularTotal();
+        }
+        if(!pedido.getStatusPedido().equals(request.status())){
+            pedido.setStatusPedido(request.status());
+        }
+        return mapper.toDTO(pedido);
     }
 
 
@@ -393,8 +419,8 @@ public class PedidoService {
         return enderecoMapper.toEnderecoPedidoDTO(endereco);
     }
 
-    private ClienteSnapshot resolveClienteAdmin(PedidoAdminRequest request){
-        return resolveClienteCadastrado(request.clienteId());
+    private ClienteSnapshot resolveClienteAdmin(Long id){
+        return resolveClienteCadastrado(id);
     }
 
     private ClienteSnapshot resolveCliente(PedidoRascunhoRequest request){

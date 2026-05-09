@@ -50,8 +50,8 @@ public class ClienteController {
             @ApiResponse(responseCode = "404", description = "Nenhum Cliente localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<Page<ClienteMinDTO>> findAll(Pageable pageable){
-        Page<ClienteMinDTO> ListDto = service.findAll(pageable);
+    public ResponseEntity<Page<ClienteDTO>> findAll(Pageable pageable){
+        Page<ClienteDTO> ListDto = service.findAll(pageable);
         return ResponseEntity.ok(ListDto);
     }
 
@@ -61,8 +61,8 @@ public class ClienteController {
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Cliente", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<ClienteMinDTO> insertCliente(@Valid @RequestBody ClienteRequest request){
-        ClienteMinDTO dto = service.insertCliente(request);
+    public ResponseEntity<ClienteDTO> insertCliente(@Valid @RequestBody ClienteRequest request){
+        ClienteDTO dto = service.insertCliente(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
@@ -76,7 +76,7 @@ public class ClienteController {
             @ApiResponse(responseCode = "409", description = "Já existe um Cliente com esse nome", content = @Content)
     })
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ClienteMinDTO> updateCliente(@PathVariable Long id, @Valid @RequestBody ClienteRequest request){
+    public ResponseEntity<ClienteDTO> updateCliente(@PathVariable Long id, @Valid @RequestBody ClienteRequest request){
         return ResponseEntity.ok(service.updateCliente(id, request));
     }
 

@@ -61,8 +61,8 @@ public class ProdutoController {
             @ApiResponse(responseCode = "400", description = "Erro ao criar o Produto", content = @Content)
     })
     @PostMapping
-    public ResponseEntity<ProdutoMinDTO> insertProduto(@Valid @RequestBody ProdutoRequest request){
-        ProdutoMinDTO dto = service.insertProduto(request);
+    public ResponseEntity<ProdutoAdminDTO> insertProduto(@Valid @RequestBody ProdutoRequest request){
+        ProdutoAdminDTO dto = service.insertProduto(request);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.id()).toUri();
         return ResponseEntity.created(uri).body(dto);
     }
@@ -76,7 +76,7 @@ public class ProdutoController {
             @ApiResponse(responseCode = "409", description = "Já existe um Produto com esse nome", content = @Content)
     })
     @PutMapping(value = "/{id}")
-    public ResponseEntity<ProdutoMinDTO> updateProduto(@PathVariable Long id, @Valid @RequestBody ProdutoRequest request){
+    public ResponseEntity<ProdutoAdminDTO> updateProduto(@PathVariable Long id, @Valid @RequestBody ProdutoRequest request){
         return ResponseEntity.ok(service.updateProduto(id, request));
     }
 

@@ -63,7 +63,7 @@ public class ProdutoService {
     }
 
     @Transactional
-    public ProdutoMinDTO insertProduto(@Valid ProdutoRequest request) {
+    public ProdutoAdminDTO insertProduto(@Valid ProdutoRequest request) {
         Produto entity = mapper.toEntity(request);
         if(produtoRepository.existsBySku(request.sku())){
             throw new DatabaseException("Já existe um produto com esse nome");
@@ -79,11 +79,11 @@ public class ProdutoService {
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Não foi possível cadastrar o Produto");
         }
-        return mapper.toMinDTO(entity);
+        return mapper.toAdminDTO(entity);
     }
 
     @Transactional
-    public ProdutoMinDTO updateProduto(Long id, @Valid ProdutoRequest request) {
+    public ProdutoAdminDTO updateProduto(Long id, @Valid ProdutoRequest request) {
         Produto entity = produtoRepository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Produto não encontrado")
         );
@@ -96,7 +96,7 @@ public class ProdutoService {
         entity.setCategoria(categoria);
         // TODO - REVISAR UPDATE
         mapper.partialUpdateFromDto(request, entity);
-        return mapper.toMinDTO(entity);
+        return mapper.toAdminDTO(entity);
     }
 
     @Transactional

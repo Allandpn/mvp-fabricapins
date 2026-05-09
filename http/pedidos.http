@@ -4,13 +4,13 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 ### BUSCAR PEDIDO POR ID
-GET {{baseUrl}}/admin/pedido/{{pedidoId}}
+GET {{baseUrl}}/admin/pedido/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
 ### BUSCAR PEDIDO POR ID
-GET {{baseUrl}}/admin/pedido/codigo/0502101552515-496
+GET {{baseUrl}}/admin/pedido/codigo/0508184444194-149
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -116,3 +116,17 @@ Authorization: Bearer {{token}}
 > {%
     client.global.set("pedidoId", response.body.id);
 %}
+
+
+### ATUALIZAR PEDIDO
+PUT {{baseUrl}}/admin/pedido/completo/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "origemPedido": "WHATSAPP",
+  "clienteId": 1,
+  "observacao": "Teste pedido",
+  "status": "CANCELADO",
+  "valorFrete": 10
+}

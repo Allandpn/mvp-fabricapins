@@ -10,11 +10,20 @@ public record ProdutoAdminDTO(
 
         Long id,
         String nome,
-        String imgUrl,
-        String categoriaNome,
-        String sku,
+        String descricao,
+        TipoEstoqueProduto tipoEstoque,
         Integer quantidadeEstoque,
         Integer estoqueMinimo,
+        BigDecimal precoVarejo,
+        BigDecimal precoRevenda,
+        BigDecimal custoProducao,
+        LocalDate dataPrevistaLancamento,
+        String sku,
+        String imgUrl,
+        Double peso,
+        Integer altura,
+        Integer largura,
+        Integer comprimento,
         boolean ativo,
-        BigDecimal precoVarejo
+        String categoriaNome
 ) {}

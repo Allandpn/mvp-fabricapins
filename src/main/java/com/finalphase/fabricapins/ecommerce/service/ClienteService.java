@@ -49,14 +49,14 @@ public class ClienteService {
 
     // TODO - REVISAR
     @Transactional(readOnly = true)
-    public Page<ClienteMinDTO> findAll(Pageable pageable) {
+    public Page<ClienteDTO> findAll(Pageable pageable) {
         Page<Cliente> result = repository.findAllByAtivoTrue(pageable);
-        return result.map(x -> mapper.toMinDTO(x));
+        return result.map(x -> mapper.toDTO(x));
     }
 
     // TODO - REVISAR
     @Transactional()
-    public ClienteMinDTO insertCliente(ClienteRequest request) {
+    public ClienteDTO insertCliente(ClienteRequest request) {
         if(repository.existsByNumeroDocumento(request.numeroDocumento())){
             throw new DatabaseException("Já existe um cliente com esse numero de documento");
         }
@@ -76,12 +76,12 @@ public class ClienteService {
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Não foi possível cadastrar o Cliente");
         }
-        return mapper.toMinDTO(entity);
+        return mapper.toDTO(entity);
     }
 
     // TODO - REVISAR
     @Transactional()
-    public ClienteMinDTO updateCliente(Long id, ClienteRequest request) {
+    public ClienteDTO updateCliente(Long id, ClienteRequest request) {
 
         Cliente entity = repository.findByIdAndAtivoTrue(id).orElseThrow(
                 () -> new ResourceNotFoundException("Cliente não encontrado")
@@ -96,7 +96,7 @@ public class ClienteService {
             throw new DatabaseException("Já existe um cliente com esse numero de email");
         }
         mapper.updateFromDto(request, entity);
-        return mapper.toMinDTO(entity);
+        return mapper.toDTO(entity);
     }
 
     // TODO - REVISAR
