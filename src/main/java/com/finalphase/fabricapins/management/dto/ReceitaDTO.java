@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public record ReceitaDTO(
-        Instant periodo,
-        String label,
-        BigDecimal total
+        BigDecimal receitaBruta,
+        BigDecimal receitaLiquida,
+        Integer quantidadePedidos,
+        Integer totalItens,
+        BigDecimal ticketMedio
 ) {}

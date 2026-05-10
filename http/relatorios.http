@@ -1,30 +1,26 @@
-### RESUMO #1
-GET {{baseUrl}}/gestao/relatorios/resumo?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z
-Content-Type: application/json
+### RESUMO
+GET {{baseUrl}}/gestao/relatorios/resumo?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z&canal=REDE_SOCIAL&tipoCliente=VAREJO
+Content-Type: application/jsoncanal=SITE
 Authorization: Bearer {{token}}
 
-### RESUMO #2
+### ESTOQUE
 GET {{baseUrl}}/gestao/relatorios/estoque?dataInicio=2024-01-01T00:00:00Z&dataFim=2026-12-31T23:59:59Z&situacaoEstoque=ACIMA_DO_MAXIMO
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
-### RESUMO #3
+### PRODUCAO
 GET {{baseUrl}}/gestao/relatorios/producao?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
-### PRODUCAO
-GET {{baseUrl}}/gestao/relatorios/producao?dataInicio=2024-01-01T00:00:00Z&dataFim=2027-12-31T23:59:59Z&dimensao=GERAL
+### RECEITA
+GET {{baseUrl}}/gestao/relatorios/receita?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z&canal=SITE&tipoCliente=REVENDA
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
-### VOLUME
-GET {{baseUrl}}/gestao/relatorios/volume?dataInicio=2024-01-01T00:00:00Z&dataFim=2027-12-31T23:59:59Z&periodo=ANO&dimensao=CATEGORIA
-Content-Type: application/json
-Authorization: Bearer {{token}}
 
-### ESTOQUE
-GET {{baseUrl}}/gestao/relatorios/estoque?dimensao=VARIACAO
+### PLANEJAMENTO
+GET {{baseUrl}}/gestao/relatorios/planejamento?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z&canal=SITE&tipoCliente=REVENDA
 Content-Type: application/json
 Authorization: Bearer {{token}}

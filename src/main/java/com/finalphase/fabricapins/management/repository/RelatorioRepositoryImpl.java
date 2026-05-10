@@ -6,11 +6,13 @@ import com.finalphase.fabricapins.ecommerce.domain.enums.StatusPedido;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.management.dto.*;
+import com.finalphase.fabricapins.management.enums.AgrupamentoPeriodo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -113,8 +115,8 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
         Object[] row = (Object[]) em.createNativeQuery(sql)
                 .setParameter("dataInicio", dataInicio)
                 .setParameter("dataFim", dataFim)
-                .setParameter("canal", canal)
-                .setParameter("tipoCliente", tipoCliente)
+                .setParameter("canal", canal != null ? canal.name() : null)
+                .setParameter("tipoCliente", tipoCliente != null ? tipoCliente.name() : null)
                 .setParameter("categoriaId", categoriaId)
                 .getSingleResult();
 
@@ -239,47 +241,298 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
         }).toList();
     }
 
-
-
-
     @Override
-    public List<ReceitaDTO> receitaAgrupada(Instant inicio, Instant fim, String periodo, String canal) {
-        if (!AGRUPAMENTOS_VALIDOS.contains(periodo)) {
-            throw new BusinessException("Agrupamento inválido: " + periodo);
-        }
-
+    public ProducaoDTO resumoProducao(Instant dataInicio, Instant dataFim){
         String sql = """
                 SELECT
-                    DATE_TRUNC('%s', p.data_pagamento_confirmado) as periodo,
-                    SUM(p.valor_total_final) as total
-                FROM tb_pedido p
-                WHERE p.status_pedido <> 'CANCELADO'
-                    AND p.data_pagamento_confirmado BETWEEN :inicio AND :fim
-                    AND (:canal IS NULL OR p.origem_pedido = :canal)
-                GROUP BY periodo
-                ORDER BY periodo
-                """.formatted(periodo);
-
+                    (
+                        SELECT AVG(EXTRACT(EPOCH FROM (p.data_fim_producao - p.data_inicio_producao)) /3600)
+                        FROM tb_pedido p                
+                        WHERE p.data_fim_producao IS NOT NULL
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim                       
+                    )  as tempoMedioProducaoHoras,
+                    (
+                        SELECT SUM(COALESCE(pr.quantidade_estoque, 0))
+                        FROM tb_produto pr
+                        WHERE pr.tipo_estoque = 'ESTOQUE'
+                    )  as quantidadeProntaEntrega,
+                    (
+                        SELECT SUM(COALESCE(pr.quantidade_estoque, 0))
+                        FROM tb_produto pr
+                        WHERE pr.tipo_estoque = 'SOB_DEMANDA'
+                    )  as quantidadeSobDemanda,
+                    (
+                        SELECT SUM(COALESCE(pr.quantidade_estoque, 0))
+                        FROM tb_produto pr
+                        WHERE pr.tipo_estoque = 'PRE_VENDA'
+                    )  as quantidadePreVenda
+                
+                """;
         @SuppressWarnings("unchecked")
-        List<Object[]> rows = em.createNativeQuery(sql)
-                .setParameter("inicio", inicio)
-                .setParameter("fim", fim)
-                .setParameter("canal", canal)
-                .getResultList();
+        Object[] row = (Object[]) em.createNativeQuery(sql)
+                .setParameter("dataInicio", dataInicio)
+                .setParameter("dataFim", dataFim)
+                .getSingleResult();
 
-        return rows.stream().map(r -> {
-            Instant periodoDTO = r[0] instanceof OffsetDateTime odt
-                    ? odt.toInstant()
-                    : ((java.sql.Timestamp) r[0]).toInstant();
-            BigDecimal total = r[1] instanceof BigDecimal bd ? bd : BigDecimal.valueOf(((Number) r[1]).doubleValue());
-            return new ReceitaDTO(periodoDTO, null, total);
-        }).toList();
+        Double tempoMedioProducaoHoras = row[0] != null ? ((Number) row[0]).doubleValue() : 0;
+        Integer quantidadeProntaEntrega = row[1] != null ? ((Number) row[1]).intValue() : 0;
+        Integer quantidadeSobDemanda = row[2] != null ? ((Number) row[2]).intValue() : 0;
+        Integer quantidadePreVenda = row[3] != null ? ((Number) row[3]).intValue() : 0;
+
+        return new ProducaoDTO(
+                tempoMedioProducaoHoras,
+                quantidadeProntaEntrega,
+                quantidadePreVenda,
+                quantidadeSobDemanda,
+                null,
+                null
+        );
     }
 
     @Override
-    public List<ProducaoDTO> producaoAgrupada(Instant inicio, Instant fim, String canal, String dimensao, Long produtoId, Long variacaoId, Long categoriaId) {
+    public ReceitaDTO receita(Instant dataInicio, Instant dataFim, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId) {
+        String sql = """
+                SELECT
+                    (
+                        SELECT COALESCE(SUM(p.valor_total_final), 0)
+                        FROM tb_pedido p
+                        WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as receitaBruta,
+                    (
+                        SELECT COALESCE(SUM(p.valor_total_final - p.valor_frete), 0)
+                        FROM tb_pedido p
+                        WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as receitaLiquida,
+                    (
+                        SELECT COUNT(*)
+                        FROM tb_pedido p
+                        WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as quantidadePedidos,
+                    (
+                        SELECT COALESCE(SUM(ip.quantidade), 0)
+                        FROM tb_item_pedido ip
+                        LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
+                        WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)                        
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_produto pr
+                                    WHERE pr.id = ip.produto_id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as totalItens,
+                    (
+                        SELECT AVG(p.valor_total_final)
+                        FROM tb_pedido p
+                        WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as ticketMedio
+                """;
+        @SuppressWarnings("unchecked")
+        Object[] row = (Object[]) em.createNativeQuery(sql)
+                .setParameter("dataInicio", dataInicio)
+                .setParameter("dataFim", dataFim)
+                .setParameter("canal", canal != null ? canal.name() : null)
+                .setParameter("tipoCliente", tipoCliente != null ? tipoCliente.name() : null)
+                .setParameter("categoriaId", categoriaId)
+                .getSingleResult();
+
+        BigDecimal receitaBruta = row[0] != null ? ((BigDecimal) row[0]) : BigDecimal.ZERO;
+        BigDecimal receitaLiquida = row[1] != null ? ((BigDecimal) row[1]) : BigDecimal.ZERO;
+        Integer quantidadePedidos = row[2] != null ? ((Number) row[2]).intValue() : 0;
+        Integer totalItens = row[3] != null ? ((Number) row[3]).intValue() : 0;
+        BigDecimal ticketMedio = row[4] != null ? ((BigDecimal) row[4]).setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+
+        return new ReceitaDTO(
+                receitaBruta,
+                receitaLiquida,
+                quantidadePedidos,
+                totalItens,
+                ticketMedio
+        );
+    }
+
+    @Override
+    public List<VendasCanalDTO> vendasPorCanal(Instant dataInicio, Instant dataFim, TipoCliente tipoCliente, Long categoriaId){
+        String sql = """
+                SELECT 
+                    p.origem_pedido,
+                    COUNT(*) as quantidadePedidos,
+                    SUM(p.valor_total_final) as receita
+                FROM tb_pedido p
+                WHERE p.status_pedido <> 'CANCELADO'
+                    AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                    AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente) 
+                    AND (
+                        :categoriaId IS NULL
+                        OR EXISTS (
+                            SELECT 1
+                            FROM tb_item_pedido ip
+                            JOIN tb_produto pr ON pr.id = ip.produto_id
+                            WHERE ip.pedido_id = p.id
+                              AND pr.categoria_id = :categoriaId
+                        )
+                    )
+                GROUP BY p.origem_pedido
+                ORDER BY receita DESC
+                """;
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = em.createNativeQuery(sql)
+                .setParameter("dataInicio", dataInicio)
+                .setParameter("dataFim", dataFim)
+                .setParameter("tipoCliente", tipoCliente != null ? tipoCliente.name() : null)
+                .setParameter("categoriaId", categoriaId)
+                .getResultList();
+
+        BigDecimal receitaTotal =  rows.stream().map(r -> r[2] != null ? ((BigDecimal) r[2]) : BigDecimal.ZERO).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return rows.stream().map(r -> {
+            Integer quantidadePedidos = r[1] != null ? ((Number) r[1]).intValue() : 0;
+            BigDecimal receita = r[2] != null ? ((BigDecimal) r[2]) : BigDecimal.ZERO;
+            // TODO
+//            BigDecimal percentualParticipacao = receita.divide(receitaTotal).multiply(BigDecimal.valueOf(100));
+            return new VendasCanalDTO(
+                    OrigemPedido.valueOf((String) r[0]),
+                    quantidadePedidos,
+                    BigDecimal.ZERO,
+                    receita
+            );
+        }).toList();
+    }
+
+
+    @Override
+    public List<VendasPeriodoDTO> historicoVendas(Instant dataInicio, Instant dataFim, AgrupamentoPeriodo periodo, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId){
+        return null;
+    }
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 //
+//
+//
+//    @Override
+//    public List<ReceitaDTO> receitaAgrupada(Instant inicio, Instant fim, String periodo, String canal) {
+//        if (!AGRUPAMENTOS_VALIDOS.contains(periodo)) {
+//            throw new BusinessException("Agrupamento inválido: " + periodo);
+//        }
+//
+//        String sql = """
+//                SELECT
+//                    DATE_TRUNC('%s', p.data_pagamento_confirmado) as periodo,
+//                    SUM(p.valor_total_final) as total
+//                FROM tb_pedido p
+//                WHERE p.status_pedido <> 'CANCELADO'
+//                    AND p.data_pagamento_confirmado BETWEEN :inicio AND :fim
+//                    AND (:canal IS NULL OR p.origem_pedido = :canal)
+//                GROUP BY periodo
+//                ORDER BY periodo
+//                """.formatted(periodo);
+//
+//        @SuppressWarnings("unchecked")
+//        List<Object[]> rows = em.createNativeQuery(sql)
+//                .setParameter("inicio", inicio)
+//                .setParameter("fim", fim)
+//                .setParameter("canal", canal)
+//                .getResultList();
+//
+//        return rows.stream().map(r -> {
+//            Instant periodoDTO = r[0] instanceof OffsetDateTime odt
+//                    ? odt.toInstant()
+//                    : ((java.sql.Timestamp) r[0]).toInstant();
+//            BigDecimal total = r[1] instanceof BigDecimal bd ? bd : BigDecimal.valueOf(((Number) r[1]).doubleValue());
+//            return new ReceitaDTO(periodoDTO, null, total);
+//        }).toList();
+//    }
+//
+//    @Override
+//    public List<ProducaoDTO> producaoAgrupada(Instant inicio, Instant fim, String canal, String dimensao, Long produtoId, Long variacaoId, Long categoriaId) {
+////
+////
 //        String sql = """
 //                SELECT
 //                    CASE
@@ -329,91 +582,91 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
 //                    tempoMedio,
 //                    quantidade            );
 //        }).toList();
-        return null;
-    }
-
-
-    @Override
-    public List<Object[]> volumeAgrupado(Instant inicio,Instant fim,String canal,String periodo,String dimensao,Long produtoId,Long variacaoId,Long categoriaId) {
-
-        String sql = """
-        SELECT
-            DATE_TRUNC('%s', p.data_pagamento_confirmado) as periodo,
-            CASE
-                WHEN :dimensao = 'PRODUTO' THEN COALESCE(pr.nome, 'SEM_PRODUTO')
-                WHEN :dimensao = 'VARIACAO' THEN COALESCE(pv.nome, 'SEM_VARIACAO')
-                WHEN :dimensao = 'CATEGORIA' THEN COALESCE(c.nome, 'SEM_CATEGORIA')
-                ELSE 'GERAL'
-            END as grupo,
-            COUNT(DISTINCT p.id) as quantidade_pedidos,
-            COALESCE(SUM(ip.quantidade), 0) as quantidade_itens,
-            COALESCE(SUM(p.valor_total_final), 0) as receita
-        FROM tb_pedido p
-        LEFT JOIN tb_item_pedido ip ON ip.pedido_id = p.id
-        LEFT JOIN tb_produto_variacao pv ON pv.id = ip.produto_variacao_id
-        LEFT JOIN tb_produto pr ON pr.id = pv.produto_id
-        LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
-        WHERE p.status_pedido <> 'CANCELADO'
-            AND p.data_pagamento_confirmado BETWEEN :inicio AND :fim
-            AND (:canal IS NULL OR p.origem_pedido = :canal)
-            AND (:produtoId IS NULL OR pr.id = :produtoId)
-            AND (:variacaoId IS NULL OR pv.id = :variacaoId)
-            AND (:categoriaId IS NULL OR c.id = :categoriaId)
-
-        GROUP BY periodo, grupo
-        ORDER BY receita DESC, periodo DESC
-    """.formatted(periodo);
-
-        return em.createNativeQuery(sql)
-                .setParameter("inicio", inicio)
-                .setParameter("fim", fim)
-                .setParameter("canal", canal)
-                .setParameter("dimensao", dimensao)
-                .setParameter("produtoId", produtoId)
-                .setParameter("variacaoId", variacaoId)
-                .setParameter("categoriaId", categoriaId)
-                .getResultList();
-    }
-
-
-    @Override
-    public List<Object[]> estoqueAnalitico(String dimensao,Long produtoId,Long variacaoId,Long categoriaId,Instant demandaInicio,Instant demandaFim) {
-
-        String sql = """
-        SELECT
-            CASE
-                WHEN :dimensao = 'PRODUTO' THEN COALESCE(pr.nome, 'SEM_PRODUTO')
-                WHEN :dimensao = 'VARIACAO' THEN COALESCE(pv.nome, 'SEM_VARIACAO')
-                WHEN :dimensao = 'CATEGORIA' THEN COALESCE(c.nome, 'SEM_CATEGORIA')
-                ELSE 'GERAL'
-            END as grupo,
-            SUM(pv.quantidade_estoque) as quantidade,
-            SUM(pv.estoque_minimo) as estoque_minimo,
-            COALESCE(SUM(ip.quantidade) FILTER (
-                WHERE p.data_pagamento_confirmado IS NOT NULL
-                AND p.status_pedido <> 'CANCELADO'
-                AND p.data_pagamento_confirmado BETWEEN :demandaInicio AND :demandaFim
-            ), 0) as demanda_recente
-        FROM tb_produto_variacao pv
-        LEFT JOIN tb_item_pedido ip ON ip.produto_variacao_id = pv.id
-        LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
-        LEFT JOIN tb_produto pr ON pr.id = pv.produto_id
-        LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
-        WHERE pv.ativo = true
-            AND (:produtoId IS NULL OR pr.id = :produtoId)
-            AND (:variacaoId IS NULL OR pv.id = :variacaoId)
-            AND (:categoriaId IS NULL OR c.id = :categoriaId)
-        GROUP BY grupo
-        ORDER BY quantidade ASC
-    """;
-
-        return em.createNativeQuery(sql)
-                .setParameter("dimensao", dimensao)
-                .setParameter("produtoId", produtoId)
-                .setParameter("variacaoId", variacaoId)
-                .setParameter("categoriaId", categoriaId)
-                .setParameter("demandaInicio", demandaInicio)
-                .setParameter("demandaFim", demandaFim)
-                .getResultList();
-    }
-}
+//        return null;
+//    }
+//
+//
+//    @Override
+//    public List<Object[]> volumeAgrupado(Instant inicio,Instant fim,String canal,String periodo,String dimensao,Long produtoId,Long variacaoId,Long categoriaId) {
+//
+//        String sql = """
+//        SELECT
+//            DATE_TRUNC('%s', p.data_pagamento_confirmado) as periodo,
+//            CASE
+//                WHEN :dimensao = 'PRODUTO' THEN COALESCE(pr.nome, 'SEM_PRODUTO')
+//                WHEN :dimensao = 'VARIACAO' THEN COALESCE(pv.nome, 'SEM_VARIACAO')
+//                WHEN :dimensao = 'CATEGORIA' THEN COALESCE(c.nome, 'SEM_CATEGORIA')
+//                ELSE 'GERAL'
+//            END as grupo,
+//            COUNT(DISTINCT p.id) as quantidade_pedidos,
+//            COALESCE(SUM(ip.quantidade), 0) as quantidade_itens,
+//            COALESCE(SUM(p.valor_total_final), 0) as receita
+//        FROM tb_pedido p
+//        LEFT JOIN tb_item_pedido ip ON ip.pedido_id = p.id
+//        LEFT JOIN tb_produto_variacao pv ON pv.id = ip.produto_variacao_id
+//        LEFT JOIN tb_produto pr ON pr.id = pv.produto_id
+//        LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
+//        WHERE p.status_pedido <> 'CANCELADO'
+//            AND p.data_pagamento_confirmado BETWEEN :inicio AND :fim
+//            AND (:canal IS NULL OR p.origem_pedido = :canal)
+//            AND (:produtoId IS NULL OR pr.id = :produtoId)
+//            AND (:variacaoId IS NULL OR pv.id = :variacaoId)
+//            AND (:categoriaId IS NULL OR c.id = :categoriaId)
+//
+//        GROUP BY periodo, grupo
+//        ORDER BY receita DESC, periodo DESC
+//    """.formatted(periodo);
+//
+//        return em.createNativeQuery(sql)
+//                .setParameter("inicio", inicio)
+//                .setParameter("fim", fim)
+//                .setParameter("canal", canal)
+//                .setParameter("dimensao", dimensao)
+//                .setParameter("produtoId", produtoId)
+//                .setParameter("variacaoId", variacaoId)
+//                .setParameter("categoriaId", categoriaId)
+//                .getResultList();
+//    }
+//
+//
+//    @Override
+//    public List<Object[]> estoqueAnalitico(String dimensao,Long produtoId,Long variacaoId,Long categoriaId,Instant demandaInicio,Instant demandaFim) {
+//
+//        String sql = """
+//        SELECT
+//            CASE
+//                WHEN :dimensao = 'PRODUTO' THEN COALESCE(pr.nome, 'SEM_PRODUTO')
+//                WHEN :dimensao = 'VARIACAO' THEN COALESCE(pv.nome, 'SEM_VARIACAO')
+//                WHEN :dimensao = 'CATEGORIA' THEN COALESCE(c.nome, 'SEM_CATEGORIA')
+//                ELSE 'GERAL'
+//            END as grupo,
+//            SUM(pv.quantidade_estoque) as quantidade,
+//            SUM(pv.estoque_minimo) as estoque_minimo,
+//            COALESCE(SUM(ip.quantidade) FILTER (
+//                WHERE p.data_pagamento_confirmado IS NOT NULL
+//                AND p.status_pedido <> 'CANCELADO'
+//                AND p.data_pagamento_confirmado BETWEEN :demandaInicio AND :demandaFim
+//            ), 0) as demanda_recente
+//        FROM tb_produto_variacao pv
+//        LEFT JOIN tb_item_pedido ip ON ip.produto_variacao_id = pv.id
+//        LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
+//        LEFT JOIN tb_produto pr ON pr.id = pv.produto_id
+//        LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
+//        WHERE pv.ativo = true
+//            AND (:produtoId IS NULL OR pr.id = :produtoId)
+//            AND (:variacaoId IS NULL OR pv.id = :variacaoId)
+//            AND (:categoriaId IS NULL OR c.id = :categoriaId)
+//        GROUP BY grupo
+//        ORDER BY quantidade ASC
+//    """;
+//
+//        return em.createNativeQuery(sql)
+//                .setParameter("dimensao", dimensao)
+//                .setParameter("produtoId", produtoId)
+//                .setParameter("variacaoId", variacaoId)
+//                .setParameter("categoriaId", categoriaId)
+//                .setParameter("demandaInicio", demandaInicio)
+//                .setParameter("demandaFim", demandaFim)
+//                .getResultList();
+//    }
+//}

@@ -5,6 +5,7 @@ import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
 import com.finalphase.fabricapins.ecommerce.domain.enums.SituacaoEstoque;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.management.dto.*;
+import com.finalphase.fabricapins.management.enums.AgrupamentoPeriodo;
 import com.finalphase.fabricapins.management.service.RelatorioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -68,8 +69,27 @@ public class RelatorioController {
         return ResponseEntity.ok(dto);
     }
 
+
+    // Receita
+    @Operation(summary = "Dashboard de Receita")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
+    })
+    @GetMapping("/receita")
+    public ResponseEntity<ReceitaDTO> receita(
+            @RequestParam Instant dataInicio,
+            @RequestParam Instant dataFim,
+            @RequestParam(required = false) OrigemPedido canal,
+            @RequestParam(required = false) TipoCliente tipoCliente,
+            @RequestParam(required = false) Long categoriaId) {
+        ReceitaDTO dto = service.receita(dataInicio, dataFim, canal, tipoCliente, categoriaId);
+        return ResponseEntity.ok(dto);
+    }
+
+
     // Producao
-    @Operation(summary = "Dashboard de Estoque")
+    @Operation(summary = "Dashboard de Producao")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
             @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
@@ -81,6 +101,35 @@ public class RelatorioController {
         ProducaoDTO dto = service.producao(dataInicio, dataFim);
         return ResponseEntity.ok(dto);
     }
+
+
+    // Planejamento
+    @Operation(summary = "Dashboard de Planejamento")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dados localizados com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Erro ao buscar dados", content = @Content)
+    })
+    @GetMapping("/planejamento")
+    public ResponseEntity<PlanejamentoDTO> planejamento(
+            @RequestParam Instant dataInicio,
+            @RequestParam Instant dataFim,
+            @RequestParam AgrupamentoPeriodo periodo,
+            @RequestParam(required = false) OrigemPedido canal,
+            @RequestParam(required = false) TipoCliente tipoCliente,
+            @RequestParam(required = false) Long categoriaId) {
+        PlanejamentoDTO dto = service.planejamento(dataInicio, dataFim, periodo, canal, tipoCliente, categoriaId);
+        return ResponseEntity.ok(dto);
+    }
+
+
+
+
+
+
+
+
+
+
 
 //    // Relatorio Analítico de Receitas
 //    @Operation(summary = "Relatórios de Receita por Período")

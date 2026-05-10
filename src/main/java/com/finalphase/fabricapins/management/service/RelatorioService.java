@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -72,18 +73,61 @@ public class RelatorioService {
     }
 
     @Transactional(readOnly = true)
+    public ReceitaDTO receita(Instant dataInicio, Instant dataFim, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId) {
+        if(dataInicio.isAfter(dataFim)){
+            throw new BusinessException("dataInicio não pode ser maior que dataFim");
+        }
+        if(categoriaId != null && !categoriaRepository.existsById(categoriaId)){
+            throw new BusinessException("Categoria não encontrada");
+        }
+        return repository.receita(dataInicio, dataFim, canal, tipoCliente, categoriaId);
+    }
+
+
+    @Transactional(readOnly = true)
     public ProducaoDTO producao(Instant dataInicio, Instant dataFim) {
         if(dataInicio.isAfter(dataFim)){
             throw new BusinessException("dataInicio não pode ser maior que dataFim");
         }
+        ProducaoDTO result = repository.resumoProducao(dataInicio, dataFim);
         List<PedidoStatusDTO> pedidosPorStatus = repository.pedidoStatus(dataInicio, dataFim);
         List<DuracaoProducaoDTO> produtosMaisDemorados = repository.duracaoProducao(dataInicio, dataFim);
-        return new ProducaoDTO(null,null,null,null,pedidosPorStatus, produtosMaisDemorados);
+
+        return new ProducaoDTO(result.tempoMedioProducaoHoras(),result.quantidadeProntaEntrega(),result.quantidadePreVenda(),result.quantidadeSobDemanda(),pedidosPorStatus, produtosMaisDemorados);
+    }
+
+
+    @Transactional(readOnly = true)
+    public PlanejamentoDTO planejamento(Instant dataInicio, Instant dataFim, AgrupamentoPeriodo periodo, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId) {
+        if(dataInicio.isAfter(dataFim)){
+            throw new BusinessException("dataInicio não pode ser maior que dataFim");
+        }
+        if(categoriaId != null && !categoriaRepository.existsById(categoriaId)){
+            throw new BusinessException("Categoria não encontrada");
+        }
+        List<VendasCanalDTO> vendasPorCanal = repository.vendasPorCanal(dataInicio, dataFim, tipoCliente, categoriaId);
+
+        List<VendasPeriodoDTO> historicoVendas = repository.historicoVendas(dataInicio, dataFim, periodo, canal, tipoCliente, categoriaId);
+
+        BigDecimal receitaTotal = vendasPorCanal.stream().map(x -> x.receita()).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new PlanejamentoDTO(receitaTotal, vendasPorCanal, historicoVendas);
     }
 
 
 
-//
+
+
+
+
+
+
+
+
+
+
+
+
 //    @Transactional(readOnly = true)
 //    public List<ReceitaDTO> receita(ReceitaRequest request){
 //        String periodo = mapearAgrupamento(request.periodo());
