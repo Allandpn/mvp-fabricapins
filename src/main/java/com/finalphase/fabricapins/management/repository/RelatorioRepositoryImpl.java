@@ -41,7 +41,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         SELECT COALESCE(SUM(p.valor_total_final), 0)
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)
                             AND (
@@ -59,7 +59,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         SELECT COALESCE(SUM(p.valor_total_final - p.valor_frete), 0)
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)
                             AND (
@@ -78,7 +78,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_item_pedido ip
                         LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
                         WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)                        
                             AND (
@@ -297,7 +297,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         SELECT COALESCE(SUM(p.valor_total_final), 0)
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)
                             AND (
@@ -315,7 +315,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         SELECT COALESCE(SUM(p.valor_total_final - p.valor_frete), 0)
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)
                             AND (
@@ -333,7 +333,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         SELECT COUNT(*)
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)
                             AND (
@@ -352,7 +352,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_item_pedido ip
                         LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
                         WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)                        
                             AND (
@@ -369,7 +369,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         SELECT AVG(p.valor_total_final)
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)
                             AND (
@@ -382,7 +382,25 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                                       AND pr.categoria_id = :categoriaId
                                 )
                             )
-                    )  as ticketMedio
+                    )  as ticketMedio,
+                    (
+                        SELECT COUNT(*)
+                        FROM tb_pedido p
+                        WHERE p.status_pedido = 'CANCELADO'
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                    )  as quantidadePedidosCancelados
                 """;
         @SuppressWarnings("unchecked")
         Object[] row = (Object[]) em.createNativeQuery(sql)
@@ -398,11 +416,13 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
         Integer quantidadePedidos = row[2] != null ? ((Number) row[2]).intValue() : 0;
         Integer totalItens = row[3] != null ? ((Number) row[3]).intValue() : 0;
         BigDecimal ticketMedio = row[4] != null ? ((BigDecimal) row[4]).setScale(2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+        Integer quantidadePedidosCancelados = row[5] != null ? ((Number) row[5]).intValue() : 0;
 
         return new ReceitaDTO(
                 receitaBruta,
                 receitaLiquida,
                 quantidadePedidos,
+                quantidadePedidosCancelados,
                 totalItens,
                 ticketMedio
         );
@@ -417,7 +437,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                     SUM(p.valor_total_final) as receita
                 FROM tb_pedido p
                 WHERE p.status_pedido <> 'CANCELADO'
-                    AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                    AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                     AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente) 
                     AND (
                         :categoriaId IS NULL
@@ -477,7 +497,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                     COALESCE(SUM(p.valor_total_final), 0) as receita
                 FROM tb_pedido p
                 WHERE p.status_pedido <> 'CANCELADO'
-                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)
                             AND (

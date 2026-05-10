@@ -98,7 +98,7 @@ Authorization: Bearer {{token}}
   "origemPedido": "WHATSAPP",
   "clienteId": 1,
   "observacao": "Teste pedido",
-  "status": "RASCUNHO",
+  "status": "CANCELADO",
   "valorFrete": 10,
   "items": [
     {

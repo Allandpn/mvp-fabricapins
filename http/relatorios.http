@@ -1,5 +1,10 @@
-### RESUMO
+### RESUMO 1
 GET {{baseUrl}}/gestao/relatorios/resumo?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z&canal=REDE_SOCIAL&tipoCliente=VAREJO
+Content-Type: application/jsoncanal=SITE
+Authorization: Bearer {{token}}
+
+### RESUMO 2
+GET {{baseUrl}}/gestao/relatorios/resumo?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z
 Content-Type: application/jsoncanal=SITE
 Authorization: Bearer {{token}}
 
@@ -14,8 +19,13 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
-### RECEITA
+### RECEITA 1
 GET {{baseUrl}}/gestao/relatorios/receita?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z&canal=SITE&tipoCliente=REVENDA
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### RECEITA 2
+GET {{baseUrl}}/gestao/relatorios/receita?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

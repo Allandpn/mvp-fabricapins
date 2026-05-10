@@ -7,8 +7,7 @@ public record ReceitaDTO(
         BigDecimal receitaBruta,
         BigDecimal receitaLiquida,
         Integer quantidadePedidos,
-        // TODO
-//        Integer quantidadePedidosCancelados,
+        Integer quantidadePedidosCancelados,
         Integer totalItens,
         BigDecimal ticketMedio
 ) {}
