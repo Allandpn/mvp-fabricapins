@@ -178,7 +178,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                     ((Number) r[2]).intValue(),
                     ((Number) r[3]).intValue(),
                     ((Number) r[4]).intValue(),
-                    SituacaoEstoque.valueOf((String) r[5])
+                    SituacaoEstoque.valueOf(r[5].toString())
             );
         }).toList();
     }
@@ -204,7 +204,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
 
         return rows.stream().map(r -> {
             return new PedidoStatusDTO(
-                    StatusPedido.valueOf((String) r[0]),
+                    StatusPedido.valueOf(r[0].toString()),
                     ((Number) r[1]).intValue()
             );
         }).toList();
@@ -447,11 +447,16 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
             Integer quantidadePedidos = r[1] != null ? ((Number) r[1]).intValue() : 0;
             BigDecimal receita = r[2] != null ? ((BigDecimal) r[2]) : BigDecimal.ZERO;
             // TODO
-//            BigDecimal percentualParticipacao = receita.divide(receitaTotal).multiply(BigDecimal.valueOf(100));
+            BigDecimal percentualParticipacao =
+                    receitaTotal.compareTo(BigDecimal.ZERO) > 0
+                            ? receita.divide(receitaTotal,6, RoundingMode.HALF_UP)
+                              .multiply(BigDecimal.valueOf(100))
+                              .setScale(2, RoundingMode.HALF_UP)
+                            : BigDecimal.ZERO;
             return new VendasCanalDTO(
-                    OrigemPedido.valueOf((String) r[0]),
+                    OrigemPedido.valueOf(r[0].toString()),
                     quantidadePedidos,
-                    BigDecimal.ZERO,
+                    percentualParticipacao,
                     receita
             );
         }).toList();
@@ -459,8 +464,54 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
 
 
     @Override
-    public List<VendasPeriodoDTO> historicoVendas(Instant dataInicio, Instant dataFim, AgrupamentoPeriodo periodo, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId){
-        return null;
+    public List<VendasPeriodoDTO> historicoVendas(Instant dataInicio, Instant dataFim, String periodo, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId){
+        String sql = """
+                SELECT
+                    DATE_TRUNC('%s', p.data_pagamento_confirmado) as periodo,                    
+                    COUNT(DISTINCT p.id) as quantidadePedidos,
+                    COALESCE(SUM((
+                        SELECT SUM(ip.quantidade)
+                        FROM tb_item_pedido ip
+                        WHERE ip.pedido_id = p.id
+                        )), 0) as quantidadeItens,
+                    COALESCE(SUM(p.valor_total_final), 0) as receita
+                FROM tb_pedido p
+                WHERE p.status_pedido <> 'CANCELADO'
+                            AND p.data_pagamento_confirmado BETWEEN :dataInicio AND :dataFim
+                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (
+                                :categoriaId IS NULL
+                                OR EXISTS (
+                                    SELECT 1
+                                    FROM tb_item_pedido ip
+                                    JOIN tb_produto pr ON pr.id = ip.produto_id
+                                    WHERE ip.pedido_id = p.id
+                                      AND pr.categoria_id = :categoriaId
+                                )
+                            )
+                GROUP BY periodo
+                ORDER BY periodo
+                """.formatted(periodo);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = em.createNativeQuery(sql)
+                .setParameter("dataInicio", dataInicio)
+                .setParameter("dataFim", dataFim)
+                .setParameter("canal", canal != null ? canal.name() : null)
+                .setParameter("tipoCliente", tipoCliente != null ? tipoCliente.name() : null)
+                .setParameter("categoriaId", categoriaId)
+                .getResultList();
+
+        return rows.stream().map(r -> {
+            Instant periodoDTO = r[0] instanceof OffsetDateTime odt
+                    ? odt.toInstant()
+                    : ((java.sql.Timestamp) r[0]).toInstant();
+            Integer quantidadePedidos = r[1] != null ? ((Number) r[1]).intValue() : 0;
+            Integer quantidadeItens = r[2] != null ? ((Number) r[2]).intValue() : 0;
+            BigDecimal receita = r[3] != null ? ((BigDecimal) r[3]) : BigDecimal.ZERO;
+            return new VendasPeriodoDTO(periodoDTO, null, quantidadePedidos, quantidadeItens, receita, null);
+        }).toList();
     }
 
 

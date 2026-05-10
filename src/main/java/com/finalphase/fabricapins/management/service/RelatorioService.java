@@ -105,10 +105,17 @@ public class RelatorioService {
         if(categoriaId != null && !categoriaRepository.existsById(categoriaId)){
             throw new BusinessException("Categoria não encontrada");
         }
+        if(periodo == null){
+            periodo = AgrupamentoPeriodo.MES;
+        }
+
         List<VendasCanalDTO> vendasPorCanal = repository.vendasPorCanal(dataInicio, dataFim, tipoCliente, categoriaId);
-
-        List<VendasPeriodoDTO> historicoVendas = repository.historicoVendas(dataInicio, dataFim, periodo, canal, tipoCliente, categoriaId);
-
+        String periodoMapeado = mapearAgrupamento(periodo);
+        List<VendasPeriodoDTO> historicoVendas = repository.historicoVendas(dataInicio, dataFim, periodoMapeado, canal, tipoCliente, categoriaId);
+        for(VendasPeriodoDTO x : historicoVendas) {
+            x.setPeriodo(normalizarPeriodo(x.getPeriodo(), periodo));
+            x.setLabel(formatarLabel(x.getPeriodo(), periodo));
+        }
         BigDecimal receitaTotal = vendasPorCanal.stream().map(x -> x.receita()).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new PlanejamentoDTO(receitaTotal, vendasPorCanal, historicoVendas);

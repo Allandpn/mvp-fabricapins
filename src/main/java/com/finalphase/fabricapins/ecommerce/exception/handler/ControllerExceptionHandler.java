@@ -15,8 +15,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.nio.file.AccessDeniedException;
 import java.time.Instant;
@@ -106,6 +108,24 @@ public class ControllerExceptionHandler {
                 "Erro interno do servidor",
                 request.getRequestURI()
         );
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<CustomError> missingServletRequestParameterException(MissingServletRequestParameterException e , HttpServletRequest request){
+        HttpStatus status = HttpStatus.CONFLICT;
+        CustomError err = new CustomError(Instant.now(), status.value(), "Parâmetro obrigatório ausente", e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CustomError> methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e , HttpServletRequest request){
+        HttpStatus status = HttpStatus.CONFLICT;
+        String message = String.format(
+                "Valor inválido para o parâmetro '%s'",
+                e.getName()
+        );
+        CustomError err = new CustomError(Instant.now(), status.value(), "Parâmetro inválido", message, request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
 

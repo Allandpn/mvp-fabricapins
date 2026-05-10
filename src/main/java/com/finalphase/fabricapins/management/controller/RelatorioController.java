@@ -113,7 +113,7 @@ public class RelatorioController {
     public ResponseEntity<PlanejamentoDTO> planejamento(
             @RequestParam Instant dataInicio,
             @RequestParam Instant dataFim,
-            @RequestParam AgrupamentoPeriodo periodo,
+            @RequestParam(defaultValue = "MES") AgrupamentoPeriodo periodo,
             @RequestParam(required = false) OrigemPedido canal,
             @RequestParam(required = false) TipoCliente tipoCliente,
             @RequestParam(required = false) Long categoriaId) {

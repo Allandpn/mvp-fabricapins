@@ -31,5 +31,5 @@ public interface RelatorioRepositoryCustom {
 
     List<VendasCanalDTO> vendasPorCanal(Instant dataInicio, Instant dataFim, TipoCliente tipoCliente, Long categoriaId);
 
-    List<VendasPeriodoDTO> historicoVendas(Instant dataInicio, Instant dataFim, AgrupamentoPeriodo periodo, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId);
+    List<VendasPeriodoDTO> historicoVendas(Instant dataInicio, Instant dataFim, String periodo, OrigemPedido canal, TipoCliente tipoCliente, Long categoriaId);
 }

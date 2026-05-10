@@ -20,7 +20,12 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 
-### PLANEJAMENTO
-GET {{baseUrl}}/gestao/relatorios/planejamento?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z&canal=SITE&tipoCliente=REVENDA
+### PLANEJAMENTO v1
+GET {{baseUrl}}/gestao/relatorios/planejamento?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z&canal=SITE&tipoCliente=REVENDA&periodo=DIA
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### PLANEJAMENTO v2
+GET {{baseUrl}}/gestao/relatorios/planejamento?dataInicio=2024-05-08T17:33:00Z&dataFim=2026-05-09T17:36:00Z&periodo=
 Content-Type: application/json
 Authorization: Bearer {{token}}
