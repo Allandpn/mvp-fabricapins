@@ -3,6 +3,7 @@ package com.finalphase.fabricapins.ecommerce.service;
 import com.finalphase.fabricapins.config.security.SecurityService;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Cliente;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Endereco;
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,8 +51,15 @@ public class ClienteService {
 
     // TODO - REVISAR
     @Transactional(readOnly = true)
-    public Page<ClienteDTO> findAll(Pageable pageable) {
-        Page<Cliente> result = repository.findAllByAtivoTrue(pageable);
+    public Page<ClienteDTO> findAll(TipoCliente tipoCliente, Pageable pageable) {
+        Specification<Cliente> specification = (root, query, cb) -> cb.isTrue(root.get("ativo"));
+
+        if(tipoCliente != null) {
+            specification = specification.and((root, query, cb) ->
+                    cb.equal(root.get("tipoCliente"), tipoCliente));
+        }
+
+        Page<Cliente> result = repository.findAll(specification, pageable);
         return result.map(x -> mapper.toDTO(x));
     }
 

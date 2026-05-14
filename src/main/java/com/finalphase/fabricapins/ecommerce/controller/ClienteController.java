@@ -1,5 +1,7 @@
 package com.finalphase.fabricapins.ecommerce.controller;
 
+import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteMinDTO;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteRequest;
@@ -50,8 +52,8 @@ public class ClienteController {
             @ApiResponse(responseCode = "404", description = "Nenhum Cliente localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<Page<ClienteDTO>> findAll(Pageable pageable){
-        Page<ClienteDTO> ListDto = service.findAll(pageable);
+    public ResponseEntity<Page<ClienteDTO>> findAll(@RequestParam(required = false) TipoCliente tipoCliente, Pageable pageable){
+        Page<ClienteDTO> ListDto = service.findAll(tipoCliente, pageable);
         return ResponseEntity.ok(ListDto);
     }
 

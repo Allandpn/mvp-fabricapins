@@ -1,5 +1,5 @@
 ### LISTAR
-GET {{baseUrl}}/clientes?page=0&size=100
+GET {{baseUrl}}/clientes?page=0&size=100&tipoCliente=VAREJO
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
