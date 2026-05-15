@@ -1,5 +1,15 @@
 ### BUSCAR TODOS PEDIDOS
-GET {{baseUrl}}/admin/pedido
+GET {{baseUrl}}/admin/pedido?sort=dataCriacao,asc&size=100
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### BUSCAR TODOS PEDIDOS
+GET {{baseUrl}}/admin/pedido?origemPedido=SITE
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+### BUSCAR TODOS PEDIDOS
+GET {{baseUrl}}/admin/pedido?origemPedido=SITE&statusPedido=PAGAMENTO_CONFIRMADO&sort=dataCriacao,asc
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

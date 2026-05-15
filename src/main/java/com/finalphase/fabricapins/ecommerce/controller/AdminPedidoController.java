@@ -1,6 +1,9 @@
 package com.finalphase.fabricapins.ecommerce.controller;
 
 
+import com.finalphase.fabricapins.ecommerce.domain.enums.OrigemPedido;
+import com.finalphase.fabricapins.ecommerce.domain.enums.StatusPedido;
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoEstoqueProduto;
 import com.finalphase.fabricapins.ecommerce.dto.PedidoCupom.CupomRequest;
 import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.frete.FreteRequest;
@@ -69,8 +72,11 @@ public class AdminPedidoController {
             @ApiResponse(responseCode = "404", description = "Nenhum Pedido localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<Page<PedidoAdminDTO>> findAll(Pageable pageable){
-        Page<PedidoAdminDTO> ListDto = pedidoService.findAll(pageable);
+    public ResponseEntity<Page<PedidoAdminDTO>> findAll(
+            @RequestParam(required = false) StatusPedido statusPedido,
+            @RequestParam(required = false) OrigemPedido origemPedido,
+            Pageable pageable){
+        Page<PedidoAdminDTO> ListDto = pedidoService.findAll(statusPedido, origemPedido, pageable);
         return ResponseEntity.ok(ListDto);
     }
 

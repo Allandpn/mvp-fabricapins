@@ -1,10 +1,7 @@
 package com.finalphase.fabricapins.ecommerce.service;
 
 import com.finalphase.fabricapins.ecommerce.domain.entities.*;
-import com.finalphase.fabricapins.ecommerce.domain.enums.FreteProvider;
-import com.finalphase.fabricapins.ecommerce.domain.enums.ParametroChave;
-import com.finalphase.fabricapins.ecommerce.domain.enums.StatusPedido;
-import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.ecommerce.domain.enums.*;
 import com.finalphase.fabricapins.ecommerce.dto.PedidoCupom.CupomRequest;
 import com.finalphase.fabricapins.ecommerce.dto.cliente.ClienteSnapshot;
 import com.finalphase.fabricapins.ecommerce.dto.endereco.EnderecoPedidoDTO;
@@ -14,7 +11,6 @@ import com.finalphase.fabricapins.ecommerce.dto.frete.OpcaoFreteDTO;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.parametro.ParametroDTO;
 import com.finalphase.fabricapins.ecommerce.dto.pedido.*;
-import com.finalphase.fabricapins.ecommerce.dto.usuario.UsuarioRequest;
 import com.finalphase.fabricapins.ecommerce.exception.BusinessException;
 import com.finalphase.fabricapins.ecommerce.exception.ResourceNotFoundException;
 import com.finalphase.fabricapins.ecommerce.integration.frete.FreteGateway;
@@ -27,11 +23,13 @@ import com.finalphase.fabricapins.ecommerce.repository.ClienteRepository;
 import com.finalphase.fabricapins.ecommerce.repository.EnderecoRepository;
 import com.finalphase.fabricapins.ecommerce.repository.PedidoRepository;
 import com.finalphase.fabricapins.ecommerce.repository.ProdutoRepository;
+import io.swagger.v3.core.filter.SpecFilter;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,7 +72,6 @@ public class PedidoService {
     private FreteGatewayResolver freteGatewayResolver;
 
 
-
     @Transactional(readOnly = true)
     public PedidoDTO findById(Long id) {
         Pedido entity = pedidoRepository.findById(id).orElseThrow(
@@ -92,8 +89,20 @@ public class PedidoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PedidoAdminDTO> findAll(Pageable pageable) {
-        Page<Pedido> result = pedidoRepository.findAll(pageable);
+    public Page<PedidoAdminDTO> findAll(StatusPedido statusPedido, OrigemPedido origemPedido, Pageable pageable) {
+        Specification<Pedido> spec = (root, query, cb) -> cb.conjunction();
+
+        if(statusPedido != null){
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("statusPedido"), statusPedido));
+        }
+
+        if(origemPedido != null){
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("origemPedido"), origemPedido));
+        }
+
+        Page<Pedido> result = pedidoRepository.findAll(spec, pageable);
         return result.map(mapper::toAdminDTO);
     }
 
