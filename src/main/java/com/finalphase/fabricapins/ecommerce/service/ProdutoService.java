@@ -1,7 +1,9 @@
 package com.finalphase.fabricapins.ecommerce.service;
 
 import com.finalphase.fabricapins.ecommerce.domain.entities.Categoria;
+import com.finalphase.fabricapins.ecommerce.domain.entities.Cliente;
 import com.finalphase.fabricapins.ecommerce.domain.entities.Produto;
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoEstoqueProduto;
 import com.finalphase.fabricapins.ecommerce.dto.item_pedido.ItemPedidoRequest;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoAdminDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoDTO;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,8 +51,28 @@ public class ProdutoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProdutoAdminDTO> findAll(Pageable pageable) {
+    public Page<ProdutoAdminDTO> findAll(
+            TipoEstoqueProduto tipoEstoque,
+            String categoriaNome,
+            Pageable pageable
+    ) {
+        Specification<Produto> specification = (root, query, cb) -> cb.conjunction();
+
+        if(tipoEstoque != null) {
+            specification = specification.and((root, query, cb) ->
+                    cb.equal(root.get("tipoEstoque"), tipoEstoque));
+        }
+
+        if(categoriaNome != null && !categoriaNome.isBlank()) {
+                    specification = specification.and((root, query, cb) ->
+                            cb.like(
+                                    cb.lower(root.get("categoria").get("nome")),
+                                    "%" + categoriaNome.toLowerCase() + "%"
+                            ));
+                }
+
         Sort sort = Sort.by(Sort.Order.desc("ativo"));
+
         if (pageable.getSort().isSorted()) {
             sort = sort.and(pageable.getSort());
         }
@@ -58,7 +81,7 @@ public class ProdutoService {
                 pageable.getPageSize(),
                 sort
         );
-        Page<Produto> entity = produtoRepository.findAll(pageableComAtivoPrimeiro);
+        Page<Produto> entity = produtoRepository.findAll(specification, pageableComAtivoPrimeiro);
         return entity.map(mapper::toAdminDTO);
     }
 

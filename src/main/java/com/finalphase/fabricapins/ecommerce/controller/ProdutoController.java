@@ -1,6 +1,8 @@
 package com.finalphase.fabricapins.ecommerce.controller;
 
 
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoCliente;
+import com.finalphase.fabricapins.ecommerce.domain.enums.TipoEstoqueProduto;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoAdminDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoDTO;
 import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoMinDTO;
@@ -49,8 +51,12 @@ public class ProdutoController {
             @ApiResponse(responseCode = "404", description = "Nenhum Produto localizado", content = @Content)
     })
     @GetMapping()
-    public ResponseEntity<Page<ProdutoAdminDTO>> findAll(Pageable pageable){
-        Page<ProdutoAdminDTO> ListDto = service.findAll(pageable);
+    public ResponseEntity<Page<ProdutoAdminDTO>> findAll(
+            @RequestParam(required = false) TipoEstoqueProduto tipoEstoque,
+            @RequestParam(required = false) String categoriaNome,
+            Pageable pageable
+    ){
+        Page<ProdutoAdminDTO> ListDto = service.findAll(tipoEstoque, categoriaNome, pageable);
         return ResponseEntity.ok(ListDto);
     }
 

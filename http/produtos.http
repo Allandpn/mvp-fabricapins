@@ -1,5 +1,11 @@
-### LISTAR
+### LISTAR 1
 GET {{baseUrl}}/produtos?page=0&size=10
+
+### LISTAR 2
+GET {{baseUrl}}/produtos?tipoEstoque=ESTOQUE
+
+### LISTAR 3
+GET {{baseUrl}}/produtos?tipoEstoque=PRE_VENDA&categoriaNome=PINS
 
 
 ### CRIAR
