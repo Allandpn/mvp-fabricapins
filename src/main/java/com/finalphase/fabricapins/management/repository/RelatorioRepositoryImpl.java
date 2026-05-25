@@ -498,6 +498,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 FROM tb_pedido p
                 WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
+                            AND p.data_pagamento_confirmado IS NOT NULL
                             AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
                             AND (:canal IS NULL OR p.origem_pedido = :canal)
                             AND (
