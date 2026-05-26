@@ -21,13 +21,13 @@ INSERT INTO tb_cliente
 SELECT
     CONCAT('Cliente ', x),
     CONCAT('cliente', x, '@email.com'),
-    CONCAT('1199999', LPAD(x,4,'0')),
+    CONCAT('1199999', LPAD(x::text,4,'0')),
     CASE WHEN MOD(x,2)=0 THEN 'FISICA' ELSE 'JURIDICA' END,
-    CASE WHEN MOD(x,2)=0 THEN LPAD(x,11,'0') ELSE LPAD(x,14,'0') END,
+    CASE WHEN MOD(x,2)=0 THEN LPAD(x::text,11,'0') ELSE LPAD(x::text,14,'0') END,
     CASE WHEN MOD(x,2)=0 THEN 'VAREJO' ELSE 'REVENDA' END,
     CURRENT_TIMESTAMP,
     true
-FROM SYSTEM_RANGE(1,20) AS t(x);
+FROM generate_series(1,20) AS x;
 
 
 -- =============================================
