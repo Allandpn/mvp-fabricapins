@@ -35,17 +35,17 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_produto pr                
                         LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
                         WHERE pr.quantidade_estoque <= pr.estoque_minimo
-                            AND (:categoriaId IS NULL OR c.id = :categoriaId)                        
+                            AND (CAST(:categoriaId AS BIGINT) IS NULL OR c.id = :categoriaId)                        
                     )  as estoqueCritico,
                     (
                         SELECT COALESCE(SUM(p.valor_total_final), 0)
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -60,10 +60,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -79,10 +79,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
                         WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)                        
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)                        
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_produto pr
@@ -97,10 +97,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         WHERE p.data_inicio_producao IS NOT NULL
                             AND p.data_fim_producao IS NOT NULL
                             AND p.data_inicio_producao BETWEEN :dataInicio AND :dataFim
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -158,7 +158,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
                     AND p.status_pedido <> 'CANCELADO'
                     AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                WHERE (:categoriaId IS NULL OR c.id = :categoriaId)
+                WHERE (CAST(:categoriaId AS BIGINT) IS NULL OR c.id = :categoriaId)
                 GROUP BY
                     pr.id, pr.nome, c.nome, pr.quantidade_estoque, pr.estoque_minimo
                 ORDER BY pr.nome
@@ -298,10 +298,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -316,10 +316,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -334,10 +334,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -353,10 +353,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         LEFT JOIN tb_pedido p ON p.id = ip.pedido_id
                         WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)                        
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)                        
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_produto pr
@@ -370,10 +370,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_pedido p
                         WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -388,10 +388,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                         FROM tb_pedido p
                         WHERE p.status_pedido = 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -438,9 +438,9 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 FROM tb_pedido p
                 WHERE p.status_pedido <> 'CANCELADO'
                     AND p.data_criacao BETWEEN :dataInicio AND :dataFim
-                    AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente) 
+                    AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente) 
                     AND (
-                        :categoriaId IS NULL
+                        CAST(:categoriaId AS BIGINT) IS NULL
                         OR EXISTS (
                             SELECT 1
                             FROM tb_item_pedido ip
@@ -499,10 +499,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 WHERE p.status_pedido <> 'CANCELADO'
                             AND p.data_criacao BETWEEN :dataInicio AND :dataFim
                             AND p.data_pagamento_confirmado IS NOT NULL
-                            AND (:tipoCliente IS NULL OR p.tipo_cliente = :tipoCliente)                       
-                            AND (:canal IS NULL OR p.origem_pedido = :canal)
+                            AND (CAST(:tipoCliente AS VARCHAR) IS NULL OR p.tipo_cliente = :tipoCliente)                       
+                            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
                             AND (
-                                :categoriaId IS NULL
+                                CAST(:categoriaId AS BIGINT) IS NULL
                                 OR EXISTS (
                                     SELECT 1
                                     FROM tb_item_pedido ip
@@ -580,7 +580,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
 //                FROM tb_pedido p
 //                WHERE p.status_pedido <> 'CANCELADO'
 //                    AND p.data_pagamento_confirmado BETWEEN :inicio AND :fim
-//                    AND (:canal IS NULL OR p.origem_pedido = :canal)
+//                    AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
 //                GROUP BY periodo
 //                ORDER BY periodo
 //                """.formatted(periodo);
@@ -623,10 +623,10 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
 //                    WHERE p.data_inicio_producao IS NOT NULL
 //                        AND p.data_fim_producao IS NOT NULL
 //                        AND p.data_inicio_producao BETWEEN :inicio AND :fim
-//                        AND (:canal IS NULL OR p.origem_pedido = :canal)
+//                        AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
 //                        AND (:produtoId IS NULL OR pr.id = :produtoId)
 //                        AND (:variacaoId IS NULL OR pv.id = :variacaoId)
-//                        AND (:categoriaId IS NULL OR c.id = :categoriaId)
+//                        AND ((CAST(:categoriaId AS BIGINT) IS NULL OR c.id = :categoriaId)
 //                    GROUP BY grupo
 //                    ORDER BY tempo_medio DESC
 //                """;
@@ -680,7 +680,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
 //        LEFT JOIN tb_categoria c ON c.id = pr.categoria_id
 //        WHERE p.status_pedido <> 'CANCELADO'
 //            AND p.data_pagamento_confirmado BETWEEN :inicio AND :fim
-//            AND (:canal IS NULL OR p.origem_pedido = :canal)
+//            AND (CAST(:canal AS VARCHAR) IS NULL OR p.origem_pedido = :canal)
 //            AND (:produtoId IS NULL OR pr.id = :produtoId)
 //            AND (:variacaoId IS NULL OR pv.id = :variacaoId)
 //            AND (:categoriaId IS NULL OR c.id = :categoriaId)
