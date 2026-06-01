@@ -96,7 +96,7 @@ public class ClienteService {
                 () -> new ResourceNotFoundException("Cliente não encontrado")
         );
         //valida se cliente é dono do recurso ou é admin
-        securityService.validateSelfOrAdmin(entity.getUsuario().getUsername());
+//        securityService.validateSelfOrAdmin(entity.getUsuario().getUsername());
 
         if(repository.existsByNumeroDocumentoAndIdNot(request.numeroDocumento(), id)){
             throw new DatabaseException("Já existe um cliente com esse numero de documento");

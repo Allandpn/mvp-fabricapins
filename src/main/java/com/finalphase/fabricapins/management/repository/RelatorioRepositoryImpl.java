@@ -149,7 +149,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                     CASE
                         WHEN pr.quantidade_estoque = 0 THEN 'SEM_ESTOQUE'
                         WHEN pr.quantidade_estoque <= pr.estoque_minimo THEN 'ABAIXO_DO_MINIMO'
-                        WHEN pr.quantidade_estoque >= pr.estoque_minimo * 1.5 THEN 'ACIMA_DO_MAXIMO'
+                        WHEN pr.quantidade_estoque >= pr.estoque_minimo * 9 THEN 'ACIMA_DO_MAXIMO'
                         ELSE 'NORMAL'
                     END as situacao
                 FROM tb_produto pr
@@ -525,9 +525,7 @@ public class RelatorioRepositoryImpl implements RelatorioRepositoryCustom {
                 .getResultList();
 
         return rows.stream().map(r -> {
-            Instant periodoDTO = r[0] instanceof OffsetDateTime odt
-                    ? odt.toInstant()
-                    : ((java.sql.Timestamp) r[0]).toInstant();
+            Instant periodoDTO = (Instant) r[0];
             Integer quantidadePedidos = r[1] != null ? ((Number) r[1]).intValue() : 0;
             Integer quantidadeItens = r[2] != null ? ((Number) r[2]).intValue() : 0;
             BigDecimal receita = r[3] != null ? ((BigDecimal) r[3]) : BigDecimal.ZERO;
