@@ -1,5 +1,6 @@
 package com.finalphase.fabricapins.ecommerce.dto.produto;
 
+import com.finalphase.fabricapins.ecommerce.domain.enums.SituacaoEstoque;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoEstoqueProduto;
 
 import java.math.BigDecimal;
@@ -25,5 +26,6 @@ public record ProdutoAdminDTO(
         Integer largura,
         Integer comprimento,
         boolean ativo,
-        String categoriaNome
+        String categoriaNome,
+        SituacaoEstoque situacao
 ) {}

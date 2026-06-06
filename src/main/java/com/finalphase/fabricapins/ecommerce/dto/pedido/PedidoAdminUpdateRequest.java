@@ -31,5 +31,7 @@ public record PedidoAdminUpdateRequest(
         BigDecimal valorFrete,
 
         @NotNull
-        StatusPedido status
+        StatusPedido status,
+
+        Set<String> cupons
 ) {}

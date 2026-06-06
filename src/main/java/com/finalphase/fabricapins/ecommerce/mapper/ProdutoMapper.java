@@ -20,6 +20,7 @@ public interface ProdutoMapper {
     ProdutoMinDTO toMinDTO(Produto entity);
 
     @Mapping(source = "categoria.nome", target = "categoriaNome")
+    @Mapping(source = "situacaoEstoque", target = "situacao")
     ProdutoAdminDTO toAdminDTO(Produto entity);
 
     @Mapping(target = "id", ignore = true)

@@ -1,6 +1,8 @@
 package com.finalphase.fabricapins.ecommerce.domain.entities;
 
+import com.finalphase.fabricapins.ecommerce.domain.enums.SituacaoEstoque;
 import com.finalphase.fabricapins.ecommerce.domain.enums.TipoEstoqueProduto;
+import com.finalphase.fabricapins.ecommerce.dto.produto.ProdutoAdminDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -121,6 +123,17 @@ public class Produto {
 
     public void aumentarEstoque(int quantidade) {
         this.quantidadeEstoque += quantidade;
+    }
+
+
+    public SituacaoEstoque getSituacaoEstoque(){
+        if(getQuantidadeEstoque() == 0){
+            return SituacaoEstoque.SEM_ESTOQUE;
+        } else if (getQuantidadeEstoque() <= getEstoqueMinimo()) {
+            return SituacaoEstoque.ABAIXO_DO_MINIMO;
+        } else if (getQuantidadeEstoque() >= getEstoqueMinimo() * 9) {
+            return SituacaoEstoque.ACIMA_DO_MAXIMO;
+        } else return SituacaoEstoque.NORMAL;
     }
 
 }
