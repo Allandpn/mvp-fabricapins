@@ -147,6 +147,19 @@ public class PedidoService {
         if(!pedido.getStatusPedido().equals(request.status())){
             pedido.setStatusPedido(request.status());
         }
+        Set<String> novosCupons = new HashSet<>();
+        Set<String> cupons = pedido.getCupons().stream().map(x -> x.getCodigoCupom()).collect(Collectors.toSet());
+        for(String cupom: request.cupons()){
+            if(!cupons.contains(cupom)){
+                novosCupons.add(cupom);
+            }
+        }
+        for(String cupom : cupons){
+            if(!request.cupons().contains(cupom)){
+                pedido.removerCupom(cupom);
+            }
+        }
+        aplicarCupons(pedido, novosCupons);
         return mapper.toDTO(pedido);
     }
 

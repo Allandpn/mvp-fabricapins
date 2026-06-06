@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,6 +39,8 @@ public class ClienteService {
     private EnderecoService enderecoService;
     @Autowired
     private EnderecoMapper enderecoMapper;
+    @Autowired
+    private ClienteMapper clienteMapper;
 
 
     // TODO - REVISAR
@@ -104,8 +107,13 @@ public class ClienteService {
         if(repository.existsByEmailAndIdNot(request.email(), id)){
             throw new DatabaseException("Já existe um cliente com esse numero de email");
         }
+        atualizaEnderecos(request, entity);
         mapper.updateFromDto(request, entity);
         return mapper.toDTO(entity);
+    }
+
+    private void atualizaEnderecos(ClienteRequest request, Cliente entity) {
+        enderecoMapper.updateFromDto(request.enderecos().getFirst(), entity.getEnderecos().getFirst());
     }
 
     // TODO - REVISAR
